@@ -68,6 +68,7 @@
                 slot.style.backgroundColor = "#e0d0b0";
             }
         });
+        // 顯示時間已調整為 4 秒
         setTimeout(() => {
             slots.forEach(slot => {
                 if (slot.id !== "filled") {
@@ -75,7 +76,7 @@
                     slot.style.backgroundColor = "#fff";
                 }
             });
-        }, 10000);
+        }, 4000);
     }
 
     function initGame() {
@@ -106,7 +107,6 @@
                 if (targetSlot && this.textContent === targetSlot.dataset.char) {
                     targetSlot.textContent = this.textContent;
                     targetSlot.id = "filled";
-                    // 移除元件而不是隱藏，這樣 word-pool 會自動重新排列 (Reflow)
                     this.remove(); 
                     if (document.querySelectorAll('.empty-slot:not([id="filled"])').length === 0) finish();
                 }
