@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>古詩拼圖 - 秋夕(杜牧)</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body { font-family: 'Microsoft JhengHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 15px; background-color: #fdf6e3; margin: 0; min-height: 100vh; }
+        .full-width { width: 100%; max-width: 600px; text-align: center; }
+        h2 { color: #8b4513; margin: 10px 0; }
+        .action-container { margin: 15px 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .yt-link { text-decoration: none; padding: 8px 15px; background: #FF0000; color: white; border-radius: 5px; font-size: 14px; font-weight: bold; }
+        .audio-btn { padding: 8px 15px; background: #2e7d32; color: white; border: none; border-radius: 5px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .grid-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 20px 0; align-items: center; }
+        .slot { width: 32px; height: 32px; border: 2px dashed #8b4513; display: flex; align-items: center; justify-content: center; background-color: #fff; border-radius: 6px; font-weight: bold; font-size: 16px; color: #333; }
+        .punctuation { font-size: 18px; font-weight: bold; color: #5d6d7e; margin: 0 2px; }
+        .word { padding: 8px 12px; background-color: #8b4513; color: #ffffff; cursor: pointer; font-size: 14px; border-radius: 6px; margin: 3px; touch-action: manipulation; box-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .hidden { visibility: hidden; }
+        .instruction { color: #5d6d7e; margin-bottom: 15px; font-weight: bold; }
+        #explanation { margin-top: 30px; padding: 15px; background: #f0e6d2; border-radius: 8px; text-align: left; font-size: 14px; line-height: 1.6; color: #5d4037; border: 1px solid #d7ccc8; }
+        #reset-btn { margin-top: 20px; padding: 10px 25px; background: #ff5722; color: white; border: none; border-radius: 5px; font-size: 16px; display: none; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="full-width">
+    <h2>杜牧 - 秋夕</h2>
+    
+    <div class="action-container">
+        <a href="https://youtube.com/shorts/Nx2cHd0JLlo" target="_blank" class="yt-link">🎥 觀看複習影片</a>
+        <button class="audio-btn" style="background:#5c6bc0;" onclick="showPreview()">📖 觀看詩詞內容</button>
+    </div>
+
+    <div class="instruction">請點選下方的字，填入空格中</div>
+
+    <div id="slots" class="grid-container"></div>
+    <div id="word-pool" style="display:flex; flex-wrap:wrap; justify-content:center;"></div>
+    
+    <div id="explanation">
+        <strong>【全文解釋】：</strong><br>
+        秋夜，精美的銀色蠟燭發出微弱的光，給畫屏上添了幾分清冷之色；一位宮女手執綾羅小扇，輕輕地撲打飛舞的螢火蟲。天階上的夜色，清涼如水；坐榻仰望星空，只見牽牛星正遠遠眺望着織女星。
+    </div>
+    
+    <button id="reset-btn" onclick="location.reload()">再玩一次</button>
+</div>
+
+<script>
+    const fullText = "銀燭秋光冷畫屏，輕羅小扇撲流螢。天階夜色涼如水，臥看牽牛織女星。";
+    const puncRegex = /[，。]/;
+    let poolData = [];
+
+    function showPreview() {
+        const slots = document.querySelectorAll('.empty-slot');
+        slots.forEach(slot => {
+            if (slot.id !== "filled") {
+                slot.textContent = slot.dataset.char;
+                slot.style.backgroundColor = "#e0d0b0";
+            }
+        });
+        setTimeout(() => {
+            slots.forEach(slot => {
+                if (slot.id !== "filled") {
+                    slot.textContent = "";
+                    slot.style.backgroundColor = "#fff";
+                }
+            });
+        }, 10000);
+    }
+
+    function renderPool() {
+        const pool = document.getElementById('word-pool');
+        pool.innerHTML = '';
+        poolData.forEach((char, index) => {
+            let div = document.createElement('div');
+            div.className = 'word';
+            div.textContent = char;
+            div.onclick = function() {
+                let targetSlot = document.querySelector('.empty-slot:not([id="filled"])');
+                if (targetSlot && this.textContent === targetSlot.dataset.char) {
+                    targetSlot.textContent = this.textContent;
+                    targetSlot.id = "filled";
+                    targetSlot.style.backgroundColor = "#fff"; 
+                    poolData.splice(index, 1);
+                    renderPool();
+                    if (document.querySelectorAll('.empty-slot:not([id="filled"])').length === 0) finish();
+                }
+            };
+            pool.appendChild(div);
+        });
+    }
+
+    function initGame() {
+        const slotsDiv = document.getElementById('slots');
+        fullText.split('').forEach((char) => {
+            if (puncRegex.test(char)) {
+                let punc = document.createElement('span');
+                punc.className = 'punctuation';
+                punc.textContent = char;
+                slotsDiv.appendChild(punc);
+            } else {
+                let slot = document.createElement('div');
+                slot.className = 'slot empty-slot';
+                slot.dataset.char = char;
+                slotsDiv.appendChild(slot);
+            }
+        });
+
+        poolData = fullText.split('').filter(c => !puncRegex.test(c)).sort(() => Math.random() - 0.5);
+        renderPool();
+    }
+
+    function finish() {
+        // 觸發女生聲音的讚美
+        const msg = new SpeechSynthesisUtterance("太棒了，你做得非常好！");
+        msg.lang = 'zh-TW';
+        window.speechSynthesis.speak(msg);
+
+        confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+        document.getElementById('reset-btn').style.display = 'inline-block';
+        document.getElementById('word-pool').style.display = 'none';
+    }
+
+    initGame();
+</script>
+</body>
+</html>
