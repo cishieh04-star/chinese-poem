@@ -58,6 +58,7 @@
                 slot.style.backgroundColor = "#e0d0b0";
             }
         });
+        // 顯示時間已調整為 4 秒
         setTimeout(() => {
             slots.forEach(slot => {
                 if (slot.id !== "filled") {
@@ -65,7 +66,7 @@
                     slot.style.backgroundColor = "#fff";
                 }
             });
-        }, 10000);
+        }, 4000);
     }
 
     function renderPool() {
@@ -111,7 +112,6 @@
     }
 
     function finish() {
-        // 觸發女生聲音的讚美
         const msg = new SpeechSynthesisUtterance("太棒了，你做得非常好！");
         msg.lang = 'zh-TW';
         window.speechSynthesis.speak(msg);
