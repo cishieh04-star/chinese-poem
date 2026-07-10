@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>古詩拼圖 - 送友人(李白)</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body { font-family: 'Microsoft JhengHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 15px; background-color: #fdf6e3; margin: 0; min-height: 100vh; }
+        .full-width { width: 100%; max-width: 600px; text-align: center; margin-top: 40px; }
+        
+        #timer-display { position: fixed; top: 10px; right: 10px; font-size: 16px; font-weight: bold; color: #d32f2f; background: rgba(255, 255, 255, 0.9); padding: 5px 8px; border-radius: 6px; border: 1px solid #8b4513; z-index: 1000; }
+        
+        h2 { color: #8b4513; margin: 10px 0; }
+        
+        /* 放大按鈕樣式 */
+        .btn-wrapper { margin: 20px 0; }
+        .action-btn { padding: 12px 40px; font-size: 18px; background: #5c6bc0; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.1s; }
+        .action-btn:active { transform: scale(0.98); }
+        
+        .grid-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 20px 0; }
+        .slot { width: 32px; height: 32px; border: 2px dashed #8b4513; display: flex; align-items: center; justify-content: center; background-color: #fff; border-radius: 6px; font-weight: bold; font-size: 16px; transition: background-color 0.3s; }
+        .punctuation { font-size: 18px; font-weight: bold; color: #5d6d7e; margin: 0 2px; line-height: 32px; }
+        .word { padding: 8px 12px; background-color: #8b4513; color: #ffffff; cursor: pointer; border-radius: 6px; margin: 3px; }
+        .hidden { display: none; }
+        
+        #translation { margin-top: 20px; padding: 15px; background: #f0e6d2; border-radius: 8px; text-align: left; font-size: 14px; line-height: 1.6; color: #5d4037; }
+        #reset-btn { margin-top: 20px; padding: 10px 25px; background: #ff5722; color: white; border: none; border-radius: 5px; display: none; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="timer-display">時間: 00:00</div>
+
+<div class="full-width">
+    <h2>李白 - 送友人</h2>
+    
+    <div class="btn-wrapper">
+        <button class="action-btn" onclick="showPreview()">觀看全文</button>
+    </div>
+
+    <div id="slots" class="grid-container"></div>
+    <div id="word-pool" style="display:flex; flex-wrap:wrap; justify-content:center;"></div>
+    
+    <button id="reset-btn" onclick="location.reload()">再玩一次</button>
+    
+    <div id="translation">
+        <strong>【翻譯】：</strong><br>
+        青山橫亙在城郭的北側，護城河環繞在城郭的東方。<br>
+        我們即將在這裏離別，你就要像飛蓬一樣踏上萬里征程。<br>
+        空中的白雲飄浮不定，像你從此遊蕩各地，我無法與你重逢；即將落山的太陽不忍沉沒，亦似我對你的依戀之情。<br>
+        我們揮手告別，從這裏各奔前程，友人騎的那匹載他遠離的馬，好像不忍離去，蕭蕭的嘶叫着，增加了我的離愁別緒。
+    </div>
+</div>
+
+<script>
+    const fullText = "青山橫北郭，白水繞東城。此地一爲別，孤蓬萬里徵。浮雲遊子意，落日故人情。揮手自茲去，蕭蕭班馬鳴。";
+    const puncRegex = /[，。]/;
+    let timerInterval, seconds = 0, timerStarted = false;
+
+    function startTimer() {
+        if (!timerStarted) {
+            timerStarted = true;
+            timerInterval = setInterval(() => {
+                seconds++;
+                let m = Math.floor(seconds / 60).toString().padStart(2, '0');
+                let s = (seconds % 60).toString().padStart(2, '0');
+                document.getElementById('timer-display').textContent = `時間: ${m}:${s}`;
+            }, 1000);
+        }
+    }
+
+    function showPreview() {
+        const slots = document.querySelectorAll('.empty-slot');
+        slots.forEach(slot => { 
+            if(slot.id !== "filled") {
+                slot.textContent = slot.dataset.char;
+                slot.style.backgroundColor = "#e0d0b0";
+            }
+        });
+        setTimeout(() => {
+            slots.forEach(slot => { 
+                if(slot.id !== "filled") {
+                    slot.textContent = ""; 
+                    slot.style.backgroundColor = "#fff";
+                }
+            });
+        }, 4000);
+    }
+
+    function initGame() {
+        const slotsDiv = document.getElementById('slots');
+        const pool = document.getElementById('word-pool');
+        const chars = fullText.split('');
+
+        chars.forEach(char => {
+            if (puncRegex.test(char)) {
+                let p = document.createElement('span');
+                p.className = 'punctuation';
+                p.textContent = char;
+                slotsDiv.appendChild(p);
+            } else {
+                let slot = document.createElement('div');
+                slot.className = 'slot empty-slot';
+                slot.dataset.char = char;
+                slotsDiv.appendChild(slot);
+            }
+        });
+
+        const wordsOnly = chars.filter(c => !puncRegex.test(c));
+        let chunks = [];
+        for (let i = 0; i < wordsOnly.length; i += 5) {
+            let chunk = wordsOnly.slice(i, i + 5);
+            chunks.push(chunk.sort(() => Math.random() - 0.5));
+        }
+
+        chunks.flat().forEach(char => {
+            let div = document.createElement('div');
+            div.className = 'word';
+            div.textContent = char;
+            div.onclick = function() {
+                startTimer();
+                let target = document.querySelector('.empty-slot:not([id="filled"])');
+                if (target && this.textContent === target.dataset.char) {
+                    target.textContent = this.textContent;
+                    target.id = "filled";
+                    target.style.backgroundColor = "#fff";
+                    this.className = 'hidden';
+                    if (!document.querySelector('.empty-slot:not([id="filled"])')) finish();
+                }
+            };
+            pool.appendChild(div);
+        });
+    }
+
+    function finish() {
+        clearInterval(timerInterval);
+        const msg = new SpeechSynthesisUtterance("太棒了");
+        msg.lang = 'zh-TW';
+        window.speechSynthesis.speak(msg);
+        confetti({ particleCount: 150, spread: 70 });
+        document.getElementById('reset-btn').style.display = 'inline-block';
+        document.getElementById('word-pool').style.display = 'none';
+    }
+
+    initGame();
+</script>
+</body>
+</html>
