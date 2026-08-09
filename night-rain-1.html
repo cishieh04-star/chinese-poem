@@ -72,15 +72,15 @@
 
 <div id="home-screen" class="full-width">
     <h1>📜 詩詞拼圖遊戲</h1>
-    <p class="instruction" style="font-size: 18px; margin-bottom: 30px;">李商隱 - 夜雨寄北</p>
+    <p class="instruction" style="font-size: 18px; margin-bottom: 30px;">李商隱：夜雨寄北</p>
     <button class="start-btn" onclick="startGame()">開始遊戲</button>
 </div>
 
 <div id="game-screen" class="full-width">
-    <h2>李商隱 - 夜雨寄北</h2>
+    <h2>李商隱：夜雨寄北</h2>
     
     <div class="action-container">
-        <a href="https://youtube.com/shorts/lkhHzb3DE_s" target="_blank" class="yt-link">🎥 觀看複習影片</a>
+        <a href="https://youtube.com/shorts/fbO4NoMXRC4" target="_blank" class="yt-link">🎥 觀看複習影片</a>
         <button class="preview-btn" onclick="showPreview()">📖 查看全文</button>
     </div>
 
@@ -99,9 +99,9 @@
 </div>
 
 <script>
-    const fullText = "君問歸期未有期，巴山夜雨漲秋池。何當共剪西窗燭，卻話巴山夜雨時。(李商隱)(夜雨寄北)";
+    const fullText = "君問歸期未有期，巴山夜雨漲秋池。何當共剪西窗燭，卻話巴山夜雨時(李商隱)(夜雨寄北)";
     const explainText = "【全文解釋】<br>你問我回家的日期，歸期實在沒有個準期；今晚巴山夜雨綿綿，池水已經漲滿了。何時才能跟你一同在西窗下剪燭夜談，再細細訴說今日巴山夜雨時的情景呢？";
-    const puncRegex = /[，。()]/; 
+    const puncRegex = /[，。()：]/; 
     
     let blocksData = []; 
     let activeBlock = null; 
