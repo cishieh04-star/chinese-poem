@@ -1,59 +1,11 @@
-<!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>中國詩詞互動遊戲</title>
-    <style>
-        * { box-sizing: border-box; touch-action: manipulation; }
-        body { 
-            font-family: 'Microsoft JhengHei', sans-serif; padding: 15px; max-width: 450px; 
-            margin: auto; background-color: #9c978a; min-height: 100vh;
-            display: flex; flex-direction: column; align-items: center;
-        }
-        
-        .box {
-            margin: 5px 0; border-radius: 10px;
-            font-weight: bold; text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex; align-items: center; justify-content: center;
-        }
-        
-        /* 1. 最大標題 */
-        .header-box { background: #d00837; color: #ffffff; font-size: 1.5rem; padding: 10px 15px; width: 100%; }
-        
-        /* 2. 黃底文字 */
-        .category-box { background: #ffe4b5; color: #5d4037; font-size: 1rem; padding: 6px 15px; border-radius: 12px; margin: 8px 0; }
-        
-        /* 3. 縮小遊戲按鈕的寬度、高度與字體 */
-        ul { 
-            list-style-type: none; padding: 0; margin: 5px 0 0 0; 
-            width: 85%; display: flex; flex-direction: column; align-items: center;
-        }
-        li { display: flex; width: 100%; justify-content: center; margin-bottom: 8px; }
-        
-        .game-link { 
-            background: #c8bde4; color: #482d24; font-size: 0.95rem; 
-            cursor: pointer; width: 100%; min-height: 36px; padding: 6px;
-        }
-        a { text-decoration: none; color: inherit; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-    </style>
-</head>
-<body>
-
-    <div class="box header-box">詩詞互動遊戲</div>
-    <div class="category-box">請選擇下列詩詞遊戲單元</div>
-
-    <ul id="game-list"></ul>
-
-    <script>
+<script>
         document.addEventListener('DOMContentLoaded', function() {
             const games = [
                 { name: "1.從軍行 (王昌齡 / 唐)", file: "join-army-1.html" },
                 { name: "2.秋夕 (杜牧 / 唐)", file: "autumn-night-1.html" },
                 { name: "3.送友人 (李白 / 唐)", file: "bidding-farewell-1.html" },
                 { name: "4.金縷衣 (杜秋娘 / 唐)", file: "golden-dress-1.html" },
-                { name: "5.夜雨寄北 (李商隱 / 唐)", file: "night-rain-1.html" }
+                { name: "5.夜雨寄北 (李商隱 / 唐)", file: "night-rain-1.html" }, // <-- 這裡原本少了一個逗號
                 { name: "6.相見歡 (李煜 / 唐)", file: "happy-meeting.html" }
             ];
 
@@ -66,5 +18,3 @@
             });
         });
     </script>
-</body>
-</html>
