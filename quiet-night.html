@@ -23,7 +23,7 @@
         
         #tetris-container { width: 100%; max-width: 100%; height: 120px; background-color: #ffffff; border-radius: 8px; position: relative; overflow: hidden; margin-top: 5px; border: 2px solid #8b4513; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .tetris-block { position: absolute; display: flex; gap: 6px; justify-content: center; left: 50%; transform: translateX(-50%); transition: top 0.05s linear; width: 95%; }
-        .tetris-word { width: 40px; height: 48px; background-color: #8b4513; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; font-weight: bold; border-radius: 8px; box-shadow: 2px 2px 4px rgba(0,0,0,0.2); user-select: none; flex-shrink: 0; }
+        .tetris-word { width: 40px; height: 48px; background-color: #8b4513; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; font-weight: bold; border-radius: 8px; box-shadow: 2px 2px 4px rgba(0,0,0,0.2); user-select: none; flex-shrink: 0; -webkit-tap-highlight-color: transparent; }
         .tetris-word:hover { background-color: #a0522d; }
 
         .btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
@@ -77,12 +77,22 @@
     
     let blocksData = [], activeBlock = null, gameInterval = null, seconds = 0, timerStarted = false, timerInterval = null;
 
-    function startGame() {
-        // 啟動聲音權限
-        let msg = new SpeechSynthesisUtterance("開始囉！");
-        msg.lang = 'zh-TW';
-        window.speechSynthesis.speak(msg);
+    // 安全播放語音函式（避免 Samsung / Asus 手機因語音引擎卡住而失效）
+    function safeSpeak(text) {
+        try {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let msg = new SpeechSynthesisUtterance(text);
+                msg.lang = 'zh-TW';
+                window.speechSynthesis.speak(msg);
+            }
+        } catch (e) {
+            console.log("語音播放略過:", e);
+        }
+    }
 
+    function startGame() {
+        safeSpeak("開始囉！");
         document.getElementById('home-screen').style.display = 'none';
         document.getElementById('game-screen').style.display = 'block';
         initGame();
@@ -106,52 +116,68 @@
         spawnNextBlock();
     }
 
+    function handleWordClick(e, char, wordDiv, chars, blockDiv) {
+        e.preventDefault();
+        e.stopPropagation();
+        startTimerIfNeeded();
+        let target = document.querySelector('.empty-slot:not([id="filled"])');
+        if (target && char === target.dataset.char) {
+            target.textContent = char; 
+            target.id = "filled";
+            target.style.backgroundColor = "#fff";
+            chars.splice(chars.indexOf(char), 1);
+            if (chars.length === 0) { 
+                clearInterval(gameInterval); 
+                blockDiv.remove(); 
+                activeBlock = null; 
+                spawnNextBlock(); 
+            } else { 
+                renderCharsToBlock(blockDiv, chars); 
+            }
+            if (!document.querySelector('.empty-slot:not([id="filled"])')) {
+                finish();
+            }
+        }
+    }
+
+    function renderCharsToBlock(blockDiv, chars) {
+        blockDiv.innerHTML = '';
+        chars.forEach(char => {
+            let wordDiv = document.createElement('div'); 
+            wordDiv.className = 'tetris-word'; 
+            wordDiv.textContent = char;
+            
+            // 同時支援點擊與觸控，解決三星/華修手機點擊無反應問題
+            wordDiv.addEventListener('click', (e) => handleWordClick(e, char, wordDiv, chars, blockDiv));
+            wordDiv.addEventListener('touchend', (e) => handleWordClick(e, char, wordDiv, chars, blockDiv));
+            
+            blockDiv.appendChild(wordDiv);
+        });
+    }
+
     function spawnNextBlock() {
         if (blocksData.length === 0) return;
         const container = document.getElementById('tetris-container'); container.innerHTML = ''; 
         let chars = blocksData.shift();
         let blockDiv = document.createElement('div'); blockDiv.className = 'tetris-block';
-        function render() {
-            blockDiv.innerHTML = '';
-            chars.forEach(char => {
-                let wordDiv = document.createElement('div'); wordDiv.className = 'tetris-word'; wordDiv.textContent = char;
-                wordDiv.onclick = (e) => {
-                    e.stopPropagation(); startTimerIfNeeded();
-                    let target = document.querySelector('.empty-slot:not([id="filled"])');
-                    if (target && char === target.dataset.char) {
-                        target.textContent = char; target.id = "filled";
-                        chars.splice(chars.indexOf(char), 1);
-                        if (chars.length === 0) { clearInterval(gameInterval); blockDiv.remove(); activeBlock = null; spawnNextBlock(); }
-                        else render();
-                        if (!document.querySelector('.empty-slot:not([id="filled"])')) finish();
-                    }
-                };
-                blockDiv.appendChild(wordDiv);
-            });
-        }
-        render(); container.appendChild(blockDiv);
+        
+        renderCharsToBlock(blockDiv, chars);
+        container.appendChild(blockDiv);
+        
         activeBlock = { element: blockDiv, chars: chars };
         let top = -60; clearInterval(gameInterval);
-        gameInterval = setInterval(() => { if (top < 35) blockDiv.style.top = (top += 4) + 'px'; else clearInterval(gameInterval); }, 30);
+        gameInterval = setInterval(() => { 
+            if (top < 35) {
+                top += 4;
+                blockDiv.style.top = top + 'px';
+            } else { 
+                clearInterval(gameInterval); 
+            } 
+        }, 30);
     }
 
     function updateBlockDOM(blockDiv, chars) {
-        blockDiv.innerHTML = '';
-        chars.forEach(char => {
-            let wordDiv = document.createElement('div'); wordDiv.className = 'tetris-word'; wordDiv.textContent = char;
-            wordDiv.onclick = (e) => {
-                e.stopPropagation(); startTimerIfNeeded();
-                let target = document.querySelector('.empty-slot:not([id="filled"])');
-                if (target && char === target.dataset.char) {
-                    target.textContent = char; target.id = "filled";
-                    chars.splice(chars.indexOf(char), 1);
-                    if (chars.length === 0) { blockDiv.remove(); activeBlock = null; spawnNextBlock(); }
-                    else updateBlockDOM(blockDiv, chars);
-                    if (!document.querySelector('.empty-slot:not([id="filled"])')) finish();
-                }
-            };
-            blockDiv.appendChild(wordDiv);
-        });
+        renderCharsToBlock(blockDiv, chars);
     }
 
     function undoLast() {
@@ -160,8 +186,13 @@
             const lastSlot = filled[filled.length - 1];
             const char = lastSlot.dataset.char;
             lastSlot.textContent = ""; lastSlot.removeAttribute('id'); lastSlot.style.backgroundColor = "#fff";
-            if (activeBlock) { activeBlock.chars.push(char); updateBlockDOM(activeBlock.element, activeBlock.chars); }
-            else { blocksData.push([char]); spawnNextBlock(); }
+            if (activeBlock) { 
+                activeBlock.chars.push(char); 
+                updateBlockDOM(activeBlock.element, activeBlock.chars); 
+            } else { 
+                blocksData.push([char]); 
+                spawnNextBlock(); 
+            }
         }
     }
 
@@ -174,7 +205,10 @@
     function startTimerIfNeeded() {
         if (!timerStarted) {
             timerStarted = true;
-            timerInterval = setInterval(() => { seconds++; document.getElementById('timer').innerText = `時間：${Math.floor(seconds/60).toString().padStart(2,'0')}:${(seconds%60).toString().padStart(2,'0')}`; }, 1000);
+            timerInterval = setInterval(() => { 
+                seconds++; 
+                document.getElementById('timer').innerText = `時間：${Math.floor(seconds/60).toString().padStart(2,'0')}:${(seconds%60).toString().padStart(2,'0')}`; 
+            }, 1000);
         }
     }
 
@@ -185,9 +219,9 @@
     function finish() {
         clearInterval(gameInterval); clearInterval(timerInterval);
         if (activeBlock && activeBlock.element) activeBlock.element.remove();
-        let msg = new SpeechSynthesisUtterance("太棒了");
-        msg.lang = 'zh-TW';
-        window.speechSynthesis.speak(msg);
+        
+        safeSpeak("太棒了");
+        
         confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
         document.getElementById('explanation').innerHTML = explainText;
         document.getElementById('explanation').style.display = 'block';
