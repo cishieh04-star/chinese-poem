@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>詩詞拼圖 - 念奴嬌</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body { font-family: 'Microsoft JhengHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 10px; background-color: #fdf6e3; margin: 0; min-height: 100vh; position: relative; overflow-x: hidden; box-sizing: border-box; }
+        .full-width { width: 100%; max-width: 600px; text-align: center; margin-top: 5px; }
+        #timer { position: fixed; top: 15px; right: 15px; font-size: 18px; font-weight: bold; color: #8b4513; background: white; padding: 5px 10px; border-radius: 10px; border: 2px solid #8b4513; z-index: 1000; }
+        h2 { color: #8b4513; margin: 8px 0; font-size: 20px; }
+        .action-container { margin: 8px 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .yt-link { text-decoration: none; padding: 6px 12px; background: #FF0000; color: white; border-radius: 5px; font-size: 14px; font-weight: bold; }
+        .preview-btn { padding: 6px 12px; background: #5c6bc0; color: white; border: none; border-radius: 5px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .grid-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 8px 0; align-items: center; }
+        .slot { width: 26px; height: 26px; border: 2px dashed #8b4513; display: flex; align-items: center; justify-content: center; background-color: #fff; border-radius: 6px; font-weight: bold; font-size: 13px; color: #333; }
+        .punctuation { font-size: 14px; font-weight: bold; color: #5d6d7e; margin: 0 1px; }
+        .instruction { color: #5d6d7e; margin-bottom: 8px; font-weight: bold; font-size: 14px; }
+        #tetris-container { width: 100%; max-width: 100%; height: 110px; background-color: #ffffff; border-radius: 8px; position: relative; overflow: hidden; margin-top: 5px; border: 2px solid #8b4513; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .tetris-block { position: absolute; display: flex; gap: 4px; justify-content: center; left: 50%; transform: translateX(-50%); transition: top 0.05s linear; width: 95%; }
+        .tetris-word { width: 38px; height: 38px; background-color: #8b4513; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; font-weight: bold; border-radius: 6px; box-shadow: 2px 2px 4px rgba(0,0,0,0.2); user-select: none; flex-shrink: 0; }
+        .btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
+        .action-btn { padding: 8px 18px; border: none; border-radius: 5px; font-size: 15px; cursor: pointer; font-weight: bold; }
+        #undo-btn { background: #f39c12; color: white; }
+        #reset-btn { background: #ff5722; color: white; display: none; }
+        #next-stage-btn { background: #27ae60; color: white; display: none; }
+        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 75vh; text-align: center; }
+        .stage-select { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 300px; margin-top: 10px; }
+        .start-btn { padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; }
+        #game-screen { display: none; width: 100%; }
+        #explanation { display: none; margin-top: 10px; padding: 15px; background: #fff; border: 1px solid #8b4513; border-radius: 8px; color: #8b4513; font-size: 15px; line-height: 1.6; text-align: left; }
+    </style>
+</head>
+<body>
+
+<div id="timer">時間：00:00</div>
+
+<div id="home-screen" class="full-width">
+    <h1>📜 詩詞拼圖遊戲</h1>
+    <p class="instruction">蘇軾：念奴嬌·赤壁懷古</p>
+    <div class="stage-select">
+        <button class="start-btn" style="background-color: #27ae60;" onclick="startStage(1)">第一段 (前四句)</button>
+        <button class="start-btn" style="background-color: #2980b9;" onclick="startStage(2)">第二段 (後四句)</button>
+    </div>
+</div>
+
+<div id="game-screen" class="full-width">
+    <h2 id="stage-title">念奴嬌</h2>
+    <div class="action-container">
+        <a id="yt-link-btn" href="https://www.youtube.com/watch?v=t8kG_VF39vw" target="_blank" class="yt-link">🎥 觀看複習影片</a>
+        <button class="preview-btn" onclick="showPreview()">📖 查看全文</button>
+    </div>
+    <div class="instruction">請點選下方框框裡的字，正確的字會出現在上方的空格中</div>
+    <div id="slots" class="grid-container"></div>
+    <div id="tetris-container"></div>
+    <div id="explanation"></div>
+    <div class="btn-group">
+        <button id="undo-btn" class="action-btn" onclick="undoLast()">⟲ 更正</button>
+        <button id="reset-btn" class="action-btn" onclick="resetGame()">再玩一次</button>
+        <button id="next-stage-btn" class="action-btn" onclick="goToNextStage()">下一段 ➡</button>
+        <button class="action-btn" style="background: #7f8c8d;" onclick="goHome()">🏠 回首頁</button>
+    </div>
+</div>
+
+<script>
+    const stages = {
+        1: { title: "念奴嬌 (第一段)", text: "大江東去，浪淘盡，千古風流人物。故壘西邊，人道是，三國周郎赤壁。亂石穿空，驚濤拍岸，捲起千堆雪。江山如畫，一時多少豪傑。", explain: "大江浩浩蕩蕩向東流去，滔滔巨浪淘盡千古英雄人物。那舊營壘的西邊，人們說那就是三國周瑜鏖戰的赤壁。陡峭的石壁直聳雲天，如雷的驚濤拍擊着江岸，激起的浪花好似捲起千萬堆白雪。雄壯的江山奇麗如圖畫，一時間涌現出多少英雄豪傑。" },
+        2: { title: "念奴嬌 (第二段)", text: "遙想公瑾當年，小喬初嫁了，雄姿英發。羽扇綸巾，談笑間，檣櫓灰飛煙滅。故國神遊，多情應笑我，早生華髮。人生如夢，一尊還酹江月。", explain: "遙想當年的周瑜春風得意，絕代佳人小喬剛嫁給他，他英姿奮發豪氣滿懷。手搖羽扇頭戴綸巾，談笑之間，強敵的戰船燒得灰飛煙滅。我今日神遊當年的戰地，可笑我多情善感，過早地生出滿頭白髮。人生猶如一場夢，且灑一杯酒祭奠江上的明月。" }
+    };
+
+    let currentStage = 1, fullText = "", blocksData = [], activeBlock = null, gameInterval = null, seconds = 0, timerStarted = false, timerInterval = null;
+    const puncRegex = /[，。]/;
+
+    function startStage(stageNum) {
+        // 啟動聲音權限
+        let startMsg = new SpeechSynthesisUtterance("開始囉");
+        startMsg.lang = 'zh-TW';
+        window.speechSynthesis.speak(startMsg);
+
+        currentStage = stageNum;
+        fullText = stages[stageNum].text;
+        document.getElementById('stage-title').innerText = stages[stageNum].title;
+        document.getElementById('home-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block';
+        resetUI();
+        initGame();
+    }
+
+    function resetUI() {
+        document.getElementById('explanation').style.display = 'none';
+        document.getElementById('reset-btn').style.display = 'none';
+        document.getElementById('next-stage-btn').style.display = 'none';
+        document.getElementById('undo-btn').style.display = 'inline-block';
+        document.getElementById('tetris-container').style.display = 'block';
+    }
+
+    function goHome() {
+        clearInterval(gameInterval); clearInterval(timerInterval);
+        document.getElementById('game-screen').style.display = 'none';
+        document.getElementById('home-screen').style.display = 'flex';
+    }
+
+    function resetGame() {
+        clearInterval(gameInterval); clearInterval(timerInterval);
+        seconds = 0; timerStarted = false;
+        document.getElementById('timer').innerText = "時間：00:00";
+        resetUI();
+        initGame();
+    }
+
+    function goToNextStage() {
+        if (currentStage < 2) startStage(currentStage + 1);
+        else goHome();
+    }
+
+    function undoLast() {
+        const filled = document.querySelectorAll('.slot[id="filled"]');
+        if (filled.length > 0) {
+            const lastSlot = filled[filled.length - 1];
+            const charToReturn = lastSlot.dataset.char;
+            lastSlot.textContent = ""; lastSlot.removeAttribute('id'); lastSlot.style.backgroundColor = "#fff";
+            if (activeBlock) { activeBlock.chars.push(charToReturn); updateBlockDOM(activeBlock.element, activeBlock.chars); }
+            else { if (blocksData.length > 0) blocksData[0].unshift(charToReturn); else { blocksData.push([charToReturn]); spawnNextBlock(); } }
+        }
+    }
+
+    function showPreview() {
+        const slots = document.querySelectorAll('.empty-slot');
+        slots.forEach(s => { if (s.id !== "filled") { s.textContent = s.dataset.char; s.style.backgroundColor = "#e0d0b0"; } });
+        setTimeout(() => { slots.forEach(s => { if (s.id !== "filled") { s.textContent = ""; s.style.backgroundColor = "#fff"; } }); }, 3000); 
+    }
+
+    function startTimerIfNeeded() {
+        if (!timerStarted) {
+            timerStarted = true;
+            timerInterval = setInterval(() => { seconds++; document.getElementById('timer').innerText = `時間：${Math.floor(seconds/60).toString().padStart(2,'0')}:${(seconds%60).toString().padStart(2,'0')}`; }, 1000);
+        }
+    }
+
+    function initGame() {
+        clearInterval(timerInterval); seconds = 0; timerStarted = false;
+        document.getElementById('timer').innerText = "時間：00:00";
+        const slotsDiv = document.getElementById('slots'); slotsDiv.innerHTML = '';
+        fullText.split('').forEach((char) => {
+            if (puncRegex.test(char)) {
+                let punc = document.createElement('span'); punc.className = 'punctuation'; punc.textContent = char; slotsDiv.appendChild(punc);
+            } else {
+                let slot = document.createElement('div'); slot.className = 'slot empty-slot'; slot.dataset.char = char; slotsDiv.appendChild(slot);
+            }
+        });
+        const options = fullText.split('').filter(c => !puncRegex.test(c));
+        blocksData = [];
+        for (let i = 0; i < options.length; i += 7) {
+            let b = options.slice(i, i + 7); b.sort(() => Math.random() - 0.5); 
+            blocksData.push(b);
+        }
+        spawnNextBlock();
+    }
+
+    function spawnNextBlock() {
+        if (blocksData.length === 0) return;
+        const container = document.getElementById('tetris-container'); container.innerHTML = ''; 
+        let chars = blocksData.shift();
+        let blockDiv = document.createElement('div'); blockDiv.className = 'tetris-block';
+        function render() {
+            blockDiv.innerHTML = '';
+            chars.forEach(char => {
+                let wordDiv = document.createElement('div'); wordDiv.className = 'tetris-word'; wordDiv.textContent = char;
+                wordDiv.onclick = (e) => {
+                    e.stopPropagation(); startTimerIfNeeded();
+                    let target = document.querySelector('.empty-slot:not([id="filled"])');
+                    if (target && char === target.dataset.char) {
+                        target.textContent = char; target.id = "filled";
+                        chars.splice(chars.indexOf(char), 1);
+                        if (chars.length === 0) { clearInterval(gameInterval); blockDiv.remove(); activeBlock = null; spawnNextBlock(); }
+                        else render();
+                        if (!document.querySelector('.empty-slot:not([id="filled"])')) finish();
+                    }
+                };
+                blockDiv.appendChild(wordDiv);
+            });
+        }
+        render(); container.appendChild(blockDiv);
+        activeBlock = { element: blockDiv, chars: chars };
+        let top = -60; clearInterval(gameInterval);
+        gameInterval = setInterval(() => { if (top < 30) blockDiv.style.top = (top += 4) + 'px'; else clearInterval(gameInterval); }, 30);
+    }
+
+    function updateBlockDOM(blockDiv, chars) {
+        blockDiv.innerHTML = '';
+        chars.forEach(char => {
+            let wordDiv = document.createElement('div'); wordDiv.className = 'tetris-word'; wordDiv.textContent = char;
+            wordDiv.onclick = (e) => {
+                e.stopPropagation(); startTimerIfNeeded();
+                let target = document.querySelector('.empty-slot:not([id="filled"])');
+                if (target && char === target.dataset.char) {
+                    target.textContent = char; target.id = "filled";
+                    chars.splice(chars.indexOf(char), 1);
+                    if (chars.length === 0) { blockDiv.remove(); activeBlock = null; spawnNextBlock(); }
+                    else updateBlockDOM(blockDiv, chars);
+                    if (!document.querySelector('.empty-slot:not([id="filled"])')) finish();
+                }
+            };
+            blockDiv.appendChild(wordDiv);
+        });
+    }
+
+    function finish() {
+        clearInterval(gameInterval); clearInterval(timerInterval);
+        if (activeBlock && activeBlock.element) activeBlock.element.remove();
+        
+        let msg = new SpeechSynthesisUtterance("太棒了");
+        msg.lang = 'zh-TW';
+        window.speechSynthesis.speak(msg);
+        
+        confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+        document.getElementById('explanation').innerHTML = "【全文解釋】<br>" + stages[currentStage].explain;
+        document.getElementById('explanation').style.display = 'block';
+        document.getElementById('reset-btn').style.display = 'inline-block';
+        if (currentStage < 2) document.getElementById('next-stage-btn').style.display = 'inline-block';
+        document.getElementById('undo-btn').style.display = 'none';
+        document.getElementById('tetris-container').style.display = 'none';
+    }
+</script>
+</body>
+</html>
