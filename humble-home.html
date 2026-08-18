@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>詩詞拼圖 - 陋室銘(劉禹錫)</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        * { box-sizing: border-box; touch-action: manipulation; }
+        body { font-family: 'Microsoft JhengHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 10px; background-color: #fdf6e3; margin: 0; min-height: 100vh; position: relative; overflow-x: hidden; }
+        .full-width { width: 100%; max-width: 600px; text-align: center; margin-top: 5px; }
+        
+        #timer { position: fixed; top: 10px; right: 10px; font-size: 16px; font-weight: bold; color: #8b4513; background: white; padding: 4px 8px; border-radius: 8px; border: 2px solid #8b4513; z-index: 1000; }
+        h2 { color: #8b4513; margin: 6px 0; font-size: 19px; }
+        
+        .action-container { margin: 6px 0; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+        .yt-link { text-decoration: none; padding: 5px 10px; background: #FF0000; color: white; border-radius: 5px; font-size: 13px; font-weight: bold; }
+        .preview-btn { padding: 5px 10px; background: #5c6bc0; color: white; border: none; border-radius: 5px; font-size: 13px; font-weight: bold; cursor: pointer; }
+        
+        .grid-container { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; margin: 6px 0; align-items: center; }
+        .slot { width: 24px; height: 24px; border: 2px dashed #8b4513; display: flex; align-items: center; justify-content: center; background-color: #fff; border-radius: 5px; font-weight: bold; font-size: 12px; color: #333; }
+        .punctuation { font-size: 13px; font-weight: bold; color: #5d6d7e; margin: 0 1px; }
+        .instruction { color: #5d6d7e; margin-bottom: 6px; font-weight: bold; font-size: 13px; }
+        
+        #tetris-container { width: 100%; max-width: 100%; height: 100px; background-color: #ffffff; border-radius: 8px; position: relative; overflow: hidden; margin-top: 5px; border: 2px solid #8b4513; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .tetris-block { position: absolute; display: flex; gap: 4px; justify-content: center; left: 50%; transform: translateX(-50%); transition: top 0.05s linear; width: 95%; flex-wrap: wrap; }
+        .tetris-word { width: 34px; height: 40px; background-color: #8b4513; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; font-weight: bold; border-radius: 6px; box-shadow: 2px 2px 4px rgba(0,0,0,0.2); user-select: none; flex-shrink: 0; -webkit-tap-highlight-color: transparent; }
+        
+        .btn-group { display: flex; gap: 8px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
+        .action-btn { padding: 6px 14px; border: none; border-radius: 5px; font-size: 14px; cursor: pointer; font-weight: bold; }
+        #undo-btn { background: #f39c12; color: white; }
+        #reset-btn { background: #ff5722; color: white; display: none; }
+        #next-stage-btn { background: #27ae60; color: white; display: none; }
+
+        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70vh; text-align: center; }
+        .stage-select { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 260px; margin-top: 10px; }
+        .start-btn { padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; }
+        #game-screen { display: none; width: 100%; }
+        #explanation { display: none; margin-top: 8px; padding: 10px; background: #fff; border: 1px solid #8b4513; border-radius: 8px; color: #8b4513; font-size: 14px; line-height: 1.5; text-align: left; max-height: 250px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+
+<div id="timer">時間：00:00</div>
+
+<div id="home-screen" class="full-width">
+    <h1>📜 詩詞拼圖遊戲</h1>
+    <p class="instruction" style="font-size: 16px; margin-bottom: 15px;">劉禹錫：陋室銘</p>
+    <div class="stage-select">
+        <button class="start-btn" id="btn-stage-1" style="background-color: #27ae60;">第一段</button>
+        <button class="start-btn" id="btn-stage-2" style="background-color: #2980b9;">第二段</button>
+    </div>
+</div>
+
+<div id="game-screen" class="full-width">
+    <h2 id="stage-title">陋室銘</h2>
+    <div class="action-container">
+        <a id="yt-link-btn" href="https://www.youtube.com/watch?v=no6zLmUnLKg" target="_blank" class="yt-link">🎥 觀看複習影片</a>
+        <button class="preview-btn" id="preview-btn">📖 查看全文</button>
+    </div>
+    <div class="instruction">請點選下方框框裡的字，正確的字會出現在上方的空格中</div>
+    <div id="slots" class="grid-container"></div>
+    <div id="tetris-container"></div>
+    <div id="explanation"></div>
+    <div class="btn-group">
+        <button id="undo-btn" class="action-btn">⟲ 更正</button>
+        <button id="reset-btn" class="action-btn">再玩一次</button>
+        <button id="next-stage-btn" class="action-btn">下一段 ➡</button>
+        <button class="action-btn" id="home-btn" style="background: #7f8c8d; color: white;">🏠 回首頁</button>
+    </div>
+</div>
+
+<script>
+    const stages = {
+        1: { 
+            title: "陋室銘 (第一段)", 
+            text: "山不在高，有仙則名。水不在深，有龍則靈。斯是陋室，惟吾德馨。苔痕上階綠，草色入簾青。談笑有鴻儒，往來無白丁。", 
+            explain: "山不在於高，有了神仙就出名。水不在於深，有了龍則顯得有了靈氣。這是簡陋的房子，只是我（住屋的人）品德好（就感覺不到簡陋了）。苔痕碧綠，長到臺階上；草色青蔥，映入簾中。到這裏談笑的都是知識淵博的大學者，交往的沒有知識淺薄的人。" 
+        },
+        2: { 
+            title: "陋室銘 (第二段)", 
+            // 上方顯示會包含括弧
+            text: "可以調素琴，閱金經。無絲竹之亂耳，無案牘之勞形。南陽諸葛廬，西蜀子云亭。孔子云：何陋之有？（陋室銘）（劉禹錫）", 
+            explain: "可以彈奏不加裝飾的古琴，閱讀佛經。沒有奏樂的聲音擾亂雙耳，沒有官府的公文使身體勞累。南陽有諸葛亮的草廬，西蜀有揚子云的亭子。孔子說：“有什麼簡陋的呢?”" 
+        }
+    };
+
+    let currentStage = 1, fullText = "", blocksData = [], activeBlock = null, gameInterval = null, seconds = 0, timerStarted = false, timerInterval = null;
+    // 將全形括弧加入標點符號的判定中，這樣括弧就會直接顯示在上方，不需要玩家去下方點選
+    const puncRegex = /[，。：？！（）()]/;
+
+    // 安全非同步語音播放，全面相容 Mac、Asus、三星手機
+    function safeSpeak(text) {
+        setTimeout(() => {
+            try {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    let msg = new SpeechSynthesisUtterance(text);
+                    msg.lang = 'zh-TW';
+                    window.speechSynthesis.speak(msg);
+                }
+            } catch (e) {
+                console.log("語音播放略過:", e);
+            }
+        }, 50);
+    }
+
+    function startStage(stageNum, e) {
+        if (e) { e.preventDefault(); }
+        safeSpeak("開始囉！");
+        currentStage = stageNum;
+        fullText = stages[stageNum].text;
+        document.getElementById('stage-title').innerText = stages[stageNum].title;
+        document.getElementById('home-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block';
+        resetUI();
+        initGame();
+    }
+
+    function resetUI() {
+        document.getElementById('explanation').style.display = 'none';
+        document.getElementById('reset-btn').style.display = 'none';
+        document.getElementById('next-stage-btn').style.display = 'none';
+        document.getElementById('undo-btn').style.display = 'inline-block';
+        document.getElementById('tetris-container').style.display = 'block';
+    }
+
+    function goHome(e) {
+        if (e) { e.preventDefault(); }
+        clearInterval(gameInterval); clearInterval(timerInterval);
+        document.getElementById('game-screen').style.display = 'none';
+        document.getElementById('home-screen').style.display = 'flex';
+    }
+
+    function resetGame(e) {
+        if (e) { e.preventDefault(); }
+        clearInterval(gameInterval); clearInterval(timerInterval);
+        seconds = 0; timerStarted = false;
+        document.getElementById('timer').innerText = "時間：00:00";
+        resetUI();
+        initGame();
+    }
+
+    function goToNextStage(e) {
+        if (e) { e.preventDefault(); }
+        if (currentStage < 2) startStage(currentStage + 1);
+        else goHome();
+    }
+
+    function undoLast() {
+        const filled = document.querySelectorAll('.slot[id="filled"]');
+        if (filled.length > 0) {
+            const lastSlot = filled[filled.length - 1];
+            const charToReturn = lastSlot.dataset.char;
+            lastSlot.textContent = ""; lastSlot.removeAttribute('id'); lastSlot.style.backgroundColor = "#fff";
+            if (activeBlock) { activeBlock.chars.push(charToReturn); updateBlockDOM(activeBlock.element, activeBlock.chars); }
+            else { if (blocksData.length > 0) blocksData[0].unshift(charToReturn); else { blocksData.push([charToReturn]); spawnNextBlock(); } }
+        }
+    }
+
+    function showPreview() {
+        const slots = document.querySelectorAll('.empty-slot');
+        slots.forEach(s => { if (s.id !== "filled") { s.textContent = s.dataset.char; s.style.backgroundColor = "#e0d0b0"; } });
+        setTimeout(() => { slots.forEach(s => { if (s.id !== "filled") { s.textContent = ""; s.style.backgroundColor = "#fff"; } }); }, 3000); 
+    }
+
+    function startTimerIfNeeded() {
+        if (!timerStarted) {
+            timerStarted = true;
+            timerInterval = setInterval(() => { 
+                seconds++; 
+                document.getElementById('timer').innerText = `時間：${Math.floor(seconds/60).toString().padStart(2,'0')}:${(seconds%60).toString().padStart(2,'0')}`; 
+            }, 1000);
+        }
+    }
+
+    function initGame() {
+        clearInterval(timerInterval); seconds = 0; timerStarted = false;
+        document.getElementById('timer').innerText = "時間：00:00";
+        const slotsDiv = document.getElementById('slots'); slotsDiv.innerHTML = '';
+        fullText.split('').forEach((char) => {
+            if (puncRegex.test(char)) {
+                let punc = document.createElement('span'); punc.className = 'punctuation'; punc.textContent = char; slotsDiv.appendChild(punc);
+            } else {
+                let slot = document.createElement('div'); slot.className = 'slot empty-slot'; slot.dataset.char = char; slotsDiv.appendChild(slot);
+            }
+        });
+        const options = fullText.split('').filter(c => !puncRegex.test(c));
+        blocksData = [];
+        for (let i = 0; i < options.length; i += 7) {
+            let b = options.slice(i, i + 7); b.sort(() => Math.random() - 0.5); 
+            blocksData.push(b);
+        }
+        spawnNextBlock();
+    }
+
+    function handleWordClick(e, char, wordDiv, chars, blockDiv) {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
+        startTimerIfNeeded();
+        let target = document.querySelector('.empty-slot:not([id="filled"])');
+        if (target && char === target.dataset.char) {
+            target.textContent = char; target.id = "filled"; target.style.backgroundColor = "#fff";
+            chars.splice(chars.indexOf(char), 1);
+            if (chars.length === 0) { clearInterval(gameInterval); blockDiv.remove(); activeBlock = null; spawnNextBlock(); }
+            else { renderCharsToBlock(blockDiv, chars); }
+            if (!document.querySelector('.empty-slot:not([id="filled"])')) finish();
+        }
+    }
+
+    function renderCharsToBlock(blockDiv, chars) {
+        blockDiv.innerHTML = '';
+        chars.forEach(char => {
+            let wordDiv = document.createElement('div'); wordDiv.className = 'tetris-word'; wordDiv.textContent = char;
+            wordDiv.addEventListener('click', (e) => handleWordClick(e, char, wordDiv, chars, blockDiv));
+            wordDiv.addEventListener('touchend', (e) => handleWordClick(e, char, wordDiv, chars, blockDiv));
+            blockDiv.appendChild(wordDiv);
+        });
+    }
+
+    function spawnNextBlock() {
+        if (blocksData.length === 0) return;
+        const container = document.getElementById('tetris-container'); container.innerHTML = ''; 
+        let chars = blocksData.shift();
+        let blockDiv = document.createElement('div'); blockDiv.className = 'tetris-block';
+        
+        renderCharsToBlock(blockDiv, chars);
+        container.appendChild(blockDiv);
+        
+        activeBlock = { element: blockDiv, chars: chars };
+        let top = -60; clearInterval(gameInterval);
+        gameInterval = setInterval(() => { 
+            if (top < 30) { top += 4; blockDiv.style.top = top + 'px'; } 
+            else { clearInterval(gameInterval); } 
+        }, 30);
+    }
+
+    function updateBlockDOM(blockDiv, chars) {
+        renderCharsToBlock(blockDiv, chars);
+    }
+
+    function finish() {
+        clearInterval(gameInterval); clearInterval(timerInterval);
+        if (activeBlock && activeBlock.element) activeBlock.element.remove();
+        
+        safeSpeak("太棒了");
+        
+        confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+        document.getElementById('explanation').innerHTML = "【全文解釋】<br>" + stages[currentStage].explain;
+        document.getElementById('explanation').style.display = 'block';
+        document.getElementById('reset-btn').style.display = 'inline-block';
+        if (currentStage < 2) document.getElementById('next-stage-btn').style.display = 'inline-block';
+        document.getElementById('undo-btn').style.display = 'none';
+        document.getElementById('tetris-container').style.display = 'none';
+    }
+
+    // 事件統一綁定（確保 Mac 及所有行動裝置點擊毫無阻礙）
+    document.addEventListener('DOMContentLoaded', () => {
+        const btn1 = document.getElementById('btn-stage-1');
+        const btn2 = document.getElementById('btn-stage-2');
+        const undoBtn = document.getElementById('undo-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const nextBtn = document.getElementById('next-stage-btn');
+        const homeBtn = document.getElementById('home-btn');
+        const previewBtn = document.getElementById('preview-btn');
+
+        if (btn1) {
+            btn1.addEventListener('click', (e) => startStage(1, e));
+            btn1.addEventListener('touchend', (e) => startStage(1, e));
+        }
+        if (btn2) {
+            btn2.addEventListener('click', (e) => startStage(2, e));
+            btn2.addEventListener('touchend', (e) => startStage(2, e));
+        }
+        if (undoBtn) {
+            undoBtn.addEventListener('click', (e) => { e.preventDefault(); undoLast(); });
+            undoBtn.addEventListener('touchend', (e) => { e.preventDefault(); undoLast(); });
+        }
+        if (resetBtn) {
+            resetBtn.addEventListener('click', resetGame);
+            resetBtn.addEventListener('touchend', resetGame);
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', goToNextStage);
+            nextBtn.addEventListener('touchend', goToNextStage);
+        }
+        if (homeBtn) {
+            homeBtn.addEventListener('click', goHome);
+            homeBtn.addEventListener('touchend', goHome);
+        }
+        if (previewBtn) {
+            previewBtn.addEventListener('click', (e) => { e.preventDefault(); showPreview(); });
+            previewBtn.addEventListener('touchend', (e) => { e.preventDefault(); showPreview(); });
+        }
+    });
+</script>
+</body>
+</html>
