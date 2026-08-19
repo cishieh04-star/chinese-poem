@@ -31,8 +31,11 @@
         #undo-btn { background: #f39c12; color: white; }
         #reset-btn { background: #ff5722; color: white; display: none; }
 
-        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh; text-align: center; }
+        /* 首頁設計 */
+        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; text-align: center; }
+        .poem-display { background: #fffaf0; padding: 20px; border-radius: 12px; border: 1px solid #d2b48c; margin: 20px 0; font-size: 18px; line-height: 2; color: #5d4037; font-weight: bold; width: 100%; }
         .start-btn { padding: 15px 30px; background-color: #27ae60; color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        
         #game-screen { display: none; width: 100%; }
         #explanation { display: none; margin-top: 15px; padding: 15px; background: #fff; border: 1px solid #8b4513; border-radius: 8px; color: #8b4513; font-size: 16px; line-height: 1.6; text-align: left; }
     </style>
@@ -44,13 +47,18 @@
 <div id="home-screen" class="full-width">
     <h1>📜 詩詞拼圖遊戲</h1>
     <p class="instruction">江雪：柳宗元</p>
+    
+    <!-- 已加上詩詞內容 -->
+    <div class="poem-display">
+        千山鳥飛絕，<br>萬徑人蹤滅。<br>孤舟蓑笠翁，<br>獨釣寒江雪。
+    </div>
+
     <button class="start-btn" id="start-btn">開始遊戲</button>
 </div>
 
 <div id="game-screen" class="full-width">
     <h2>江雪</h2>
     <div class="action-container">
-        <!-- 更新後的 YouTube 連結 -->
         <a href="https://youtube.com/shorts/y69s40LDIjY" target="_blank" class="yt-link">🎥 觀看複習影片</a>
         <button class="preview-btn" id="preview-btn">📖 查看全文</button>
     </div>
