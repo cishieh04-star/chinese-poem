@@ -8,7 +8,7 @@
     <style>
         * { box-sizing: border-box; touch-action: manipulation; }
         body { font-family: 'Microsoft JhengHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 10px; background-color: #fdf6e3; margin: 0; min-height: 100vh; position: relative; overflow-x: hidden; }
-        .full-width { width: 100%; max-width: 600px; text-align: center; margin-top: 5px; }
+        .full-width { width: 100%; max-width: 600px; text-align: center; }
         
         #timer { position: fixed; top: 10px; right: 10px; font-size: 16px; font-weight: bold; color: #8b4513; background: white; padding: 4px 8px; border-radius: 8px; border: 2px solid #8b4513; z-index: 1000; }
         h2 { color: #8b4513; margin: 6px 0; font-size: 19px; }
@@ -24,7 +24,7 @@
         
         #tetris-container { width: 100%; max-width: 100%; height: 100px; background-color: #ffffff; border-radius: 8px; position: relative; overflow: hidden; margin-top: 5px; border: 2px solid #8b4513; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .tetris-block { position: absolute; display: flex; gap: 4px; justify-content: center; left: 50%; transform: translateX(-50%); transition: top 0.05s linear; width: 95%; flex-wrap: wrap; }
-        .tetris-word { width: 34px; height: 40px; background-color: #8b4513; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; font-weight: bold; border-radius: 6px; box-shadow: 2px 2px 4px rgba(0,0,0,0.2); user-select: none; flex-shrink: 0; -webkit-tap-highlight-color: transparent; }
+        .tetris-word { width: 34px; height: 40px; background-color: #8b4513; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; font-weight: bold; border-radius: 6px; box-shadow: 2px 2px 4px rgba(0,0,0,0.2); user-select: none; flex-shrink: 0; }
         
         .btn-group { display: flex; gap: 8px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
         .action-btn { padding: 6px 14px; border: none; border-radius: 5px; font-size: 14px; cursor: pointer; font-weight: bold; }
@@ -32,11 +32,14 @@
         #reset-btn { background: #ff5722; color: white; display: none; }
         #next-stage-btn { background: #27ae60; color: white; display: none; }
 
-        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70vh; text-align: center; }
-        .stage-select { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 260px; margin-top: 10px; }
+        /* 首頁設計：確保文字適中且按鈕好按 */
+        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 20px; width: 100%; }
+        .poem-full-text { background: #fffaf0; padding: 15px; border-radius: 10px; border: 1px solid #d2b48c; margin-bottom: 20px; font-size: 16px; line-height: 1.8; color: #5d4037; font-weight: bold; width: 95%; max-width: 500px; }
+        .stage-select { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 260px; }
         .start-btn { padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; }
+        
         #game-screen { display: none; width: 100%; }
-        #explanation { display: none; margin-top: 8px; padding: 10px; background: #fff; border: 1px solid #8b4513; border-radius: 8px; color: #8b4513; font-size: 14px; line-height: 1.5; text-align: left; max-height: 250px; overflow-y: auto; }
+        #explanation { display: none; margin-top: 8px; padding: 10px; background: #fff; border: 1px solid #8b4513; border-radius: 8px; color: #8b4513; font-size: 14px; line-height: 1.5; text-align: left; max-height: 200px; overflow-y: auto; }
     </style>
 </head>
 <body>
@@ -45,7 +48,9 @@
 
 <div id="home-screen" class="full-width">
     <h1>📜 詩詞拼圖遊戲</h1>
-    <p class="instruction" style="font-size: 16px; margin-bottom: 15px;">劉禹錫：陋室銘</p>
+    <div class="poem-full-text">
+        山不在高，有仙則名。水不在深，有龍則靈。<br>斯是陋室，惟吾德馨。苔痕上階綠，草色入簾青。<br>談笑有鴻儒，往來無白丁。<br>可以調素琴，閱金經。<br>無絲竹之亂耳，無案牘之勞形。<br>南陽諸葛廬，西蜀子云亭。<br>孔子云：何陋之有？
+    </div>
     <div class="stage-select">
         <button class="start-btn" id="btn-stage-1" style="background-color: #27ae60;">第一段</button>
         <button class="start-btn" id="btn-stage-2" style="background-color: #2980b9;">第二段</button>
@@ -79,17 +84,14 @@
         },
         2: { 
             title: "陋室銘 (第二段)", 
-            // 上方顯示會包含括弧
             text: "可以調素琴，閱金經。無絲竹之亂耳，無案牘之勞形。南陽諸葛廬，西蜀子云亭。孔子云：何陋之有？（陋室銘）（劉禹錫）", 
             explain: "可以彈奏不加裝飾的古琴，閱讀佛經。沒有奏樂的聲音擾亂雙耳，沒有官府的公文使身體勞累。南陽有諸葛亮的草廬，西蜀有揚子云的亭子。孔子說：“有什麼簡陋的呢?”" 
         }
     };
 
     let currentStage = 1, fullText = "", blocksData = [], activeBlock = null, gameInterval = null, seconds = 0, timerStarted = false, timerInterval = null;
-    // 將全形括弧加入標點符號的判定中，這樣括弧就會直接顯示在上方，不需要玩家去下方點選
     const puncRegex = /[，。：？！（）()]/;
 
-    // 安全非同步語音播放，全面相容 Mac、Asus、三星手機
     function safeSpeak(text) {
         setTimeout(() => {
             try {
@@ -99,9 +101,7 @@
                     msg.lang = 'zh-TW';
                     window.speechSynthesis.speak(msg);
                 }
-            } catch (e) {
-                console.log("語音播放略過:", e);
-            }
+            } catch (e) { console.log("語音播放略過:", e); }
         }, 50);
     }
 
@@ -253,7 +253,6 @@
         document.getElementById('tetris-container').style.display = 'none';
     }
 
-    // 事件統一綁定（確保 Mac 及所有行動裝置點擊毫無阻礙）
     document.addEventListener('DOMContentLoaded', () => {
         const btn1 = document.getElementById('btn-stage-1');
         const btn2 = document.getElementById('btn-stage-2');
@@ -263,34 +262,13 @@
         const homeBtn = document.getElementById('home-btn');
         const previewBtn = document.getElementById('preview-btn');
 
-        if (btn1) {
-            btn1.addEventListener('click', (e) => startStage(1, e));
-            btn1.addEventListener('touchend', (e) => startStage(1, e));
-        }
-        if (btn2) {
-            btn2.addEventListener('click', (e) => startStage(2, e));
-            btn2.addEventListener('touchend', (e) => startStage(2, e));
-        }
-        if (undoBtn) {
-            undoBtn.addEventListener('click', (e) => { e.preventDefault(); undoLast(); });
-            undoBtn.addEventListener('touchend', (e) => { e.preventDefault(); undoLast(); });
-        }
-        if (resetBtn) {
-            resetBtn.addEventListener('click', resetGame);
-            resetBtn.addEventListener('touchend', resetGame);
-        }
-        if (nextBtn) {
-            nextBtn.addEventListener('click', goToNextStage);
-            nextBtn.addEventListener('touchend', goToNextStage);
-        }
-        if (homeBtn) {
-            homeBtn.addEventListener('click', goHome);
-            homeBtn.addEventListener('touchend', goHome);
-        }
-        if (previewBtn) {
-            previewBtn.addEventListener('click', (e) => { e.preventDefault(); showPreview(); });
-            previewBtn.addEventListener('touchend', (e) => { e.preventDefault(); showPreview(); });
-        }
+        if (btn1) { btn1.addEventListener('click', (e) => startStage(1, e)); btn1.addEventListener('touchend', (e) => startStage(1, e)); }
+        if (btn2) { btn2.addEventListener('click', (e) => startStage(2, e)); btn2.addEventListener('touchend', (e) => startStage(2, e)); }
+        if (undoBtn) { undoBtn.addEventListener('click', (e) => { e.preventDefault(); undoLast(); }); undoBtn.addEventListener('touchend', (e) => { e.preventDefault(); undoLast(); }); }
+        if (resetBtn) { resetBtn.addEventListener('click', resetGame); resetBtn.addEventListener('touchend', resetGame); }
+        if (nextBtn) { nextBtn.addEventListener('click', goToNextStage); nextBtn.addEventListener('touchend', goToNextStage); }
+        if (homeBtn) { homeBtn.addEventListener('click', goHome); homeBtn.addEventListener('touchend', goHome); }
+        if (previewBtn) { previewBtn.addEventListener('click', (e) => { e.preventDefault(); showPreview(); }); previewBtn.addEventListener('touchend', (e) => { e.preventDefault(); showPreview(); }); }
     });
 </script>
 </body>
