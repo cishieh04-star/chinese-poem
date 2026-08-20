@@ -51,9 +51,24 @@
         #undo-btn { background: #f39c12; color: white; }
         #reset-btn { background: #ff5722; color: white; display: none; }
 
-        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 75vh; text-align: center; }
-        #home-screen h1 { color: #8b4513; font-size: 28px; margin-bottom: 20px; }
-        .start-btn { padding: 15px 30px; background-color: #27ae60; color: white; border: none; border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        #home-screen { 
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start; 
+            min-height: 85vh; text-align: center; padding: 20px 10px; box-sizing: border-box; 
+            overflow-y: auto; max-height: 100vh;
+        }
+        #home-screen h1 { color: #8b4513; font-size: 26px; margin-bottom: 10px; }
+        
+        /* 首頁詩詞全文展示卡片 */
+        .home-poem-card {
+            background: #fff; border: 2px solid #8b4513; border-radius: 10px;
+            padding: 15px; margin: 15px 0; width: 90%; max-width: 450px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center;
+        }
+        .home-poem-card h3 { color: #8b4513; margin: 0 0 10px 0; font-size: 18px; }
+        .home-poem-text { font-size: 18px; font-weight: bold; color: #333; line-height: 1.6; margin-bottom: 10px; }
+        .home-poem-explain { font-size: 14px; color: #5d6d7e; line-height: 1.5; text-align: left; border-top: 1px dashed #d3b591; padding-top: 8px; }
+
+        .start-btn { padding: 12px 25px; background-color: #27ae60; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); margin-bottom: 20px; }
         .start-btn:hover { background-color: #219653; }
         
         #game-screen { display: none; width: 100%; }
@@ -63,6 +78,7 @@
             .tetris-word { width: 34px; height: 42px; font-size: 17px; }
             .slot { width: 26px; height: 26px; font-size: 13px; }
             .punctuation { font-size: 14px; }
+            .home-poem-text { font-size: 16px; }
         }
     </style>
 </head>
@@ -72,7 +88,21 @@
 
 <div id="home-screen" class="full-width">
     <h1>📜 詩詞拼圖遊戲</h1>
-    <p class="instruction" style="font-size: 18px; margin-bottom: 30px;">杜秋娘 - 金縷衣</p>
+    <p class="instruction" style="font-size: 16px; margin-bottom: 5px;">唐代 · 杜秋娘</p>
+    
+    <!-- 新增：首頁詩詞全文與解釋區塊 -->
+    <div class="home-poem-card">
+        <h3>金縷衣</h3>
+        <div class="home-poem-text">
+            勸君莫惜金縷衣，<br>勸君惜取少年時。<br>
+            花開堪折直須折，<br>莫待無花空折枝。
+        </div>
+        <div class="home-poem-explain">
+            <strong>【語意簡介】</strong><br>
+            勸你不必愛惜金縷衣，要珍惜青春年少時光。花開堪折時就要直接折取，莫等到花謝空折枝。
+        </div>
+    </div>
+
     <button class="start-btn" onclick="startGame()">開始遊戲</button>
 </div>
 
