@@ -51,9 +51,45 @@
         #undo-btn { background: #f39c12; color: white; }
         #reset-btn { background: #ff5722; color: white; display: none; }
 
-        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 75vh; text-align: center; }
-        #home-screen h1 { color: #8b4513; font-size: 28px; margin-bottom: 20px; }
-        .start-btn { padding: 15px 30px; background-color: #27ae60; color: white; border: none; border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        /* 首頁調整：改為可捲動且預留空間排版，讓所有裝置都能完整看到詩詞全文 */
+        #home-screen { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 20px 10px; 
+            text-align: center; 
+            min-height: 85vh;
+            box-sizing: border-box;
+        }
+        #home-screen h1 { color: #8b4513; font-size: 26px; margin-bottom: 10px; }
+        
+        .home-poem-card {
+            background: #fff;
+            border: 2px solid #8b4513;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin: 15px 0 25px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            max-width: 100%;
+        }
+        
+        .home-poem-card .poem-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #8b4513;
+            margin-bottom: 8px;
+        }
+
+        .home-poem-card .poem-content {
+            font-size: 17px;
+            color: #333;
+            line-height: 1.8;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        .start-btn { padding: 12px 28px; background-color: #27ae60; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
         .start-btn:hover { background-color: #219653; }
         
         #game-screen { display: none; width: 100%; }
@@ -63,6 +99,7 @@
             .tetris-word { width: 34px; height: 42px; font-size: 17px; }
             .slot { width: 26px; height: 26px; font-size: 13px; }
             .punctuation { font-size: 14px; }
+            .home-poem-card .poem-content { font-size: 15px; }
         }
     </style>
 </head>
@@ -72,7 +109,18 @@
 
 <div id="home-screen" class="full-width">
     <h1>📜 詩詞拼圖遊戲</h1>
-    <p class="instruction" style="font-size: 18px; margin-bottom: 30px;">杜牧：秋夕</p>
+    
+    <!-- 新增：首頁詩詞全文展示卡片 -->
+    <div class="home-poem-card">
+        <div class="poem-title">唐代・杜牧《秋夕》</div>
+        <div class="poem-content">
+            銀燭秋光冷畫屏，<br>
+            輕羅小扇撲流螢。<br>
+            天階夜色涼如水，<br>
+            臥看牽牛織女星。
+        </div>
+    </div>
+
     <button class="start-btn" onclick="startGame()">開始遊戲</button>
 </div>
 
