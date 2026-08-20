@@ -51,9 +51,22 @@
         #undo-btn { background: #f39c12; color: white; }
         #reset-btn { background: #ff5722; color: white; display: none; }
 
-        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 75vh; text-align: center; }
-        #home-screen h1 { color: #8b4513; font-size: 28px; margin-bottom: 20px; }
-        .start-btn { padding: 15px 30px; background-color: #27ae60; color: white; border: none; border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        /* 首頁樣式調整：支援手機排版，完整顯示詩文且不超出邊界 */
+        #home-screen { 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            min-height: 85vh; text-align: center; padding: 10px; box-sizing: border-box;
+        }
+        #home-screen h1 { color: #8b4513; font-size: 26px; margin-bottom: 10px; }
+        
+        .home-poem-preview {
+            background: #fff; border: 2px solid #8b4513; border-radius: 10px;
+            padding: 15px; margin: 15px 0; width: 100%; max-width: 450px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); box-sizing: border-box;
+        }
+        .home-poem-preview h3 { color: #8b4513; margin: 0 0 10px 0; font-size: 18px; }
+        .home-poem-text { font-size: 18px; font-weight: bold; color: #333; line-height: 1.8; word-break: break-all; }
+
+        .start-btn { padding: 12px 28px; background-color: #27ae60; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); margin-top: 10px; }
         .start-btn:hover { background-color: #219653; }
         
         #game-screen { display: none; width: 100%; }
@@ -63,6 +76,8 @@
             .tetris-word { width: 34px; height: 42px; font-size: 17px; }
             .slot { width: 26px; height: 26px; font-size: 13px; }
             .punctuation { font-size: 14px; }
+            #home-screen h1 { font-size: 22px; }
+            .home-poem-text { font-size: 16px; }
         }
     </style>
 </head>
@@ -72,7 +87,16 @@
 
 <div id="home-screen" class="full-width">
     <h1>📜 詩詞拼圖遊戲</h1>
-    <p class="instruction" style="font-size: 18px; margin-bottom: 30px;">(王昌齡)(從軍行)</p>
+    <p class="instruction" style="font-size: 16px; margin-bottom: 5px;">(王昌齡)(從軍行)</p>
+    
+    <!-- 新增：首頁完整詩文預覽區，適應所有裝置 -->
+    <div class="home-poem-preview">
+        <h3>📖 全文預覽</h3>
+        <div class="home-poem-text">
+            青海長雲暗雪山，<br>孤城遙望玉門關。<br>黃沙百戰穿金甲，<br>不破樓蘭終不還。
+        </div>
+    </div>
+
     <button class="start-btn" onclick="startGame()">開始遊戲</button>
 </div>
 
