@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>詩詞拼圖 - 夜雨寄北</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body { font-family: 'Microsoft JhengHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 10px; background-color: #fdf6e3; margin: 0; min-height: 100vh; position: relative; overflow-x: hidden; box-sizing: border-box; }
+        .full-width { width: 100%; max-width: 600px; text-align: center; margin-top: 5px; }
+        
+        #timer { 
+            position: fixed; top: 15px; right: 15px; font-size: 18px; font-weight: bold; 
+            color: #8b4513; background: white; padding: 5px 10px; border-radius: 10px; 
+            border: 2px solid #8b4513; z-index: 1000;
+        }
+
+        h2 { color: #8b4513; margin: 8px 0; font-size: 22px; }
+        
+        .action-container { margin: 8px 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .yt-link { text-decoration: none; padding: 6px 12px; background: #FF0000; color: white; border-radius: 5px; font-size: 14px; font-weight: bold; }
+        .preview-btn { padding: 6px 12px; background: #5c6bc0; color: white; border: none; border-radius: 5px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        
+        .grid-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 10px 0; align-items: center; }
+        .slot { width: 30px; height: 30px; border: 2px dashed #8b4513; display: flex; align-items: center; justify-content: center; background-color: #fff; border-radius: 6px; font-weight: bold; font-size: 15px; color: #333; }
+        
+        .punctuation { font-size: 16px; font-weight: bold; color: #5d6d7e; margin: 0 1px; }
+        .instruction { color: #5d6d7e; margin-bottom: 8px; font-weight: bold; font-size: 14px; }
+        
+        #tetris-container {
+            width: 100%; max-width: 100%; height: 120px; background-color: #ffffff;
+            border-radius: 8px; position: relative; overflow: hidden; margin-top: 5px;
+            border: 2px solid #8b4513; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .tetris-block {
+            position: absolute; display: flex; gap: 6px; justify-content: center; left: 50%;
+            transform: translateX(-50%); transition: top 0.05s linear; width: 95%;
+        }
+
+        .tetris-word {
+            width: 40px; height: 48px; background-color: #8b4513; color: #ffffff;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            font-size: 20px; font-weight: bold; border-radius: 8px;
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.2); user-select: none; flex-shrink: 0;
+        }
+        .tetris-word:hover { background-color: #a0522d; }
+
+        .btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
+        .action-btn { padding: 8px 18px; border: none; border-radius: 5px; font-size: 15px; cursor: pointer; font-weight: bold; }
+        #undo-btn { background: #f39c12; color: white; }
+        #reset-btn { background: #ff5722; color: white; display: none; }
+
+        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 75vh; text-align: center; }
+        #home-screen h1 { color: #8b4513; font-size: 28px; margin-bottom: 20px; }
+        .start-btn { padding: 15px 30px; background-color: #27ae60; color: white; border: none; border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        .start-btn:hover { background-color: #219653; }
+        
+        #game-screen { display: none; width: 100%; }
+        #explanation { display: none; margin-top: 15px; padding: 15px; background: #fff; border: 1px solid #8b4513; border-radius: 8px; color: #8b4513; font-size: 16px; line-height: 1.6; text-align: left; }
+
+        @media screen and (max-width: 400px) {
+            .tetris-word { width: 34px; height: 42px; font-size: 17px; }
+            .slot { width: 26px; height: 26px; font-size: 13px; }
+            .punctuation { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="timer">時間：00:00</div>
+
+<div id="home-screen" class="full-width">
+    <h1>📜 詩詞拼圖遊戲</h1>
+    <p class="instruction" style="font-size: 18px; margin-bottom: 30px;">李商隱：夜雨寄北</p>
+    <button class="start-btn" onclick="startGame()">開始遊戲</button>
+</div>
+
+<div id="game-screen" class="full-width">
+    <h2>李商隱：夜雨寄北</h2>
+    
+    <div class="action-container">
+        <a href="https://youtube.com/shorts/fbO4NoMXRC4" target="_blank" class="yt-link">🎥 觀看複習影片</a>
+        <button class="preview-btn" onclick="showPreview()">📖 查看全文</button>
+    </div>
+
+    <div class="instruction">請點選下方框框裡的字，正確的字會出現在上方的空格中</div>
+
+    <div id="slots" class="grid-container"></div>
+    
+    <div id="tetris-container"></div>
+    
+    <div id="explanation"></div>
+    
+    <div class="btn-group">
+        <button id="undo-btn" class="action-btn" onclick="undoLast()">⟲ 更正</button>
+        <button id="reset-btn" class="action-btn" onclick="resetGame()">再玩一次</button>
+    </div>
+</div>
+
+<script>
+    const fullText = "君問歸期未有期，巴山夜雨漲秋池。何當共剪西窗燭，卻話巴山夜雨時(李商隱)(夜雨寄北)";
+    const explainText = "【全文解釋】<br>你問我回家的日期，歸期實在沒有個準期；今晚巴山夜雨綿綿，池水已經漲滿了。何時才能跟你一同在西窗下剪燭夜談，再細細訴說今日巴山夜雨時的情景呢？";
+    const puncRegex = /[，。()：]/; 
+    
+    let blocksData = []; 
+    let activeBlock = null; 
+    let gameInterval = null;
+    let seconds = 0, timerStarted = false, timerInterval = null;
+
+    function formatTime(s) {
+        const m = Math.floor(s / 60).toString().padStart(2, '0');
+        const sec = (s % 60).toString().padStart(2, '0');
+        return `時間：${m}:${sec}`;
+    }
+
+    function startGame() {
+        document.getElementById('home-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block';
+        initGame();
+    }
+
+    function resetGame() {
+        if (gameInterval) clearInterval(gameInterval);
+        if (timerInterval) clearInterval(timerInterval);
+        seconds = 0;
+        timerStarted = false;
+        document.getElementById('timer').innerText = formatTime(seconds);
+        document.getElementById('explanation').style.display = 'none';
+        
+        document.getElementById('tetris-container').style.display = 'block';
+        document.getElementById('reset-btn').style.display = 'none';
+        document.getElementById('undo-btn').style.display = 'inline-block';
+        if (activeBlock && activeBlock.element) activeBlock.element.remove();
+        initGame();
+    }
+
+    function undoLast() {
+        const filled = document.querySelectorAll('.slot[id="filled"]');
+        if (filled.length > 0) {
+            const lastSlot = filled[filled.length - 1];
+            const charToReturn = lastSlot.dataset.char;
+            
+            lastSlot.textContent = "";
+            lastSlot.removeAttribute('id');
+            lastSlot.style.backgroundColor = "#fff";
+
+            if (activeBlock) {
+                activeBlock.chars.push(charToReturn);
+                updateBlockDOM(activeBlock.element, activeBlock.chars);
+            } else {
+                if (blocksData.length > 0) {
+                    blocksData[0].unshift(charToReturn);
+                } else {
+                    blocksData.push([charToReturn]);
+                    spawnNextBlock();
+                }
+            }
+        }
+    }
+
+    function showPreview() {
+        const slots = document.querySelectorAll('.empty-slot');
+        slots.forEach(slot => {
+            if (slot.id !== "filled") {
+                slot.textContent = slot.dataset.char;
+                slot.style.backgroundColor = "#e0d0b0";
+            }
+        });
+        setTimeout(() => {
+            slots.forEach(slot => {
+                if (slot.id !== "filled") {
+                    slot.textContent = "";
+                    slot.style.backgroundColor = "#fff";
+                }
+            });
+        }, 3000); 
+    }
+
+    function startTimerIfNeeded() {
+        if (!timerStarted) {
+            timerStarted = true;
+            timerInterval = setInterval(() => {
+                seconds++;
+                document.getElementById('timer').innerText = formatTime(seconds);
+            }, 1000);
+        }
+    }
+
+    function initGame() {
+        if (timerInterval) clearInterval(timerInterval);
+        seconds = 0;
+        timerStarted = false;
+        document.getElementById('timer').innerText = formatTime(seconds);
+
+        const slotsDiv = document.getElementById('slots');
+        slotsDiv.innerHTML = '';
+        
+        fullText.split('').forEach((char) => {
+            if (puncRegex.test(char)) {
+                let punc = document.createElement('span');
+                punc.className = 'punctuation';
+                punc.textContent = char;
+                slotsDiv.appendChild(punc);
+            } else {
+                let slot = document.createElement('div');
+                slot.className = 'slot empty-slot';
+                slot.dataset.char = char;
+                slotsDiv.appendChild(slot);
+            }
+        });
+
+        const options = fullText.split('').filter(c => !puncRegex.test(c));
+        const blockSize = 7; 
+        blocksData = [];
+        for (let i = 0; i < options.length; i += blockSize) {
+            let blockChars = options.slice(i, i + blockSize);
+            blockChars.sort(() => Math.random() - 0.5); 
+            blocksData.push(blockChars);
+        }
+
+        spawnNextBlock();
+    }
+
+    function spawnNextBlock() {
+        if (blocksData.length === 0) return;
+
+        const container = document.getElementById('tetris-container');
+        container.innerHTML = ''; 
+        
+        let chars = blocksData.shift();
+        
+        let blockDiv = document.createElement('div');
+        blockDiv.className = 'tetris-block';
+        
+        function renderChars() {
+            blockDiv.innerHTML = '';
+            chars.forEach((char) => {
+                let wordDiv = document.createElement('div');
+                wordDiv.className = 'tetris-word';
+                wordDiv.textContent = char;
+                
+                wordDiv.onclick = function(e) {
+                    e.stopPropagation();
+                    startTimerIfNeeded();
+                    let targetSlot = document.querySelector('.empty-slot:not([id="filled"])');
+                    if (targetSlot && char === targetSlot.dataset.char) {
+                        targetSlot.textContent = char;
+                        targetSlot.id = "filled";
+                        targetSlot.style.backgroundColor = "#fff";
+                        
+                        const charIndex = chars.indexOf(char);
+                        if (charIndex > -1) chars.splice(charIndex, 1);
+                        
+                        if (chars.length === 0) {
+                            if (gameInterval) clearInterval(gameInterval);
+                            blockDiv.remove();
+                            activeBlock = null;
+                            spawnNextBlock(); 
+                        } else {
+                            renderChars();
+                        }
+
+                        if (document.querySelectorAll('.empty-slot:not([id="filled"])').length === 0) {
+                            finish();
+                        }
+                    }
+                };
+                blockDiv.appendChild(wordDiv);
+            });
+        }
+
+        renderChars();
+        container.appendChild(blockDiv);
+
+        let currentY = -60;
+        let targetY = 35; 
+        blockDiv.style.top = currentY + 'px';
+
+        activeBlock = { element: blockDiv, chars: chars };
+
+        if (gameInterval) clearInterval(gameInterval);
+        gameInterval = setInterval(() => {
+            if (currentY < targetY) {
+                currentY += 4; 
+                blockDiv.style.top = currentY + 'px';
+            } else {
+                clearInterval(gameInterval);
+            }
+        }, 30);
+    }
+
+    function updateBlockDOM(blockDiv, chars) {
+        blockDiv.innerHTML = '';
+        chars.forEach((char) => {
+            let wordDiv = document.createElement('div');
+            wordDiv.className = 'tetris-word';
+            wordDiv.textContent = char;
+            
+            wordDiv.onclick = function(e) {
+                e.stopPropagation();
+                startTimerIfNeeded();
+                let targetSlot = document.querySelector('.empty-slot:not([id="filled"])');
+                if (targetSlot && char === targetSlot.dataset.char) {
+                    targetSlot.textContent = char;
+                    targetSlot.id = "filled";
+                    targetSlot.style.backgroundColor = "#fff";
+                    
+                    const charIndex = chars.indexOf(char);
+                    if (charIndex > -1) chars.splice(charIndex, 1);
+                    
+                    if (chars.length === 0) {
+                        blockDiv.remove();
+                        activeBlock = null;
+                        spawnNextBlock();
+                    } else {
+                        updateBlockDOM(blockDiv, chars);
+                    }
+
+                    if (document.querySelectorAll('.empty-slot:not([id="filled"])').length === 0) {
+                        finish();
+                    }
+                }
+            };
+            blockDiv.appendChild(wordDiv);
+        });
+    }
+
+    function finish() {
+        if (gameInterval) clearInterval(gameInterval);
+        if (timerInterval) clearInterval(timerInterval);
+        if (activeBlock && activeBlock.element) activeBlock.element.remove();
+        
+        const msg = new SpeechSynthesisUtterance("太棒了");
+        msg.lang = 'zh-TW';
+        window.speechSynthesis.speak(msg);
+        
+        confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+        
+        const explainDiv = document.getElementById('explanation');
+        explainDiv.innerHTML = explainText;
+        explainDiv.style.display = 'block';
+        
+        document.getElementById('reset-btn').style.display = 'inline-block';
+        document.getElementById('undo-btn').style.display = 'none';
+        document.getElementById('tetris-container').style.display = 'none';
+    }
+</script>
+</body>
+</html>
