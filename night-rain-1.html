@@ -51,14 +51,13 @@
         #undo-btn { background: #f39c12; color: white; }
         #reset-btn { background: #ff5722; color: white; display: none; }
 
-        /* 首頁設計：確保全文可見 */
-        #home-screen { display: flex; flex-direction: column; align-items: center; padding: 20px 10px; text-align: center; }
-        #home-screen h1 { color: #8b4513; font-size: 28px; margin-bottom: 10px; }
-        .poetry-full-text { 
+        /* 首頁樣式優化 */
+        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 10px; width: 100%; box-sizing: border-box; }
+        #home-screen h1 { color: #8b4513; font-size: 26px; margin-bottom: 10px; }
+        .poetry-display { 
             background: #fffaf0; border: 2px solid #d2b48c; padding: 15px; border-radius: 10px; 
             margin: 20px 0; font-size: 18px; line-height: 2; color: #5d4037; font-weight: bold; 
-            width: 90%; max-width: 400px; white-space: pre-line; word-wrap: break-word;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            width: 90%; max-width: 350px; white-space: pre-line; word-wrap: break-word; text-align: center;
         }
         .start-btn { padding: 15px 30px; background-color: #27ae60; color: white; border: none; border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
         .start-btn:hover { background-color: #219653; }
@@ -69,6 +68,7 @@
         @media screen and (max-width: 400px) {
             .tetris-word { width: 34px; height: 42px; font-size: 17px; }
             .slot { width: 26px; height: 26px; font-size: 13px; }
+            .punctuation { font-size: 14px; }
         }
     </style>
 </head>
@@ -80,7 +80,7 @@
     <h1>📜 詩詞拼圖遊戲</h1>
     <p class="instruction" style="font-size: 18px;">李商隱：夜雨寄北</p>
     
-    <div class="poetry-full-text">
+    <div class="poetry-display">
         君問歸期未有期，
         巴山夜雨漲秋池。
         何當共剪西窗燭，
@@ -90,17 +90,20 @@
     <button class="start-btn" onclick="startGame()">開始遊戲</button>
 </div>
 
-<!-- (遊戲邏輯與下方內容保持不變) -->
 <div id="game-screen" class="full-width">
     <h2>李商隱：夜雨寄北</h2>
+    
     <div class="action-container">
         <a href="https://youtube.com/shorts/fbO4NoMXRC4" target="_blank" class="yt-link">🎥 觀看複習影片</a>
         <button class="preview-btn" onclick="showPreview()">📖 查看全文</button>
     </div>
+
     <div class="instruction">請點選下方框框裡的字，正確的字會出現在上方的空格中</div>
+
     <div id="slots" class="grid-container"></div>
     <div id="tetris-container"></div>
     <div id="explanation"></div>
+    
     <div class="btn-group">
         <button id="undo-btn" class="action-btn" onclick="undoLast()">⟲ 更正</button>
         <button id="reset-btn" class="action-btn" onclick="resetGame()">再玩一次</button>
@@ -108,18 +111,17 @@
 </div>
 
 <script>
-    // 原有的 Script 邏輯保持不變即可
     const fullText = "君問歸期未有期，巴山夜雨漲秋池。何當共剪西窗燭，卻話巴山夜雨時(李商隱)(夜雨寄北)";
     const explainText = "【全文解釋】<br>你問我回家的日期，歸期實在沒有個準期；今晚巴山夜雨綿綿，池水已經漲滿了。何時才能跟你一同在西窗下剪燭夜談，再細細訴說今日巴山夜雨時的情景呢？";
     const puncRegex = /[，。()：]/; 
     
-    // ... 後續 JavaScript 函式請保持您原本的程式內容 ...
+    // ... 原有的 JavaScript 邏輯保持不變 ...
     function startGame() {
         document.getElementById('home-screen').style.display = 'none';
         document.getElementById('game-screen').style.display = 'block';
         initGame();
     }
-    // ... (其餘函式如 initGame, spawnNextBlock 等均不需更動)
+    // ... (後續函數請維持您原本提供的內容即可) ...
 </script>
 </body>
 </html>
