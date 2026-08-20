@@ -51,8 +51,14 @@
         #undo-btn { background: #f39c12; color: white; }
         #reset-btn { background: #ff5722; color: white; display: none; }
 
-        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 75vh; text-align: center; }
-        #home-screen h1 { color: #8b4513; font-size: 28px; margin-bottom: 20px; }
+        /* 首頁樣式修改 */
+        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; text-align: center; padding: 20px 0; }
+        #home-screen h1 { color: #8b4513; font-size: 28px; margin-bottom: 10px; }
+        .poem-display { 
+            background: #fffaf0; border: 2px solid #d2b48c; padding: 15px; border-radius: 10px; 
+            margin: 15px 0 25px 0; font-size: 19px; line-height: 2; color: #5d4037; font-weight: bold; 
+            white-space: pre-line; word-wrap: break-word; width: 90%; max-width: 320px;
+        }
         .start-btn { padding: 15px 30px; background-color: #27ae60; color: white; border: none; border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
         .start-btn:hover { background-color: #219653; }
         
@@ -72,7 +78,15 @@
 
 <div id="home-screen" class="full-width">
     <h1>📜 詩詞拼圖遊戲</h1>
-    <p class="instruction" style="font-size: 18px; margin-bottom: 30px;">李商隱：夜雨寄北</p>
+    <p class="instruction" style="font-size: 18px; margin-bottom: 5px;">李商隱：夜雨寄北</p>
+    
+    <div class="poem-display">
+        君問歸期未有期，
+        巴山夜雨漲秋池。
+        何當共剪西窗燭，
+        卻話巴山夜雨時。
+    </div>
+
     <button class="start-btn" onclick="startGame()">開始遊戲</button>
 </div>
 
