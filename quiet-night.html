@@ -50,6 +50,7 @@
             font-size: 20px;
             font-weight: bold;
             cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
         }
         #game-screen {
             display: none;
@@ -60,6 +61,32 @@
             font-weight: bold;
             color: #8b4513;
             margin-bottom: 10px;
+        }
+        .action-container {
+            margin: 10px 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .yt-link {
+            text-decoration: none;
+            padding: 6px 12px;
+            background: #FF0000;
+            color: white;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .preview-btn {
+            padding: 6px 12px;
+            background: #5c6bc0;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
         }
         .grid-container {
             display: flex;
@@ -120,6 +147,9 @@
         }
         .btn-group {
             margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
         }
         .action-btn {
             padding: 10px 20px;
@@ -166,6 +196,12 @@
     <div id="game-screen">
         <div id="timer">時間：00:00</div>
         <h2 style="color: #8b4513;">李白：靜夜思</h2>
+        
+        <div class="action-container">
+            <a href="https://www.youtube.com/watch?v=UxZ8ofmODTg" target="_blank" class="yt-link">🎥 觀看複習影片</a>
+            <button class="preview-btn" onclick="showPreview()">📖 查看全文</button>
+        </div>
+
         <div style="font-size: 14px; color: #5d6d7e; margin-bottom: 10px;">請點選下方出現的字來填入上方空格</div>
         
         <div id="slots" class="grid-container"></div>
@@ -184,22 +220,25 @@
     const explainText = "【全文解釋】<br>這首詩描寫了詩人在客途中的思鄉之情。用「霜」來比喻月光，借景抒情，末兩句從舉頭到低頭，表現了深刻的思鄉之情，意味深長，傳頌千古。";
     const puncRegex = /[，。()]/;
 
-    let blocksData = [], activeBlock = null, gameInterval = null, seconds = 0, timerInterval = null;
+    let blocksData = [], activeBlock = null, gameInterval = null, seconds = 0, timerStarted = false, timerInterval = null;
 
     function startGame() {
         document.getElementById('home-screen').style.display = 'none';
         document.getElementById('game-screen').style.display = 'block';
         initGame();
-        startTimer();
     }
 
-    function startTimer() {
-        timerInterval = setInterval(() => {
-            seconds++;
-            let m = Math.floor(seconds / 60).toString().padStart(2, '0');
-            let s = (seconds % 60).toString().padStart(2, '0');
-            document.getElementById('timer').innerText = `時間：${m}:${s}`;
-        }, 1000);
+    // 確保按下第一個字時才啟動計時器
+    function startTimerIfNeeded() {
+        if (!timerStarted) {
+            timerStarted = true;
+            timerInterval = setInterval(() => {
+                seconds++;
+                let m = Math.floor(seconds / 60).toString().padStart(2, '0');
+                let s = (seconds % 60).toString().padStart(2, '0');
+                document.getElementById('timer').innerText = `時間：${m}:${s}`;
+            }, 1000);
+        }
     }
 
     function initGame() {
@@ -266,6 +305,8 @@
     }
 
     function handleWordClick(e, char, chars, blockDiv) {
+        startTimerIfNeeded(); // 玩家按下第一個字時啟動計時
+
         let target = document.querySelector('.slot:not([id="filled"])');
         if (target && char === target.dataset.char) {
             target.textContent = char;
@@ -285,6 +326,20 @@
                 finishGame();
             }
         }
+    }
+
+    function showPreview() {
+        const slots = document.querySelectorAll('.slot:not([id="filled"])');
+        slots.forEach(s => {
+            s.textContent = s.dataset.char;
+            s.style.backgroundColor = "#e0d0b0";
+        });
+        setTimeout(() => {
+            slots.forEach(s => {
+                s.textContent = "";
+                s.style.backgroundColor = "#fff";
+            });
+        }, 3000);
     }
 
     function undoLast() {
