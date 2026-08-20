@@ -2,66 +2,319 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>詩詞拼圖 - 靜夜思(李白)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>詩詞拼圖 - 靜夜思</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        body { font-family: 'Microsoft JhengHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 10px; background-color: #fdf6e3; margin: 0; min-height: 100vh; box-sizing: border-box; }
-        .full-width { width: 100%; max-width: 600px; text-align: center; margin-top: 5px; box-sizing: border-box; }
-        
-        #timer { position: fixed; top: 15px; right: 15px; font-size: 18px; font-weight: bold; color: #8b4513; background: white; padding: 5px 10px; border-radius: 10px; border: 2px solid #8b4513; z-index: 1000; }
-        h2 { color: #8b4513; margin: 8px 0; font-size: 22px; }
-        
-        /* 首頁樣式優化 */
-        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 10px; }
-        .poetry-full-text { background: #fffaf0; border: 2px solid #d2b48c; padding: 15px; border-radius: 10px; margin: 20px 0; font-size: 18px; line-height: 2; color: #5d4037; font-weight: bold; width: 90%; max-width: 400px; word-wrap: break-word; white-space: pre-line; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
-        
-        .start-btn { padding: 15px 30px; background-color: #27ae60; color: white; border: none; border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-        
-        /* 遊戲區域樣式 */
-        .grid-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 10px 0; align-items: center; }
-        .slot { width: 30px; height: 30px; border: 2px dashed #8b4513; display: flex; align-items: center; justify-content: center; background-color: #fff; border-radius: 6px; font-weight: bold; font-size: 15px; color: #333; }
-        .punctuation { font-size: 16px; font-weight: bold; color: #5d6d7e; margin: 0 1px; }
-        #tetris-container { width: 100%; max-width: 500px; height: 120px; background-color: #ffffff; border-radius: 8px; position: relative; overflow: hidden; margin-top: 5px; border: 2px solid #8b4513; }
-        .tetris-block { position: absolute; display: flex; gap: 6px; justify-content: center; left: 50%; transform: translateX(-50%); transition: top 0.05s linear; width: 95%; }
-        .tetris-word { width: 40px; height: 48px; background-color: #8b4513; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; font-weight: bold; border-radius: 8px; flex-shrink: 0; }
-        
-        #game-screen { display: none; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fdf6e3;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        #home-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 30px;
+        }
+        h1 {
+            color: #8b4513;
+            font-size: 26px;
+        }
+        .poem-box {
+            background: #fffaf0;
+            border: 2px solid #d2b48c;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 20px;
+            line-height: 2;
+            color: #5d4037;
+            font-weight: bold;
+        }
+        .start-btn {
+            padding: 15px 40px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #game-screen {
+            display: none;
+            width: 100%;
+        }
+        #timer {
+            font-size: 18px;
+            font-weight: bold;
+            color: #8b4513;
+            margin-bottom: 10px;
+        }
+        .grid-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+        .slot {
+            width: 32px;
+            height: 32px;
+            border: 2px dashed #8b4513;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fff;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .punctuation {
+            font-size: 18px;
+            font-weight: bold;
+            color: #5d6d7e;
+            display: flex;
+            align-items: center;
+        }
+        #tetris-container {
+            width: 100%;
+            height: 120px;
+            background-color: #ffffff;
+            border: 2px solid #8b4513;
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .tetris-block {
+            position: absolute;
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+        }
+        .tetris-word {
+            width: 40px;
+            height: 48px;
+            background-color: #8b4513;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 6px;
+        }
+        .btn-group {
+            margin-top: 20px;
+        }
+        .action-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            background: #f39c12;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #explanation {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid #8b4513;
+            border-radius: 8px;
+            text-align: left;
+            color: #8b4513;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
 
-<div id="timer">時間：00:00</div>
+<div class="container">
+    <!-- 首頁畫面 -->
+    <div id="home-screen">
+        <h1>📜 詩詞拼圖遊戲</h1>
+        <p style="color: #8b4513; font-weight: bold;">李白：靜夜思</p>
+        
+        <div class="poem-box">
+            牀前明月光，<br>
+            疑是地上霜。<br>
+            舉頭望明月，<br>
+            低頭思故鄉。
+        </div>
 
-<div id="home-screen" class="full-width">
-    <h1>📜 詩詞拼圖遊戲</h1>
-    <p style="font-size: 18px; margin: 10px 0;">李白：靜夜思</p>
-    
-    <div class="poetry-full-text">
-        牀前明月光，
-        疑是地上霜。
-        舉頭望明月，
-        低頭思故鄉。
+        <button class="start-btn" onclick="startGame()">開始遊戲</button>
     </div>
 
-    <button class="start-btn" onclick="startGame()">開始遊戲</button>
-</div>
-
-<!-- (其餘邏輯程式碼保持不變) -->
-<div id="game-screen" class="full-width">
-    <h2>李白：靜夜思</h2>
-    <div id="slots" class="grid-container"></div>
-    <div id="tetris-container"></div>
-    <div id="explanation"></div>
-    <div class="btn-group">
-        <button id="undo-btn" class="action-btn" onclick="undoLast()">⟲ 更正</button>
-        <button id="reset-btn" class="action-btn" onclick="resetGame()">再玩一次</button>
+    <!-- 遊戲畫面 -->
+    <div id="game-screen">
+        <div id="timer">時間：00:00</div>
+        <h2 style="color: #8b4513;">李白：靜夜思</h2>
+        <div style="font-size: 14px; color: #5d6d7e; margin-bottom: 10px;">請點選下方出現的字來填入上方空格</div>
+        
+        <div id="slots" class="grid-container"></div>
+        <div id="tetris-container"></div>
+        <div id="explanation"></div>
+        
+        <div class="btn-group">
+            <button class="action-btn" onclick="undoLast()">⟲ 更正</button>
+            <button id="reset-btn" class="action-btn" style="background:#ff5722; display:none;" onclick="location.reload()">再玩一次</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // 保持原本的 JavaScript 邏輯不變...
-    // (將您原本的 script 區塊完整貼回這裡)
+    const fullText = "牀前明月光，疑是地上霜。舉頭望明月，低頭思故鄉。(靜夜思)(李白)";
+    const explainText = "【全文解釋】<br>這首詩描寫了詩人在客途中的思鄉之情。用「霜」來比喻月光，借景抒情，末兩句從舉頭到低頭，表現了深刻的思鄉之情，意味深長，傳頌千古。";
+    const puncRegex = /[，。()]/;
+
+    let blocksData = [], activeBlock = null, gameInterval = null, seconds = 0, timerInterval = null;
+
+    function startGame() {
+        document.getElementById('home-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block';
+        initGame();
+        startTimer();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            seconds++;
+            let m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            let s = (seconds % 60).toString().padStart(2, '0');
+            document.getElementById('timer').innerText = `時間：${m}:${s}`;
+        }, 1000);
+    }
+
+    function initGame() {
+        const slotsDiv = document.getElementById('slots');
+        slotsDiv.innerHTML = '';
+        
+        fullText.split('').forEach((char) => {
+            if (puncRegex.test(char)) {
+                let p = document.createElement('span');
+                p.className = 'punctuation';
+                p.textContent = char;
+                slotsDiv.appendChild(p);
+            } else {
+                let s = document.createElement('div');
+                s.className = 'slot';
+                s.dataset.char = char;
+                slotsDiv.appendChild(s);
+            }
+        });
+
+        const options = fullText.split('').filter(c => !puncRegex.test(c));
+        blocksData = [];
+        for (let i = 0; i < options.length; i += 7) {
+            let b = options.slice(i, i + 7);
+            b.sort(() => Math.random() - 0.5);
+            blocksData.push(b);
+        }
+        spawnNextBlock();
+    }
+
+    function spawnNextBlock() {
+        if (blocksData.length === 0) return;
+        const container = document.getElementById('tetris-container');
+        container.innerHTML = '';
+        let chars = blocksData.shift();
+        let blockDiv = document.createElement('div');
+        blockDiv.className = 'tetris-block';
+        
+        renderChars(blockDiv, chars);
+        container.appendChild(blockDiv);
+        
+        activeBlock = { element: blockDiv, chars: chars };
+        let top = -50;
+        clearInterval(gameInterval);
+        gameInterval = setInterval(() => {
+            if (top < 35) {
+                top += 3;
+                blockDiv.style.top = top + 'px';
+            } else {
+                clearInterval(gameInterval);
+            }
+        }, 30);
+    }
+
+    function renderChars(blockDiv, chars) {
+        blockDiv.innerHTML = '';
+        chars.forEach(char => {
+            let wordDiv = document.createElement('div');
+            wordDiv.className = 'tetris-word';
+            wordDiv.textContent = char;
+            wordDiv.onclick = (e) => handleWordClick(e, char, chars, blockDiv);
+            blockDiv.appendChild(wordDiv);
+        });
+    }
+
+    function handleWordClick(e, char, chars, blockDiv) {
+        let target = document.querySelector('.slot:not([id="filled"])');
+        if (target && char === target.dataset.char) {
+            target.textContent = char;
+            target.id = "filled";
+            target.style.backgroundColor = "#fff";
+            chars.splice(chars.indexOf(char), 1);
+            
+            if (chars.length === 0) {
+                blockDiv.remove();
+                activeBlock = null;
+                spawnNextBlock();
+            } else {
+                renderChars(blockDiv, chars);
+            }
+
+            if (!document.querySelector('.slot:not([id="filled"])')) {
+                finishGame();
+            }
+        }
+    }
+
+    function undoLast() {
+        const filled = document.querySelectorAll('.slot[id="filled"]');
+        if (filled.length > 0) {
+            let last = filled[filled.length - 1];
+            let char = last.dataset.char;
+            last.textContent = '';
+            last.removeAttribute('id');
+            
+            if (activeBlock) {
+                activeBlock.chars.push(char);
+                renderChars(activeBlock.element, activeBlock.chars);
+            } else {
+                blocksData.push([char]);
+                spawnNextBlock();
+            }
+        }
+    }
+
+    function finishGame() {
+        clearInterval(timerInterval);
+        if (activeBlock && activeBlock.element) activeBlock.element.remove();
+        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+        document.getElementById('explanation').innerHTML = explainText;
+        document.getElementById('explanation').style.display = 'block';
+        document.getElementById('reset-btn').style.display = 'inline-block';
+        document.getElementById('tetris-container').style.display = 'none';
+    }
 </script>
+
 </body>
 </html>
