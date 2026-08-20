@@ -51,8 +51,15 @@
         #undo-btn { background: #f39c12; color: white; }
         #reset-btn { background: #ff5722; color: white; display: none; }
 
-        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 75vh; text-align: center; }
-        #home-screen h1 { color: #8b4513; font-size: 28px; margin-bottom: 20px; }
+        /* 首頁自適應設定 */
+        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 80vh; text-align: center; padding-top: 20px; }
+        #home-screen h1 { color: #8b4513; font-size: 28px; margin-bottom: 10px; }
+        .poem-full-text { 
+            background: #fffaf0; border: 2px solid #d2b48c; padding: 15px; border-radius: 10px; 
+            margin: 15px 0 25px 0; font-size: 18px; line-height: 1.8; color: #5d4037; font-weight: bold; 
+            width: 90%; max-width: 350px; white-space: pre-line; word-wrap: break-word; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+        
         .start-btn { padding: 15px 30px; background-color: #27ae60; color: white; border: none; border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
         .start-btn:hover { background-color: #219653; }
         
@@ -72,7 +79,15 @@
 
 <div id="home-screen" class="full-width">
     <h1>📜 詩詞拼圖遊戲</h1>
-    <p class="instruction" style="font-size: 18px; margin-bottom: 30px;">李白 - 送友人</p>
+    <p class="instruction" style="font-size: 18px; margin-bottom: 5px;">李白 - 送友人</p>
+    
+    <div class="poem-full-text">
+        青山橫北郭，白水繞東城。
+        此地一為別，孤蓬萬里征。
+        浮雲遊子意，落日故人情。
+        揮手自茲去，蕭蕭班馬鳴。
+    </div>
+
     <button class="start-btn" onclick="startGame()">開始遊戲</button>
 </div>
 
