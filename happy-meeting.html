@@ -6,119 +6,163 @@
     <title>詩詞拼圖-相見歡(李煜)</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        body { font-family: 'Microsoft JhengHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 10px; background-color: #fdf6e3; margin: 0; min-height: 100vh; position: relative; overflow-x: hidden; box-sizing: border-box; }
-        .full-width { width: 100%; max-width: 600px; text-align: center; margin-top: 5px; }
+        * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Microsoft JhengHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 5px 10px; background-color: #fdf6e3; margin: 0; min-height: 100vh; overflow-x: hidden; }
+        .full-width { width: 100%; max-width: 600px; text-align: center; }
         
-        #timer { 
-            position: fixed; top: 15px; right: 15px; font-size: 18px; font-weight: bold; 
-            color: #8b4513; background: white; padding: 5px 10px; border-radius: 10px; 
-            border: 2px solid #8b4513; z-index: 1000;
-        }
-
-        h2 { color: #8b4513; margin: 8px 0; font-size: 22px; }
+        #timer { position: fixed; top: 12px; right: 12px; font-size: 16px; font-weight: bold; color: #8b4513; background: white; padding: 4px 8px; border-radius: 8px; border: 2px solid #8b4513; z-index: 1000; }
+        h2 { color: #8b4513; margin: 6px 0; font-size: 20px; }
         
-        /* 首頁設計：確保所有裝置都能看到全文 */
-        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 10px; min-height: 90vh; }
-        h1 { color: #8b4513; font-size: 26px; margin-bottom: 10px; }
-        .poetry-full-text { 
-            background: #fffaf0; border: 2px solid #d2b48c; padding: 15px; border-radius: 12px; 
-            margin: 20px 0; font-size: 18px; line-height: 2; color: #5d4037; font-weight: bold; 
-            width: 90%; max-width: 350px; word-wrap: break-word; white-space: pre-line; 
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .action-container { margin: 8px 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
-        .yt-link { text-decoration: none; padding: 6px 12px; background: #FF0000; color: white; border-radius: 5px; font-size: 14px; font-weight: bold; }
-        .preview-btn { padding: 6px 12px; background: #5c6bc0; color: white; border: none; border-radius: 5px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .action-container { margin: 6px 0; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+        .yt-link { text-decoration: none; padding: 5px 10px; background: #FF0000; color: white; border-radius: 5px; font-size: 13px; font-weight: bold; }
+        .preview-btn { padding: 5px 10px; background: #5c6bc0; color: white; border: none; border-radius: 5px; font-size: 13px; font-weight: bold; cursor: pointer; }
         
-        .grid-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 10px 0; align-items: center; }
-        .slot { width: 30px; height: 30px; border: 2px dashed #8b4513; display: flex; align-items: center; justify-content: center; background-color: #fff; border-radius: 6px; font-weight: bold; font-size: 15px; color: #333; }
+        .grid-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 6px 0; align-items: center; }
+        .slot { width: 26px; height: 26px; border: 2px dashed #8b4513; display: flex; align-items: center; justify-content: center; background-color: #fff; border-radius: 6px; font-weight: bold; font-size: 13px; color: #333; }
+        .punctuation { font-size: 14px; font-weight: bold; color: #5d6d7e; margin: 0 1px; }
+        .instruction { color: #5d6d7e; margin-bottom: 6px; font-weight: bold; font-size: 13px; }
         
-        .punctuation { font-size: 16px; font-weight: bold; color: #5d6d7e; margin: 0 1px; }
-        .instruction { color: #5d6d7e; margin-bottom: 8px; font-weight: bold; font-size: 14px; }
+        #tetris-container { width: 100%; max-width: 100%; height: 100px; background-color: #ffffff; border-radius: 8px; position: relative; overflow: hidden; margin-top: 5px; border: 2px solid #8b4513; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .tetris-block { position: absolute; display: flex; gap: 4px; justify-content: center; left: 50%; transform: translateX(-50%); transition: top 0.05s linear; width: 95%; flex-wrap: wrap; }
+        .tetris-word { width: 36px; height: 38px; background-color: #8b4513; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 17px; font-weight: bold; border-radius: 6px; box-shadow: 2px 2px 4px rgba(0,0,0,0.2); user-select: none; flex-shrink: 0; }
         
-        #tetris-container {
-            width: 100%; max-width: 100%; height: 120px; background-color: #ffffff;
-            border-radius: 8px; position: relative; overflow: hidden; margin-top: 5px;
-            border: 2px solid #8b4513; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .tetris-block {
-            position: absolute; display: flex; gap: 6px; justify-content: center; left: 50%;
-            transform: translateX(-50%); transition: top 0.05s linear; width: 95%;
-        }
-
-        .tetris-word {
-            width: 40px; height: 48px; background-color: #8b4513; color: #ffffff;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-            font-size: 20px; font-weight: bold; border-radius: 8px;
-            box-shadow: 2px 2px 4px rgba(0,0,0,0.2); user-select: none; flex-shrink: 0;
-        }
-        .tetris-word:hover { background-color: #a0522d; }
-
-        .btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
-        .action-btn { padding: 8px 18px; border: none; border-radius: 5px; font-size: 15px; cursor: pointer; font-weight: bold; }
+        .btn-group { display: flex; gap: 8px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+        .action-btn { padding: 7px 16px; border: none; border-radius: 5px; font-size: 14px; cursor: pointer; font-weight: bold; }
         #undo-btn { background: #f39c12; color: white; }
         #reset-btn { background: #ff5722; color: white; display: none; }
 
-        .start-btn { padding: 15px 30px; background-color: #27ae60; color: white; border: none; border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        /* 雙頁切換首頁設計：統一卡片尺寸與間距，避免畫面過長 */
+        .page-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px 0; min-height: 85vh; text-align: center; width: 100%; }
+        .page-container h1 { color: #8b4513; font-size: 22px; margin-bottom: 2px; }
+        
+        /* 統一的詩詞與翻譯卡片樣式 */
+        .content-card { 
+            background: #fff8dc; 
+            padding: 12px 15px; 
+            border-radius: 10px; 
+            border: 2px solid #8b4513; 
+            margin: 6px auto; 
+            font-family: "KaiTi", "BiauKai", "STKaiti", "Microsoft JhengHei", serif; 
+            font-size: 16px; 
+            line-height: 1.8; 
+            color: #2c1d0c; 
+            font-weight: bold; 
+            letter-spacing: 1px; 
+            width: 92%; 
+            max-width: 450px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            text-align: left;
+            height: 160px; /* 統一固定高度 */
+            overflow-y: auto; /* 內容過多時顯示滑動軸 */
+            white-space: pre-line;
+        }
+
+        /* 底部按鈕左右並排群組 */
+        .home-btn-row {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            width: 92%;
+            max-width: 450px;
+            margin-top: 8px;
+        }
+
+        .home-btn-row button {
+            flex: 1;
+            padding: 10px 4px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            white-space: nowrap;
+        }
+
+        .translate-btn { background-color: #e67e22; }
+        .translate-btn:hover { background-color: #d35400; }
+        
+        .start-btn { background-color: #27ae60; }
         .start-btn:hover { background-color: #219653; }
         
         #game-screen { display: none; width: 100%; }
-        #explanation { display: none; margin-top: 15px; padding: 15px; background: #fff; border: 1px solid #8b4513; border-radius: 8px; color: #8b4513; font-size: 16px; line-height: 1.6; text-align: left; }
-
-        @media screen and (max-width: 400px) {
-            .tetris-word { width: 34px; height: 42px; font-size: 17px; }
-            .slot { width: 26px; height: 26px; font-size: 13px; }
-            .punctuation { font-size: 14px; }
-        }
+        #explanation { display: none; margin-top: 10px; padding: 12px; background: #fff; border: 1px solid #8b4513; border-radius: 8px; color: #8b4513; font-size: 14px; line-height: 1.5; text-align: left; max-height: 200px; overflow-y: auto; }
     </style>
 </head>
 <body>
 
 <div id="timer">時間：00:00</div>
 
-<div id="home-screen" class="full-width">
+<!-- 【第一頁：詩詞全文首頁】 -->
+<div id="home-page-1" class="full-width page-container">
     <h1>📜 詩詞拼圖遊戲</h1>
-    <p class="instruction" style="font-size: 18px;">李煜：相見歡</p>
+    <p class="instruction" style="font-size: 15px; margin-bottom: 2px; color: #8b4513;">李煜：相見歡</p>
     
-    <div class="poetry-full-text">
-        林花謝了春紅，太匆匆。
-        無奈朝來寒雨晚來風。
-        胭脂淚，相留醉，幾時重。
-        自是人生長恨水長東。
+    <div class="content-card">
+林花謝了春紅，太匆匆。
+無奈朝來寒雨晚來風。
+胭脂淚，相留醉，幾時重。
+自是人生長恨水長東。
     </div>
 
-    <button class="start-btn" onclick="startGame()">開始遊戲</button>
+    <div class="home-btn-row">
+        <button class="translate-btn" onclick="showPage(2)">觀看翻譯</button>
+        <button class="start-btn" onclick="startGame()">開始遊戲</button>
+    </div>
 </div>
 
+<!-- 【第二頁：翻譯內容首頁】 -->
+<div id="home-page-2" class="full-width page-container" style="display: none;">
+    <h1>📜 詩詞拼圖遊戲</h1>
+    <p class="instruction" style="font-size: 15px; margin-bottom: 2px; color: #8b4513;">李煜：相見歡 (翻譯與賞析)</p>
+    
+    <div class="content-card" style="font-family: 'Microsoft JhengHei', sans-serif; font-size: 13px; line-height: 1.5;">
+        <strong>【全文解釋】</strong><br>
+        就像林子裡的繁花褪盡了春日的紅豔，一切消失得太匆促了。敵不過日日夜夜的雨打風吹。<br>
+        美人惜別的淚水，仍然讓我迷醉，不知幾時才能重逢？人生恨事無盡，就好像江水永遠奔流向東，無可挽回。
+    </div>
+
+    <div class="home-btn-row">
+        <button class="translate-btn" onclick="showPage(1)">觀看詩詞全文</button>
+        <button class="start-btn" onclick="startGame()">開始遊戲</button>
+    </div>
+</div>
+
+<!-- 【遊戲主畫面】 -->
 <div id="game-screen" class="full-width">
     <h2>李煜：相見歡</h2>
-    
     <div class="action-container">
         <a href="https://www.youtube.com/watch?v=IKpp4VeP3cg" target="_blank" class="yt-link">🎥 觀看複習影片</a>
         <button class="preview-btn" onclick="showPreview()">📖 查看全文</button>
     </div>
-
     <div class="instruction">請點選下方框框裡的字，正確的字會出現在上方的空格中</div>
-
     <div id="slots" class="grid-container"></div>
     <div id="tetris-container"></div>
     <div id="explanation"></div>
-    
     <div class="btn-group">
         <button id="undo-btn" class="action-btn" onclick="undoLast()">⟲ 更正</button>
         <button id="reset-btn" class="action-btn" onclick="resetGame()">再玩一次</button>
+        <button class="action-btn" style="background: #7f8c8d; color: white;" onclick="goHome()">🏠 回首頁</button>
     </div>
 </div>
 
 <script>
-    // ... (原本的 JavaScript 邏輯保持不變) ...
     const fullText = "林花謝了春紅，太匆匆。無奈朝來寒雨晚來風。胭脂淚，相留醉，幾時重。自是人生長恨水長東。(李煜)(相見歡)";
     const explainText = "【全文解釋】<br>就像林子裡的繁花褪盡了春日的紅豔，一切消失得太匆促了。敵不過日日夜夜的雨打風吹。<br>美人惜別的淚水，仍然讓我迷醉，不知幾時才能重逢？人生恨事無盡，就好像江水永遠奔流向東，無可挽回。";
     const puncRegex = /[，。()]/; 
     
     let blocksData = [], activeBlock = null, gameInterval = null, seconds = 0, timerStarted = false, timerInterval = null;
+
+    function showPage(pageNum) {
+        if (pageNum === 1) {
+            document.getElementById('home-page-1').style.display = 'flex';
+            document.getElementById('home-page-2').style.display = 'none';
+        } else {
+            document.getElementById('home-page-1').style.display = 'none';
+            document.getElementById('home-page-2').style.display = 'flex';
+        }
+    }
 
     function formatTime(s) {
         const m = Math.floor(s / 60).toString().padStart(2, '0');
@@ -127,17 +171,27 @@
     }
 
     function startGame() {
-        document.getElementById('home-screen').style.display = 'none';
+        document.getElementById('home-page-1').style.display = 'none';
+        document.getElementById('home-page-2').style.display = 'none';
         document.getElementById('game-screen').style.display = 'block';
         initGame();
+    }
+
+    function goHome() {
+        if (gameInterval) clearInterval(gameInterval);
+        if (timerInterval) clearInterval(timerInterval);
+        document.getElementById('game-screen').style.display = 'none';
+        showPage(1);
     }
 
     function resetGame() {
         if (gameInterval) clearInterval(gameInterval);
         if (timerInterval) clearInterval(timerInterval);
-        seconds = 0; timerStarted = false;
+        seconds = 0;
+        timerStarted = false;
         document.getElementById('timer').innerText = formatTime(seconds);
         document.getElementById('explanation').style.display = 'none';
+        
         document.getElementById('tetris-container').style.display = 'block';
         document.getElementById('reset-btn').style.display = 'none';
         document.getElementById('undo-btn').style.display = 'inline-block';
@@ -150,88 +204,186 @@
         if (filled.length > 0) {
             const lastSlot = filled[filled.length - 1];
             const charToReturn = lastSlot.dataset.char;
-            lastSlot.textContent = ""; lastSlot.removeAttribute('id'); lastSlot.style.backgroundColor = "#fff";
-            if (activeBlock) { activeBlock.chars.push(charToReturn); updateBlockDOM(activeBlock.element, activeBlock.chars); }
-            else { if (blocksData.length > 0) blocksData[0].unshift(charToReturn); else { blocksData.push([charToReturn]); spawnNextBlock(); } }
+            
+            lastSlot.textContent = "";
+            lastSlot.removeAttribute('id');
+            lastSlot.style.backgroundColor = "#fff";
+
+            if (activeBlock) {
+                activeBlock.chars.push(charToReturn);
+                updateBlockDOM(activeBlock.element, activeBlock.chars);
+            } else {
+                if (blocksData.length > 0) {
+                    blocksData[0].unshift(charToReturn);
+                } else {
+                    blocksData.push([charToReturn]);
+                    spawnNextBlock();
+                }
+            }
         }
     }
 
     function showPreview() {
         const slots = document.querySelectorAll('.empty-slot');
-        slots.forEach(s => { if (s.id !== "filled") { s.textContent = s.dataset.char; s.style.backgroundColor = "#e0d0b0"; } });
-        setTimeout(() => { slots.forEach(s => { if (s.id !== "filled") { s.textContent = ""; s.style.backgroundColor = "#fff"; } }); }, 3000); 
+        slots.forEach(slot => {
+            if (slot.id !== "filled") {
+                slot.textContent = slot.dataset.char;
+                slot.style.backgroundColor = "#e0d0b0";
+            }
+        });
+        setTimeout(() => {
+            slots.forEach(slot => {
+                if (slot.id !== "filled") {
+                    slot.textContent = "";
+                    slot.style.backgroundColor = "#fff";
+                }
+            });
+        }, 3000); 
     }
 
     function startTimerIfNeeded() {
         if (!timerStarted) {
             timerStarted = true;
-            timerInterval = setInterval(() => { seconds++; document.getElementById('timer').innerText = formatTime(seconds); }, 1000);
+            timerInterval = setInterval(() => {
+                seconds++;
+                document.getElementById('timer').innerText = formatTime(seconds);
+            }, 1000);
         }
     }
 
     function initGame() {
         if (timerInterval) clearInterval(timerInterval);
-        seconds = 0; timerStarted = false;
+        seconds = 0;
+        timerStarted = false;
         document.getElementById('timer').innerText = formatTime(seconds);
-        const slotsDiv = document.getElementById('slots'); slotsDiv.innerHTML = '';
+
+        const slotsDiv = document.getElementById('slots');
+        slotsDiv.innerHTML = '';
+        
         fullText.split('').forEach((char) => {
             if (puncRegex.test(char)) {
-                let punc = document.createElement('span'); punc.className = 'punctuation'; punc.textContent = char; slotsDiv.appendChild(punc);
+                let punc = document.createElement('span');
+                punc.className = 'punctuation';
+                punc.textContent = char;
+                slotsDiv.appendChild(punc);
             } else {
-                let slot = document.createElement('div'); slot.className = 'slot empty-slot'; slot.dataset.char = char; slotsDiv.appendChild(slot);
+                let slot = document.createElement('div');
+                slot.className = 'slot empty-slot';
+                slot.dataset.char = char;
+                slotsDiv.appendChild(slot);
             }
         });
+
         const options = fullText.split('').filter(c => !puncRegex.test(c));
+        const blockSize = 7; 
         blocksData = [];
-        for (let i = 0; i < options.length; i += 7) {
-            let b = options.slice(i, i + 7); b.sort(() => Math.random() - 0.5); 
-            blocksData.push(b);
+        for (let i = 0; i < options.length; i += blockSize) {
+            let blockChars = options.slice(i, i + blockSize);
+            blockChars.sort(() => Math.random() - 0.5); 
+            blocksData.push(blockChars);
         }
+
         spawnNextBlock();
     }
 
     function spawnNextBlock() {
         if (blocksData.length === 0) return;
-        const container = document.getElementById('tetris-container'); container.innerHTML = ''; 
+
+        const container = document.getElementById('tetris-container');
+        container.innerHTML = ''; 
+        
         let chars = blocksData.shift();
-        let blockDiv = document.createElement('div'); blockDiv.className = 'tetris-block';
-        function render() {
+        
+        let blockDiv = document.createElement('div');
+        blockDiv.className = 'tetris-block';
+        
+        function renderChars() {
             blockDiv.innerHTML = '';
-            chars.forEach(char => {
-                let wordDiv = document.createElement('div'); wordDiv.className = 'tetris-word'; wordDiv.textContent = char;
-                wordDiv.onclick = (e) => {
-                    e.stopPropagation(); startTimerIfNeeded();
-                    let target = document.querySelector('.empty-slot:not([id="filled"])');
-                    if (target && char === target.dataset.char) {
-                        target.textContent = char; target.id = "filled"; target.style.backgroundColor = "#fff";
-                        chars.splice(chars.indexOf(char), 1);
-                        if (chars.length === 0) { clearInterval(gameInterval); blockDiv.remove(); activeBlock = null; spawnNextBlock(); }
-                        else render();
-                        if (!document.querySelector('.empty-slot:not([id="filled"])')) finish();
+            chars.forEach((char) => {
+                let wordDiv = document.createElement('div');
+                wordDiv.className = 'tetris-word';
+                wordDiv.textContent = char;
+                
+                wordDiv.onclick = function(e) {
+                    e.stopPropagation();
+                    startTimerIfNeeded();
+                    let targetSlot = document.querySelector('.empty-slot:not([id="filled"])');
+                    if (targetSlot && char === targetSlot.dataset.char) {
+                        targetSlot.textContent = char;
+                        targetSlot.id = "filled";
+                        targetSlot.style.backgroundColor = "#fff";
+                        
+                        const charIndex = chars.indexOf(char);
+                        if (charIndex > -1) chars.splice(charIndex, 1);
+                        
+                        if (chars.length === 0) {
+                            if (gameInterval) clearInterval(gameInterval);
+                            blockDiv.remove();
+                            activeBlock = null;
+                            spawnNextBlock(); 
+                        } else {
+                            renderChars();
+                        }
+
+                        if (document.querySelectorAll('.empty-slot:not([id="filled"])').length === 0) {
+                            finish();
+                        }
                     }
                 };
                 blockDiv.appendChild(wordDiv);
             });
         }
-        render(); container.appendChild(blockDiv);
+
+        renderChars();
+        container.appendChild(blockDiv);
+
+        let currentY = -60;
+        let targetY = 35; 
+        blockDiv.style.top = currentY + 'px';
+
         activeBlock = { element: blockDiv, chars: chars };
-        let top = -60; clearInterval(gameInterval);
-        gameInterval = setInterval(() => { if (top < 35) blockDiv.style.top = (top += 4) + 'px'; else clearInterval(gameInterval); }, 30);
+
+        if (gameInterval) clearInterval(gameInterval);
+        gameInterval = setInterval(() => {
+            if (currentY < targetY) {
+                currentY += 4; 
+                blockDiv.style.top = currentY + 'px';
+            } else {
+                clearInterval(gameInterval);
+            }
+        }, 30);
     }
 
     function updateBlockDOM(blockDiv, chars) {
         blockDiv.innerHTML = '';
-        chars.forEach(char => {
-            let wordDiv = document.createElement('div'); wordDiv.className = 'tetris-word'; wordDiv.textContent = char;
-            wordDiv.onclick = (e) => {
-                e.stopPropagation(); startTimerIfNeeded();
-                let target = document.querySelector('.empty-slot:not([id="filled"])');
-                if (target && char === target.dataset.char) {
-                    target.textContent = char; target.id = "filled"; target.style.backgroundColor = "#fff";
-                    chars.splice(chars.indexOf(char), 1);
-                    if (chars.length === 0) { blockDiv.remove(); activeBlock = null; spawnNextBlock(); }
-                    else updateBlockDOM(blockDiv, chars);
-                    if (!document.querySelector('.empty-slot:not([id="filled"])')) finish();
+        chars.forEach((char) => {
+            let wordDiv = document.createElement('div');
+            wordDiv.className = 'tetris-word';
+            wordDiv.textContent = char;
+            
+            wordDiv.onclick = function(e) {
+                e.stopPropagation();
+                startTimerIfNeeded();
+                let targetSlot = document.querySelector('.empty-slot:not([id="filled"])');
+                if (targetSlot && char === targetSlot.dataset.char) {
+                    targetSlot.textContent = char;
+                    targetSlot.id = "filled";
+                    targetSlot.style.backgroundColor = "#fff";
+                    
+                    const charIndex = chars.indexOf(char);
+                    if (charIndex > -1) chars.splice(charIndex, 1);
+                    
+                    if (chars.length === 0) {
+                        blockDiv.remove();
+                        activeBlock = null;
+                        spawnNextBlock();
+                    } else {
+                        updateBlockDOM(blockDiv, chars);
+                    }
+
+                    if (document.querySelectorAll('.empty-slot:not([id="filled"])').length === 0) {
+                        finish();
+                    }
                 }
             };
             blockDiv.appendChild(wordDiv);
@@ -239,14 +391,20 @@
     }
 
     function finish() {
-        clearInterval(gameInterval); clearInterval(timerInterval);
+        if (gameInterval) clearInterval(gameInterval);
+        if (timerInterval) clearInterval(timerInterval);
         if (activeBlock && activeBlock.element) activeBlock.element.remove();
+        
         const msg = new SpeechSynthesisUtterance("太棒了");
         msg.lang = 'zh-TW';
         window.speechSynthesis.speak(msg);
+        
         confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
-        document.getElementById('explanation').innerHTML = explainText;
-        document.getElementById('explanation').style.display = 'block';
+        
+        const explainDiv = document.getElementById('explanation');
+        explainDiv.innerHTML = explainText;
+        explainDiv.style.display = 'block';
+        
         document.getElementById('reset-btn').style.display = 'inline-block';
         document.getElementById('undo-btn').style.display = 'none';
         document.getElementById('tetris-container').style.display = 'none';
