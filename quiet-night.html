@@ -29,28 +29,26 @@
         .btn-group { margin-top: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
         .action-btn { padding: 10px 20px; font-size: 16px; font-weight: bold; background: #f39c12; color: white; border: none; border-radius: 5px; cursor: pointer; }
 
-        /* 雙頁切換首頁設計：調整 justifyContent 為 flex-start 並減少上方留白 */
-        .page-container { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 10px 0; min-height: 85vh; text-align: center; width: 100%; }
-        .page-container h1 { color: #8b4513; font-size: 24px; margin: 5px 0; }
+        /* 雙頁切換首頁設計：自動適應高度，確保所有文字完整呈現 */
+        .page-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px 0; min-height: 85vh; text-align: center; width: 100%; }
+        .page-container h1 { color: #8b4513; font-size: 22px; margin: 2px 0; }
         
-        /* 統一的詩詞與翻譯卡片樣式 */
+        /* 詩詞與翻譯卡片樣式：移除固定高度，讓內容完整展開 */
         .content-card { 
             background: #fffaf0; 
-            padding: 15px 18px; 
+            padding: 10px 15px; 
             border-radius: 10px; 
             border: 2px solid #d2b48c; 
             margin: 6px auto; 
             font-family: "KaiTi", "BiauKai", "STKaiti", "Microsoft JhengHei", serif; 
-            font-size: 18px; 
-            line-height: 2; 
+            font-size: 17px; 
+            line-height: 1.6; 
             color: #5d4037; 
             font-weight: bold; 
             width: 92%; 
             max-width: 450px;
             box-shadow: 0 3px 6px rgba(0,0,0,0.1);
             text-align: left;
-            height: 180px; 
-            overflow-y: auto; 
             white-space: pre-line;
         }
 
@@ -61,15 +59,15 @@
             justify-content: center;
             width: 92%;
             max-width: 450px;
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
         .home-btn-row button {
             flex: 1;
-            padding: 12px 6px;
+            padding: 10px 4px;
             border: none;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
             color: white;
@@ -92,7 +90,7 @@
 <!-- 【第一頁：詩詞全文首頁】 -->
 <div id="home-page-1" class="full-width page-container">
     <h1>📜 詩詞拼圖遊戲</h1>
-    <p style="color: #8b4513; font-weight: bold; font-size: 16px; margin: 2px 0 6px 0;">李白：靜夜思</p>
+    <p style="color: #8b4513; font-weight: bold; font-size: 15px; margin: 2px 0 4px 0;">李白：靜夜思</p>
     
     <div class="content-card">
 牀前明月光，
@@ -110,9 +108,9 @@
 <!-- 【第二頁：翻譯內容首頁】 -->
 <div id="home-page-2" class="full-width page-container" style="display: none;">
     <h1>📜 詩詞拼圖遊戲</h1>
-    <p style="color: #8b4513; font-weight: bold; font-size: 16px; margin: 2px 0 6px 0;">李白：靜夜思 (翻譯與賞析)</p>
+    <p style="color: #8b4513; font-weight: bold; font-size: 15px; margin: 2px 0 4px 0;">李白：靜夜思 (翻譯與賞析)</p>
     
-    <div class="content-card" style="font-family: 'Microsoft JhengHei', sans-serif; font-size: 15px; line-height: 1.6;">
+    <div class="content-card" style="font-family: 'Microsoft JhengHei', sans-serif; font-size: 14px; line-height: 1.5;">
         <strong>【全文解釋】</strong><br>
         這首詩描寫了詩人在客途中的思鄉之情。用「霜」來比喻月光，借景抒情，末兩句從舉頭到低頭，表現了深刻的思鄉之情，意味深長，傳頌千古。
     </div>
@@ -182,7 +180,7 @@
         if (timerInterval) clearInterval(timerInterval);
         seconds = 0;
         timerStarted = false;
-        document.getElementById('timer').innerText = "時間：00:00";
+        document.getElementById('timer').innerText = formatTime(seconds);
         document.getElementById('explanation').style.display = 'none';
         
         document.getElementById('tetris-container').style.display = 'block';
