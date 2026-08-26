@@ -7,90 +7,92 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Microsoft JhengHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 10px; background-color: #fdf6e3; margin: 0; min-height: 100vh; overflow-x: hidden; }
+        body { font-family: 'Microsoft JhengHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 5px 10px; background-color: #fdf6e3; margin: 0; min-height: 100vh; overflow-x: hidden; }
         .full-width { width: 100%; max-width: 600px; text-align: center; }
         
-        #timer { position: fixed; top: 15px; right: 15px; font-size: 18px; font-weight: bold; color: #8b4513; background: white; padding: 5px 10px; border-radius: 10px; border: 2px solid #8b4513; z-index: 1000; }
-        h2 { color: #8b4513; margin: 8px 0; font-size: 20px; }
+        #timer { position: fixed; top: 12px; right: 12px; font-size: 16px; font-weight: bold; color: #8b4513; background: white; padding: 4px 8px; border-radius: 8px; border: 2px solid #8b4513; z-index: 1000; }
+        h2 { color: #8b4513; margin: 6px 0; font-size: 20px; }
         
-        .action-container { margin: 8px 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
-        .yt-link { text-decoration: none; padding: 6px 12px; background: #FF0000; color: white; border-radius: 5px; font-size: 14px; font-weight: bold; }
-        .preview-btn { padding: 6px 12px; background: #5c6bc0; color: white; border: none; border-radius: 5px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .action-container { margin: 6px 0; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+        .yt-link { text-decoration: none; padding: 5px 10px; background: #FF0000; color: white; border-radius: 5px; font-size: 13px; font-weight: bold; }
+        .preview-btn { padding: 5px 10px; background: #5c6bc0; color: white; border: none; border-radius: 5px; font-size: 13px; font-weight: bold; cursor: pointer; }
         
-        .grid-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 8px 0; align-items: center; }
+        .grid-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 6px 0; align-items: center; }
         .slot { width: 26px; height: 26px; border: 2px dashed #8b4513; display: flex; align-items: center; justify-content: center; background-color: #fff; border-radius: 6px; font-weight: bold; font-size: 13px; color: #333; }
         .punctuation { font-size: 14px; font-weight: bold; color: #5d6d7e; margin: 0 1px; }
-        .instruction { color: #5d6d7e; margin-bottom: 8px; font-weight: bold; font-size: 14px; }
+        .instruction { color: #5d6d7e; margin-bottom: 6px; font-weight: bold; font-size: 13px; }
         
-        #tetris-container { width: 100%; max-width: 100%; height: 110px; background-color: #ffffff; border-radius: 8px; position: relative; overflow: hidden; margin-top: 5px; border: 2px solid #8b4513; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        #tetris-container { width: 100%; max-width: 100%; height: 100px; background-color: #ffffff; border-radius: 8px; position: relative; overflow: hidden; margin-top: 5px; border: 2px solid #8b4513; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .tetris-block { position: absolute; display: flex; gap: 4px; justify-content: center; left: 50%; transform: translateX(-50%); transition: top 0.05s linear; width: 95%; flex-wrap: wrap; }
-        .tetris-word { width: 38px; height: 38px; background-color: #8b4513; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; font-weight: bold; border-radius: 6px; box-shadow: 2px 2px 4px rgba(0,0,0,0.2); user-select: none; flex-shrink: 0; }
+        .tetris-word { width: 36px; height: 38px; background-color: #8b4513; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 17px; font-weight: bold; border-radius: 6px; box-shadow: 2px 2px 4px rgba(0,0,0,0.2); user-select: none; flex-shrink: 0; }
         
-        .btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 15px; flex-wrap: wrap; }
-        .action-btn { padding: 8px 18px; border: none; border-radius: 5px; font-size: 15px; cursor: pointer; font-weight: bold; }
+        .btn-group { display: flex; gap: 8px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+        .action-btn { padding: 7px 16px; border: none; border-radius: 5px; font-size: 14px; cursor: pointer; font-weight: bold; }
         #undo-btn { background: #f39c12; color: white; }
         #reset-btn { background: #ff5722; color: white; display: none; }
         #next-stage-btn { background: #27ae60; color: white; display: none; }
 
         /* 首頁設計：確保畫面全裝置可見且按鈕好按 */
-        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px 0; min-height: 85vh; text-align: center; }
-        #home-screen h1 { color: #8b4513; font-size: 24px; margin-bottom: 5px; }
+        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0; min-height: 90vh; text-align: center; }
+        #home-screen h1 { color: #8b4513; font-size: 22px; margin-bottom: 2px; }
         
-        /* 書法字風格的詩詞展示區 */
+        /* 書法字風格的詩詞展示區（控制高度，避免過長） */
         .calligraphy-poem { 
             background: #fff8dc; 
-            padding: 12px 18px; 
-            border-radius: 12px; 
+            padding: 10px 15px; 
+            border-radius: 10px; 
             border: 2px solid #8b4513; 
-            margin: 10px auto; 
+            margin: 6px auto; 
             font-family: "KaiTi", "BiauKai", "STKaiti", "Microsoft JhengHei", serif; 
-            font-size: 16px; 
-            line-height: 1.6; 
+            font-size: 14px; 
+            line-height: 1.5; 
             color: #2c1d0c; 
             font-weight: bold; 
             letter-spacing: 1px; 
-            width: 92%; 
+            width: 95%; 
             max-width: 450px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
             text-align: left;
+            max-height: 140px;
+            overflow-y: auto;
         }
 
         /* 首頁按鈕群組 */
         .home-btn-group {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             justify-content: center;
             flex-wrap: wrap;
-            margin-top: 8px;
+            margin: 6px 0;
         }
 
-        .translate-btn { padding: 10px 20px; background-color: #e67e22; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 5px rgba(0,0,0,0.2); }
+        .translate-btn { padding: 8px 16px; background-color: #e67e22; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .translate-btn:hover { background-color: #d35400; }
 
-        /* 首頁翻譯展開區塊 */
+        /* 首頁翻譯展開區塊：設定最大高度並可捲動，絕不擠壓下方按鈕 */
         #home-translation {
             display: none;
             background: #fff;
             border: 2px solid #e67e22;
-            border-radius: 10px;
-            padding: 10px 15px;
-            margin-top: 10px;
-            font-size: 14px;
-            line-height: 1.5;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin: 6px auto;
+            font-size: 13px;
+            line-height: 1.4;
             color: #8b4513;
             text-align: left;
-            width: 92%;
+            width: 95%;
             max-width: 450px;
             box-sizing: border-box;
-            max-height: 160px;
+            max-height: 110px;
             overflow-y: auto;
         }
 
-        .stage-select { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 300px; margin-top: 10px; }
-        .start-btn { padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; }
+        .stage-select { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 280px; margin-top: 4px; }
+        .start-btn { padding: 10px; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         
         #game-screen { display: none; width: 100%; }
-        #explanation { display: none; margin-top: 10px; padding: 15px; background: #fff; border: 1px solid #8b4513; border-radius: 8px; color: #8b4513; font-size: 15px; line-height: 1.6; text-align: left; max-height: 220px; overflow-y: auto; }
+        #explanation { display: none; margin-top: 10px; padding: 12px; background: #fff; border: 1px solid #8b4513; border-radius: 8px; color: #8b4513; font-size: 14px; line-height: 1.5; text-align: left; max-height: 200px; overflow-y: auto; }
     </style>
 </head>
 <body>
@@ -99,19 +101,19 @@
 
 <div id="home-screen" class="full-width">
     <h1>📜 詩詞拼圖遊戲</h1>
-    <p class="instruction" style="font-size: 15px; margin-bottom: 5px; color: #8b4513;">蘇軾：念奴嬌·赤壁懷古</p>
+    <p class="instruction" style="font-size: 14px; margin-bottom: 2px; color: #8b4513;">蘇軾：念奴嬌·赤壁懷古</p>
     
     <!-- 書法字風格詩詞全文展示 -->
     <div class="calligraphy-poem">
         <strong>【上闋】</strong>大江東去，浪淘盡，千古風流人物。故壘西邊，人道是，三國周郎赤壁。亂石穿空，驚濤拍岸，捲起千堆雪。江山如畫，一時多少豪傑。<br><br>
-        <strong>【下闋】</strong>遙想公瑾當年，小喬初嫁了，雄姿英發。羽扇綸巾，談笑間，檣櫓灰灰煙滅。故國神遊，多情應笑我，早生華髮。人生如夢，一尊還酹江月。
+        <strong>【下闋】</strong>遙想公瑾當年，小喬初嫁了，雄姿英發。羽扇綸巾，談笑間，檣櫓灰飛煙滅。故國神遊，多情應笑我，早生華髮。人生如夢，一尊還酹江月。
     </div>
 
     <div class="home-btn-group">
         <button class="translate-btn" id="toggle-trans-btn">觀看翻譯</button>
     </div>
 
-    <!-- 首頁翻譯內容彈出區塊 -->
+    <!-- 首頁翻譯內容彈出區塊（附帶獨立捲軸，不影響下方按鈕） -->
     <div id="home-translation">
         <strong>【全文翻譯】</strong><br>
         大江浩浩蕩蕩向東流去，滔滔巨浪淘盡千古英雄人物。那舊營壘的西邊，人們說那就是三國周瑜鏖戰的赤壁。陡峭的石壁直聳雲天，如雷的驚濤拍擊着江岸，激起的浪花好似捲起千萬堆白雪。雄壯的江山奇麗如圖畫，一時間涌現出多少英雄豪傑。<br>
@@ -151,7 +153,6 @@
     let currentStage = 1, fullText = "", blocksData = [], activeBlock = null, gameInterval = null, seconds = 0, timerStarted = false, timerInterval = null;
     const puncRegex = /[，。]/;
 
-    // 首頁翻譯按鈕切換邏輯
     function toggleHomeTranslation(e) {
         if (e) { e.preventDefault(); e.stopPropagation(); }
         const transDiv = document.getElementById('home-translation');
