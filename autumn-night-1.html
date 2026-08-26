@@ -51,7 +51,7 @@
         #undo-btn { background: #f39c12; color: white; }
         #reset-btn { background: #ff5722; color: white; display: none; }
 
-        /* 首頁調整：改為可捲動且預留空間排版，讓所有裝置都能完整看到詩詞全文 */
+        /* 首頁調整 */
         #home-screen { 
             display: flex; 
             flex-direction: column; 
@@ -69,9 +69,10 @@
             border: 2px solid #8b4513;
             border-radius: 10px;
             padding: 15px 20px;
-            margin: 15px 0 25px 0;
+            margin: 10px 0 15px 0;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             max-width: 100%;
+            width: 100%;
         }
         
         .home-poem-card .poem-title {
@@ -89,8 +90,36 @@
             font-weight: bold;
         }
 
+        /* 新增：首頁按鈕群組（包含開始遊戲與觀看翻譯） */
+        .home-btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+
         .start-btn { padding: 12px 28px; background-color: #27ae60; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
         .start-btn:hover { background-color: #219653; }
+
+        .translate-btn { padding: 12px 22px; background-color: #e67e22; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        .translate-btn:hover { background-color: #d35400; }
+
+        /* 首頁翻譯內容彈出區塊 */
+        #home-translation {
+            display: none;
+            background: #fff;
+            border: 2px solid #e67e22;
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-top: 15px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #8b4513;
+            text-align: left;
+            width: 100%;
+            box-sizing: border-box;
+        }
         
         #game-screen { display: none; width: 100%; }
         #explanation { display: none; margin-top: 15px; padding: 15px; background: #fff; border: 1px solid #8b4513; border-radius: 8px; color: #8b4513; font-size: 16px; line-height: 1.6; text-align: left; }
@@ -110,7 +139,6 @@
 <div id="home-screen" class="full-width">
     <h1>📜 詩詞拼圖遊戲</h1>
     
-    <!-- 新增：首頁詩詞全文展示卡片 -->
     <div class="home-poem-card">
         <div class="poem-title">唐代・杜牧《秋夕》</div>
         <div class="poem-content">
@@ -121,7 +149,16 @@
         </div>
     </div>
 
-    <button class="start-btn" onclick="startGame()">開始遊戲</button>
+    <div class="home-btn-group">
+        <button class="start-btn" onclick="startGame()">開始遊戲</button>
+        <button class="translate-btn" onclick="toggleHomeTranslation()">觀看翻譯</button>
+    </div>
+
+    <!-- 首頁翻譯展開區塊 -->
+    <div id="home-translation">
+        <strong>【詩意解釋】</strong><br>
+        秋夜，精美的銀色蠟燭發出微弱的光，給畫屏上添了幾分清冷之色；一位宮女手執綾羅小扇，輕輕地撲打飛舞的螢火蟲。天階上的夜色，清涼如水；坐榻仰望星空，只見牽牛星正遠遠眺望着織女星。
+    </div>
 </div>
 
 <div id="game-screen" class="full-width">
@@ -155,6 +192,16 @@
     let activeBlock = null; 
     let gameInterval = null;
     let seconds = 0, timerStarted = false, timerInterval = null;
+
+    // 控制首頁翻譯按鈕的展開與收合
+    function toggleHomeTranslation() {
+        const transDiv = document.getElementById('home-translation');
+        if (transDiv.style.display === 'block') {
+            transDiv.style.display = 'none';
+        } else {
+            transDiv.style.display = 'block';
+        }
+    }
 
     function formatTime(s) {
         const m = Math.floor(s / 60).toString().padStart(2, '0');
