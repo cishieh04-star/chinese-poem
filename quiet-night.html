@@ -29,9 +29,9 @@
         .btn-group { margin-top: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
         .action-btn { padding: 10px 20px; font-size: 16px; font-weight: bold; background: #f39c12; color: white; border: none; border-radius: 5px; cursor: pointer; }
 
-        /* 雙頁切換首頁設計：統一卡片尺寸與間距，避免畫面過長 */
-        .page-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px 0; min-height: 85vh; text-align: center; width: 100%; }
-        .page-container h1 { color: #8b4513; font-size: 24px; margin-bottom: 4px; }
+        /* 雙頁切換首頁設計：調整 justifyContent 為 flex-start 並減少上方留白 */
+        .page-container { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 10px 0; min-height: 85vh; text-align: center; width: 100%; }
+        .page-container h1 { color: #8b4513; font-size: 24px; margin: 5px 0; }
         
         /* 統一的詩詞與翻譯卡片樣式 */
         .content-card { 
@@ -39,7 +39,7 @@
             padding: 15px 18px; 
             border-radius: 10px; 
             border: 2px solid #d2b48c; 
-            margin: 10px auto; 
+            margin: 6px auto; 
             font-family: "KaiTi", "BiauKai", "STKaiti", "Microsoft JhengHei", serif; 
             font-size: 18px; 
             line-height: 2; 
@@ -49,8 +49,8 @@
             max-width: 450px;
             box-shadow: 0 3px 6px rgba(0,0,0,0.1);
             text-align: left;
-            height: 180px; /* 統一固定高度 */
-            overflow-y: auto; /* 內容過多時顯示滑動軸 */
+            height: 180px; 
+            overflow-y: auto; 
             white-space: pre-line;
         }
 
@@ -61,7 +61,7 @@
             justify-content: center;
             width: 92%;
             max-width: 450px;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         .home-btn-row button {
@@ -92,7 +92,7 @@
 <!-- 【第一頁：詩詞全文首頁】 -->
 <div id="home-page-1" class="full-width page-container">
     <h1>📜 詩詞拼圖遊戲</h1>
-    <p style="color: #8b4513; font-weight: bold; font-size: 16px; margin-bottom: 5px;">李白：靜夜思</p>
+    <p style="color: #8b4513; font-weight: bold; font-size: 16px; margin: 2px 0 6px 0;">李白：靜夜思</p>
     
     <div class="content-card">
 牀前明月光，
@@ -110,7 +110,7 @@
 <!-- 【第二頁：翻譯內容首頁】 -->
 <div id="home-page-2" class="full-width page-container" style="display: none;">
     <h1>📜 詩詞拼圖遊戲</h1>
-    <p style="color: #8b4513; font-weight: bold; font-size: 16px; margin-bottom: 5px;">李白：靜夜思 (翻譯與賞析)</p>
+    <p style="color: #8b4513; font-weight: bold; font-size: 16px; margin: 2px 0 6px 0;">李白：靜夜思 (翻譯與賞析)</p>
     
     <div class="content-card" style="font-family: 'Microsoft JhengHei', sans-serif; font-size: 15px; line-height: 1.6;">
         <strong>【全文解釋】</strong><br>
