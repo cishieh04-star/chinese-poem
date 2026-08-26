@@ -6,11 +6,11 @@
     <title>詩詞拼圖 - 陋室銘(劉禹錫)</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        * { box-sizing: border-box; touch-action: manipulation; }
-        body { font-family: 'Microsoft JhengHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 10px; background-color: #fdf6e3; margin: 0; min-height: 100vh; position: relative; overflow-x: hidden; }
+        * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Microsoft JhengHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 5px 10px; background-color: #fdf6e3; margin: 0; min-height: 100vh; overflow-x: hidden; }
         .full-width { width: 100%; max-width: 600px; text-align: center; }
         
-        #timer { position: fixed; top: 10px; right: 10px; font-size: 16px; font-weight: bold; color: #8b4513; background: white; padding: 4px 8px; border-radius: 8px; border: 2px solid #8b4513; z-index: 1000; }
+        #timer { position: fixed; top: 12px; right: 12px; font-size: 16px; font-weight: bold; color: #8b4513; background: white; padding: 4px 8px; border-radius: 8px; border: 2px solid #8b4513; z-index: 1000; }
         h2 { color: #8b4513; margin: 6px 0; font-size: 19px; }
         
         .action-container { margin: 6px 0; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
@@ -32,11 +32,62 @@
         #reset-btn { background: #ff5722; color: white; display: none; }
         #next-stage-btn { background: #27ae60; color: white; display: none; }
 
-        /* 首頁設計：確保文字適中且按鈕好按 */
-        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 20px; width: 100%; }
-        .poem-full-text { background: #fffaf0; padding: 15px; border-radius: 10px; border: 1px solid #d2b48c; margin-bottom: 20px; font-size: 16px; line-height: 1.8; color: #5d4037; font-weight: bold; width: 95%; max-width: 500px; }
-        .stage-select { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 260px; }
-        .start-btn { padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; }
+        /* 首頁設計：雙頁切換佈局 */
+        .page-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px 0; min-height: 90vh; text-align: center; width: 100%; }
+        .page-container h1 { color: #8b4513; font-size: 22px; margin-bottom: 2px; }
+        
+        /* 詩詞與翻譯的卡片樣式 */
+        .content-card { 
+            background: #fff8dc; 
+            padding: 10px 15px; 
+            border-radius: 10px; 
+            border: 2px solid #8b4513; 
+            margin: 6px auto; 
+            font-family: "KaiTi", "BiauKai", "STKaiti", "Microsoft JhengHei", serif; 
+            font-size: 14px; 
+            line-height: 1.6; 
+            color: #2c1d0c; 
+            font-weight: bold; 
+            letter-spacing: 1px; 
+            width: 95%; 
+            max-width: 480px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            text-align: left;
+            max-height: 230px;
+            overflow-y: auto;
+        }
+
+        /* 三個按鈕左右並排的群組區塊 */
+        .home-btn-row {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            width: 95%;
+            max-width: 480px;
+            margin-top: 6px;
+        }
+
+        .home-btn-row button {
+            flex: 1;
+            padding: 10px 4px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            white-space: nowrap;
+        }
+
+        .translate-btn { background-color: #e67e22; }
+        .translate-btn:hover { background-color: #d35400; }
+        
+        .stage-1-btn { background-color: #27ae60; }
+        .stage-1-btn:hover { background-color: #219653; }
+
+        .stage-2-btn { background-color: #2980b9; }
+        .stage-2-btn:hover { background-color: #1f6391; }
         
         #game-screen { display: none; width: 100%; }
         #explanation { display: none; margin-top: 8px; padding: 10px; background: #fff; border: 1px solid #8b4513; border-radius: 8px; color: #8b4513; font-size: 14px; line-height: 1.5; text-align: left; max-height: 200px; overflow-y: auto; }
@@ -46,17 +97,45 @@
 
 <div id="timer">時間：00:00</div>
 
-<div id="home-screen" class="full-width">
+<!-- 【第一頁：詩詞全文首頁】 -->
+<div id="home-page-1" class="full-width page-container">
     <h1>📜 詩詞拼圖遊戲</h1>
-    <div class="poem-full-text">
-        山不在高，有仙則名。水不在深，有龍則靈。<br>斯是陋室，惟吾德馨。苔痕上階綠，草色入簾青。<br>談笑有鴻儒，往來無白丁。<br>可以調素琴，閱金經。<br>無絲竹之亂耳，無案牘之勞形。<br>南陽諸葛廬，西蜀子云亭。<br>孔子云：何陋之有？
+    <p class="instruction" style="font-size: 14px; margin-bottom: 2px; color: #8b4513;">劉禹錫：陋室銘</p>
+    
+    <div class="content-card">
+        <strong>【第一段】</strong>山不在高，有仙則名。水不在深，有龍則靈。斯是陋室，惟吾德馨。苔痕上階綠，草色入簾青。談笑有鴻儒，往來無白丁。<br><br>
+        <strong>【第二段】</strong>可以調素琴，閱金經。無絲竹之亂耳，無案牘之勞形。南陽諸葛廬，西蜀子云亭。孔子云：何陋之有？（陋室銘）（劉禹錫）
     </div>
-    <div class="stage-select">
-        <button class="start-btn" id="btn-stage-1" style="background-color: #27ae60;">第一段</button>
-        <button class="start-btn" id="btn-stage-2" style="background-color: #2980b9;">第二段</button>
+
+    <!-- 三個按鈕左右並排 -->
+    <div class="home-btn-row">
+        <button class="translate-btn" onclick="showPage(2)">觀看翻譯</button>
+        <button class="stage-1-btn" onclick="startStage(1)">開始遊戲(第一段)</button>
+        <button class="stage-2-btn" onclick="startStage(2)">開始遊戲(第二段)</button>
     </div>
 </div>
 
+<!-- 【第二頁：翻譯內容首頁】 -->
+<div id="home-page-2" class="full-width page-container" style="display: none;">
+    <h1>📜 詩詞拼圖遊戲</h1>
+    <p class="instruction" style="font-size: 14px; margin-bottom: 2px; color: #8b4513;">劉禹錫：陋室銘 (翻譯與賞析)</p>
+    
+    <div class="content-card" style="font-family: 'Microsoft JhengHei', sans-serif; font-size: 14px;">
+        <strong>【第一段翻譯】</strong><br>
+        山不在於高，有了神仙就出名。水不在於深，有了龍則顯得有了靈氣。這是簡陋的房子，只是我（住屋的人）品德好（就感覺不到簡陋了）。苔痕碧綠，長到臺階上；草色青蔥，映入簾中。到這裏談笑的都是知識淵博的大學者，交往的沒有知識淺薄的人。<br><br>
+        <strong>【第二段翻譯】</strong><br>
+        可以彈奏不加裝飾的古琴，閱讀佛經。沒有奏樂的聲音擾亂雙耳，沒有官府的公文使身體勞累。南陽有諸葛亮的草廬，西蜀有揚子云的亭子。孔子說：“有什麼簡陋的呢?”
+    </div>
+
+    <!-- 三個按鈕左右並排 -->
+    <div class="home-btn-row">
+        <button class="translate-btn" onclick="showPage(1)">觀看詩詞全文</button>
+        <button class="stage-1-btn" onclick="startStage(1)">開始遊戲(第一段)</button>
+        <button class="stage-2-btn" onclick="startStage(2)">開始遊戲(第二段)</button>
+    </div>
+</div>
+
+<!-- 【遊戲主畫面】 -->
 <div id="game-screen" class="full-width">
     <h2 id="stage-title">陋室銘</h2>
     <div class="action-container">
@@ -92,6 +171,16 @@
     let currentStage = 1, fullText = "", blocksData = [], activeBlock = null, gameInterval = null, seconds = 0, timerStarted = false, timerInterval = null;
     const puncRegex = /[，。：？！（）()]/;
 
+    function showPage(pageNum) {
+        if (pageNum === 1) {
+            document.getElementById('home-page-1').style.display = 'flex';
+            document.getElementById('home-page-2').style.display = 'none';
+        } else {
+            document.getElementById('home-page-1').style.display = 'none';
+            document.getElementById('home-page-2').style.display = 'flex';
+        }
+    }
+
     function safeSpeak(text) {
         setTimeout(() => {
             try {
@@ -111,7 +200,8 @@
         currentStage = stageNum;
         fullText = stages[stageNum].text;
         document.getElementById('stage-title').innerText = stages[stageNum].title;
-        document.getElementById('home-screen').style.display = 'none';
+        document.getElementById('home-page-1').style.display = 'none';
+        document.getElementById('home-page-2').style.display = 'none';
         document.getElementById('game-screen').style.display = 'block';
         resetUI();
         initGame();
@@ -129,7 +219,7 @@
         if (e) { e.preventDefault(); }
         clearInterval(gameInterval); clearInterval(timerInterval);
         document.getElementById('game-screen').style.display = 'none';
-        document.getElementById('home-screen').style.display = 'flex';
+        showPage(1);
     }
 
     function resetGame(e) {
@@ -254,21 +344,32 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        const btn1 = document.getElementById('btn-stage-1');
-        const btn2 = document.getElementById('btn-stage-2');
         const undoBtn = document.getElementById('undo-btn');
         const resetBtn = document.getElementById('reset-btn');
         const nextBtn = document.getElementById('next-stage-btn');
         const homeBtn = document.getElementById('home-btn');
         const previewBtn = document.getElementById('preview-btn');
 
-        if (btn1) { btn1.addEventListener('click', (e) => startStage(1, e)); btn1.addEventListener('touchend', (e) => startStage(1, e)); }
-        if (btn2) { btn2.addEventListener('click', (e) => startStage(2, e)); btn2.addEventListener('touchend', (e) => startStage(2, e)); }
-        if (undoBtn) { undoBtn.addEventListener('click', (e) => { e.preventDefault(); undoLast(); }); undoBtn.addEventListener('touchend', (e) => { e.preventDefault(); undoLast(); }); }
-        if (resetBtn) { resetBtn.addEventListener('click', resetGame); resetBtn.addEventListener('touchend', resetGame); }
-        if (nextBtn) { nextBtn.addEventListener('click', goToNextStage); nextBtn.addEventListener('touchend', goToNextStage); }
-        if (homeBtn) { homeBtn.addEventListener('click', goHome); homeBtn.addEventListener('touchend', goHome); }
-        if (previewBtn) { previewBtn.addEventListener('click', (e) => { e.preventDefault(); showPreview(); }); previewBtn.addEventListener('touchend', (e) => { e.preventDefault(); showPreview(); }); }
+        if (undoBtn) {
+            undoBtn.addEventListener('click', (e) => { e.preventDefault(); undoLast(); });
+            undoBtn.addEventListener('touchend', (e) => { e.preventDefault(); undoLast(); });
+        }
+        if (resetBtn) {
+            resetBtn.addEventListener('click', resetGame);
+            resetBtn.addEventListener('touchend', resetGame);
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', goToNextStage);
+            nextBtn.addEventListener('touchend', goToNextStage);
+        }
+        if (homeBtn) {
+            homeBtn.addEventListener('click', goHome);
+            homeBtn.addEventListener('touchend', goHome);
+        }
+        if (previewBtn) {
+            previewBtn.addEventListener('click', (e) => { e.preventDefault(); showPreview(); });
+            previewBtn.addEventListener('touchend', (e) => { e.preventDefault(); showPreview(); });
+        }
     });
 </script>
 </body>
