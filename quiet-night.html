@@ -29,26 +29,27 @@
         .btn-group { margin-top: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
         .action-btn { padding: 10px 20px; font-size: 16px; font-weight: bold; background: #f39c12; color: white; border: none; border-radius: 5px; cursor: pointer; }
 
-        /* 雙頁切換首頁設計：自動適應高度，確保所有文字完整呈現 */
-        .page-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px 0; min-height: 85vh; text-align: center; width: 100%; }
+        /* 雙頁切換首頁設計：靠上對齊，確保畫面空間緊湊 */
+        .page-container { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 10px 0; min-height: 85vh; text-align: center; width: 100%; }
         .page-container h1 { color: #8b4513; font-size: 22px; margin: 2px 0; }
         
-        /* 詩詞與翻譯卡片樣式：移除固定高度，讓內容完整展開 */
+        /* 移除固定高度，改為 height: auto 讓內容完全自動展開 */
         .content-card { 
             background: #fffaf0; 
-            padding: 10px 15px; 
+            padding: 12px 15px; 
             border-radius: 10px; 
             border: 2px solid #d2b48c; 
             margin: 6px auto; 
             font-family: "KaiTi", "BiauKai", "STKaiti", "Microsoft JhengHei", serif; 
             font-size: 17px; 
-            line-height: 1.6; 
+            line-height: 1.8; 
             color: #5d4037; 
             font-weight: bold; 
             width: 92%; 
             max-width: 450px;
             box-shadow: 0 3px 6px rgba(0,0,0,0.1);
             text-align: left;
+            height: auto; 
             white-space: pre-line;
         }
 
@@ -59,7 +60,7 @@
             justify-content: center;
             width: 92%;
             max-width: 450px;
-            margin-top: 6px;
+            margin-top: 8px;
         }
 
         .home-btn-row button {
