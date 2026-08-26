@@ -2,216 +2,147 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>詩詞拼圖 - 靜夜思</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #fdf6e3;
-            margin: 0;
-            padding: 20px;
+        * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Microsoft JhengHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 5px 10px; background-color: #fdf6e3; margin: 0; min-height: 100vh; overflow-x: hidden; }
+        .full-width { width: 100%; max-width: 600px; text-align: center; }
+        
+        #timer { position: fixed; top: 12px; right: 12px; font-size: 16px; font-weight: bold; color: #8b4513; background: white; padding: 4px 8px; border-radius: 8px; border: 2px solid #8b4513; z-index: 1000; }
+        h2 { color: #8b4513; margin: 6px 0; font-size: 20px; }
+        
+        .action-container { margin: 6px 0; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+        .yt-link { text-decoration: none; padding: 5px 10px; background: #FF0000; color: white; border-radius: 5px; font-size: 13px; font-weight: bold; }
+        .preview-btn { padding: 5px 10px; background: #5c6bc0; color: white; border: none; border-radius: 5px; font-size: 13px; font-weight: bold; cursor: pointer; }
+        
+        .grid-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 6px 0; align-items: center; }
+        .slot { width: 32px; height: 32px; border: 2px dashed #8b4513; display: flex; align-items: center; justify-content: center; background-color: #fff; font-weight: bold; font-size: 16px; border-radius: 6px; }
+        .punctuation { font-size: 18px; font-weight: bold; color: #5d6d7e; display: flex; align-items: center; margin: 0 1px; }
+        .instruction { color: #5d6d7e; margin-bottom: 6px; font-weight: bold; font-size: 13px; }
+        
+        #tetris-container { width: 100%; max-width: 100%; height: 120px; background-color: #ffffff; border: 2px solid #8b4513; position: relative; overflow: hidden; border-radius: 8px; margin-top: 10px; }
+        .tetris-block { position: absolute; display: flex; gap: 6px; justify-content: center; left: 50%; transform: translateX(-50%); width: 95%; }
+        .tetris-word { width: 40px; height: 48px; background-color: #8b4513; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; font-weight: bold; border-radius: 6px; box-shadow: 2px 2px 4px rgba(0,0,0,0.2); user-select: none; flex-shrink: 0; }
+        
+        .btn-group { margin-top: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .action-btn { padding: 10px 20px; font-size: 16px; font-weight: bold; background: #f39c12; color: white; border: none; border-radius: 5px; cursor: pointer; }
+
+        /* 雙頁切換首頁設計：統一卡片尺寸與間距，避免畫面過長 */
+        .page-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px 0; min-height: 85vh; text-align: center; width: 100%; }
+        .page-container h1 { color: #8b4513; font-size: 24px; margin-bottom: 4px; }
+        
+        /* 統一的詩詞與翻譯卡片樣式 */
+        .content-card { 
+            background: #fffaf0; 
+            padding: 15px 18px; 
+            border-radius: 10px; 
+            border: 2px solid #d2b48c; 
+            margin: 10px auto; 
+            font-family: "KaiTi", "BiauKai", "STKaiti", "Microsoft JhengHei", serif; 
+            font-size: 18px; 
+            line-height: 2; 
+            color: #5d4037; 
+            font-weight: bold; 
+            width: 92%; 
+            max-width: 450px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            text-align: left;
+            height: 180px; /* 統一固定高度 */
+            overflow-y: auto; /* 內容過多時顯示滑動軸 */
+            white-space: pre-line;
+        }
+
+        /* 底部按鈕左右並排群組 */
+        .home-btn-row {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container {
-            width: 100%;
-            max-width: 500px;
-            text-align: center;
-        }
-        #home-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 30px;
-        }
-        h1 {
-            color: #8b4513;
-            font-size: 26px;
-        }
-        .poem-box {
-            background: #fffaf0;
-            border: 2px solid #d2b48c;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            font-size: 20px;
-            line-height: 2;
-            color: #5d4037;
-            font-weight: bold;
-        }
-        .start-btn {
-            padding: 15px 40px;
-            background-color: #27ae60;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-        }
-        #game-screen {
-            display: none;
-            width: 100%;
-        }
-        #timer {
-            font-size: 18px;
-            font-weight: bold;
-            color: #8b4513;
-            margin-bottom: 10px;
-        }
-        .action-container {
-            margin: 10px 0;
-            display: flex;
-            justify-content: center;
             gap: 10px;
-            flex-wrap: wrap;
-        }
-        .yt-link {
-            text-decoration: none;
-            padding: 6px 12px;
-            background: #FF0000;
-            color: white;
-            border-radius: 5px;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .preview-btn {
-            padding: 6px 12px;
-            background: #5c6bc0;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .grid-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
             justify-content: center;
-            margin: 15px 0;
-        }
-        .slot {
-            width: 32px;
-            height: 32px;
-            border: 2px dashed #8b4513;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #fff;
-            font-weight: bold;
-            font-size: 16px;
-        }
-        .punctuation {
-            font-size: 18px;
-            font-weight: bold;
-            color: #5d6d7e;
-            display: flex;
-            align-items: center;
-        }
-        #tetris-container {
-            width: 100%;
-            height: 120px;
-            background-color: #ffffff;
-            border: 2px solid #8b4513;
-            position: relative;
-            overflow: hidden;
-            border-radius: 8px;
+            width: 92%;
+            max-width: 450px;
             margin-top: 10px;
         }
-        .tetris-block {
-            position: absolute;
-            display: flex;
-            gap: 6px;
-            justify-content: center;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 95%;
-        }
-        .tetris-word {
-            width: 40px;
-            height: 48px;
-            background-color: #8b4513;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 20px;
-            font-weight: bold;
-            border-radius: 6px;
-        }
-        .btn-group {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-        .action-btn {
-            padding: 10px 20px;
+
+        .home-btn-row button {
+            flex: 1;
+            padding: 12px 6px;
+            border: none;
+            border-radius: 8px;
             font-size: 16px;
             font-weight: bold;
-            background: #f39c12;
-            color: white;
-            border: none;
-            border-radius: 5px;
             cursor: pointer;
+            color: white;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+            white-space: nowrap;
         }
-        #explanation {
-            display: none;
-            margin-top: 15px;
-            padding: 15px;
-            background: #fff;
-            border: 1px solid #8b4513;
-            border-radius: 8px;
-            text-align: left;
-            color: #8b4513;
-            line-height: 1.5;
-        }
+
+        .translate-btn { background-color: #e67e22; }
+        .translate-btn:hover { background-color: #d35400; }
+        
+        .start-btn { background-color: #27ae60; }
+        .start-btn:hover { background-color: #219653; }
+        
+        #game-screen { display: none; width: 100%; }
+        #explanation { display: none; margin-top: 15px; padding: 15px; background: #fff; border: 1px solid #8b4513; border-radius: 8px; text-align: left; color: #8b4513; line-height: 1.5; max-height: 200px; overflow-y: auto; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <!-- 首頁畫面 -->
-    <div id="home-screen">
-        <h1>📜 詩詞拼圖遊戲</h1>
-        <p style="color: #8b4513; font-weight: bold;">李白：靜夜思</p>
-        
-        <div class="poem-box">
-            牀前明月光，<br>
-            疑是地上霜。<br>
-            舉頭望明月，<br>
-            低頭思故鄉。
-        </div>
-
-        <button class="start-btn" onclick="startGame()">開始遊戲</button>
+<!-- 【第一頁：詩詞全文首頁】 -->
+<div id="home-page-1" class="full-width page-container">
+    <h1>📜 詩詞拼圖遊戲</h1>
+    <p style="color: #8b4513; font-weight: bold; font-size: 16px; margin-bottom: 5px;">李白：靜夜思</p>
+    
+    <div class="content-card">
+牀前明月光，
+疑是地上霜。
+舉頭望明月，
+低頭思故鄉。
     </div>
 
-    <!-- 遊戲畫面 -->
-    <div id="game-screen">
-        <div id="timer">時間：00:00</div>
-        <h2 style="color: #8b4513;">李白：靜夜思</h2>
-        
-        <div class="action-container">
-            <a href="https://www.youtube.com/watch?v=UxZ8ofmODTg" target="_blank" class="yt-link">🎥 觀看複習影片</a>
-            <button class="preview-btn" onclick="showPreview()">📖 查看全文</button>
-        </div>
+    <div class="home-btn-row">
+        <button class="translate-btn" onclick="showPage(2)">觀看翻譯</button>
+        <button class="start-btn" onclick="startGame()">開始遊戲</button>
+    </div>
+</div>
 
-        <div style="font-size: 14px; color: #5d6d7e; margin-bottom: 10px;">請點選下方出現的字來填入上方空格</div>
-        
-        <div id="slots" class="grid-container"></div>
-        <div id="tetris-container"></div>
-        <div id="explanation"></div>
-        
-        <div class="btn-group">
-            <button class="action-btn" onclick="undoLast()">⟲ 更正</button>
-            <button id="reset-btn" class="action-btn" style="background:#ff5722; display:none;" onclick="location.reload()">再玩一次</button>
-        </div>
+<!-- 【第二頁：翻譯內容首頁】 -->
+<div id="home-page-2" class="full-width page-container" style="display: none;">
+    <h1>📜 詩詞拼圖遊戲</h1>
+    <p style="color: #8b4513; font-weight: bold; font-size: 16px; margin-bottom: 5px;">李白：靜夜思 (翻譯與賞析)</p>
+    
+    <div class="content-card" style="font-family: 'Microsoft JhengHei', sans-serif; font-size: 15px; line-height: 1.6;">
+        <strong>【全文解釋】</strong><br>
+        這首詩描寫了詩人在客途中的思鄉之情。用「霜」來比喻月光，借景抒情，末兩句從舉頭到低頭，表現了深刻的思鄉之情，意味深長，傳頌千古。
+    </div>
+
+    <div class="home-btn-row">
+        <button class="translate-btn" onclick="showPage(1)">觀看詩詞全文</button>
+        <button class="start-btn" onclick="startGame()">開始遊戲</button>
+    </div>
+</div>
+
+<!-- 【遊戲主畫面】 -->
+<div id="game-screen" class="full-width" style="padding: 10px;">
+    <div id="timer">時間：00:00</div>
+    <h2 style="color: #8b4513;">李白：靜夜思</h2>
+    
+    <div class="action-container">
+        <a href="https://www.youtube.com/watch?v=UxZ8ofmODTg" target="_blank" class="yt-link">🎥 觀看複習影片</a>
+        <button class="preview-btn" onclick="showPreview()">📖 查看全文</button>
+    </div>
+
+    <div style="font-size: 14px; color: #5d6d7e; margin-bottom: 10px;">請點選下方出現的字來填入上方空格</div>
+    
+    <div id="slots" class="grid-container"></div>
+    <div id="tetris-container"></div>
+    <div id="explanation"></div>
+    
+    <div class="btn-group">
+        <button class="action-btn" onclick="undoLast()">⟲ 更正</button>
+        <button id="reset-btn" class="action-btn" style="background:#ff5722; display:none;" onclick="resetGame()">再玩一次</button>
+        <button class="action-btn" style="background: #7f8c8d; color: white;" onclick="goHome()">🏠 回首頁</button>
     </div>
 </div>
 
@@ -222,13 +153,44 @@
 
     let blocksData = [], activeBlock = null, gameInterval = null, seconds = 0, timerStarted = false, timerInterval = null;
 
+    function showPage(pageNum) {
+        if (pageNum === 1) {
+            document.getElementById('home-page-1').style.display = 'flex';
+            document.getElementById('home-page-2').style.display = 'none';
+        } else {
+            document.getElementById('home-page-1').style.display = 'none';
+            document.getElementById('home-page-2').style.display = 'flex';
+        }
+    }
+
     function startGame() {
-        document.getElementById('home-screen').style.display = 'none';
+        document.getElementById('home-page-1').style.display = 'none';
+        document.getElementById('home-page-2').style.display = 'none';
         document.getElementById('game-screen').style.display = 'block';
         initGame();
     }
 
-    // 確保按下第一個字時才啟動計時器
+    function goHome() {
+        if (gameInterval) clearInterval(gameInterval);
+        if (timerInterval) clearInterval(timerInterval);
+        document.getElementById('game-screen').style.display = 'none';
+        showPage(1);
+    }
+
+    function resetGame() {
+        if (gameInterval) clearInterval(gameInterval);
+        if (timerInterval) clearInterval(timerInterval);
+        seconds = 0;
+        timerStarted = false;
+        document.getElementById('timer').innerText = "時間：00:00";
+        document.getElementById('explanation').style.display = 'none';
+        
+        document.getElementById('tetris-container').style.display = 'block';
+        document.getElementById('reset-btn').style.display = 'none';
+        if (activeBlock && activeBlock.element) activeBlock.element.remove();
+        initGame();
+    }
+
     function startTimerIfNeeded() {
         if (!timerStarted) {
             timerStarted = true;
@@ -305,7 +267,7 @@
     }
 
     function handleWordClick(e, char, chars, blockDiv) {
-        startTimerIfNeeded(); // 玩家按下第一個字時啟動計時
+        startTimerIfNeeded();
 
         let target = document.querySelector('.slot:not([id="filled"])');
         if (target && char === target.dataset.char) {
