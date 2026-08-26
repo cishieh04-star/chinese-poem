@@ -32,11 +32,10 @@
         #reset-btn { background: #ff5722; color: white; display: none; }
         #next-stage-btn { background: #27ae60; color: white; display: none; }
 
-        /* 首頁設計：確保畫面全裝置可見且按鈕好按 */
+        /* 首頁設計 */
         #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0; min-height: 90vh; text-align: center; }
         #home-screen h1 { color: #8b4513; font-size: 22px; margin-bottom: 2px; }
         
-        /* 書法字風格的詩詞展示區（控制高度，避免過長） */
         .calligraphy-poem { 
             background: #fff8dc; 
             padding: 10px 15px; 
@@ -53,11 +52,10 @@
             max-width: 450px;
             box-shadow: 0 3px 6px rgba(0,0,0,0.1);
             text-align: left;
-            max-height: 140px;
+            max-height: 130px;
             overflow-y: auto;
         }
 
-        /* 首頁按鈕群組 */
         .home-btn-group {
             display: flex;
             gap: 8px;
@@ -66,10 +64,9 @@
             margin: 6px 0;
         }
 
-        .translate-btn { padding: 8px 16px; background-color: #e67e22; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .translate-btn { padding: 8px 16px; background-color: #e67e22; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .translate-btn:hover { background-color: #d35400; }
 
-        /* 首頁翻譯展開區塊：設定最大高度並可捲動，絕不擠壓下方按鈕 */
         #home-translation {
             display: none;
             background: #fff;
@@ -84,12 +81,33 @@
             width: 95%;
             max-width: 450px;
             box-sizing: border-box;
-            max-height: 110px;
+            max-height: 100px;
             overflow-y: auto;
         }
 
-        .stage-select { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 280px; margin-top: 4px; }
-        .start-btn { padding: 10px; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        /* 左右並排的選關按鈕群組 */
+        .stage-select { 
+            display: flex; 
+            flex-direction: row; 
+            gap: 8px; 
+            width: 95%; 
+            max-width: 450px; 
+            justify-content: center; 
+            margin-top: 6px; 
+        }
+        
+        .start-btn { 
+            flex: 1; 
+            padding: 10px 8px; 
+            border: none; 
+            border-radius: 6px; 
+            font-size: 14px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            color: white; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
+            white-space: nowrap; 
+        }
         
         #game-screen { display: none; width: 100%; }
         #explanation { display: none; margin-top: 10px; padding: 12px; background: #fff; border: 1px solid #8b4513; border-radius: 8px; color: #8b4513; font-size: 14px; line-height: 1.5; text-align: left; max-height: 200px; overflow-y: auto; }
@@ -103,26 +121,25 @@
     <h1>📜 詩詞拼圖遊戲</h1>
     <p class="instruction" style="font-size: 14px; margin-bottom: 2px; color: #8b4513;">蘇軾：念奴嬌·赤壁懷古</p>
     
-    <!-- 書法字風格詩詞全文展示 -->
     <div class="calligraphy-poem">
         <strong>【上闋】</strong>大江東去，浪淘盡，千古風流人物。故壘西邊，人道是，三國周郎赤壁。亂石穿空，驚濤拍岸，捲起千堆雪。江山如畫，一時多少豪傑。<br><br>
-        <strong>【下闋】</strong>遙想公瑾當年，小喬初嫁了，雄姿英發。羽扇綸巾，談笑間，檣櫓灰飛煙滅。故國神遊，多情應笑我，早生華髮。人生如夢，一尊還酹江月。
+        <strong>【下闋】</strong>遙想公瑾當年，小喬初嫁了，雄姿英發。羽扇綸巾，談笑間，檣櫓灰灰煙滅。故國神遊，多情應笑我，早生華髮。人生如夢，一尊還酹江月。
     </div>
 
     <div class="home-btn-group">
         <button class="translate-btn" id="toggle-trans-btn">觀看翻譯</button>
     </div>
 
-    <!-- 首頁翻譯內容彈出區塊（附帶獨立捲軸，不影響下方按鈕） -->
     <div id="home-translation">
         <strong>【全文翻譯】</strong><br>
         大江浩浩蕩蕩向東流去，滔滔巨浪淘盡千古英雄人物。那舊營壘的西邊，人們說那就是三國周瑜鏖戰的赤壁。陡峭的石壁直聳雲天，如雷的驚濤拍擊着江岸，激起的浪花好似捲起千萬堆白雪。雄壯的江山奇麗如圖畫，一時間涌現出多少英雄豪傑。<br>
         遙想當年的周瑜春風得意，絕代佳人小喬剛嫁給他，他英姿奮發豪氣滿懷。手搖羽扇頭戴綸巾，談笑之間，強敵的戰船燒得灰飛煙滅。我今日神遊當年的戰地，可笑我多情善感，過早地生出滿頭白髮。人生猶如一場夢，且灑一杯酒祭奠江上的明月。
     </div>
 
+    <!-- 左右並排的選關按鈕 -->
     <div class="stage-select">
-        <button class="start-btn" style="background-color: #27ae60;" onclick="startStage(1)">第一段 (前四句)</button>
-        <button class="start-btn" style="background-color: #2980b9;" onclick="startStage(2)">第二段 (後四句)</button>
+        <button class="start-btn" style="background-color: #27ae60;" onclick="startStage(1)">開始遊戲(第一段)</button>
+        <button class="start-btn" style="background-color: #2980b9;" onclick="startStage(2)">開始遊戲(第二段)</button>
     </div>
 </div>
 
