@@ -6,162 +6,129 @@
     <title>詩詞拼圖 - 秋夕</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        body { font-family: 'Microsoft JhengHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 10px; background-color: #fdf6e3; margin: 0; min-height: 100vh; position: relative; overflow-x: hidden; box-sizing: border-box; }
-        .full-width { width: 100%; max-width: 600px; text-align: center; margin-top: 5px; }
+        * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Microsoft JhengHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 5px 10px; background-color: #fdf6e3; margin: 0; min-height: 100vh; overflow-x: hidden; }
+        .full-width { width: 100%; max-width: 600px; text-align: center; }
         
-        #timer { 
-            position: fixed; top: 15px; right: 15px; font-size: 18px; font-weight: bold; 
-            color: #8b4513; background: white; padding: 5px 10px; border-radius: 10px; 
-            border: 2px solid #8b4513; z-index: 1000;
-        }
-
-        h2 { color: #8b4513; margin: 8px 0; font-size: 22px; }
+        #timer { position: fixed; top: 12px; right: 12px; font-size: 16px; font-weight: bold; color: #8b4513; background: white; padding: 4px 8px; border-radius: 8px; border: 2px solid #8b4513; z-index: 1000; }
+        h2 { color: #8b4513; margin: 6px 0; font-size: 20px; }
         
-        .action-container { margin: 8px 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
-        .yt-link { text-decoration: none; padding: 6px 12px; background: #FF0000; color: white; border-radius: 5px; font-size: 14px; font-weight: bold; }
-        .preview-btn { padding: 6px 12px; background: #5c6bc0; color: white; border: none; border-radius: 5px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .action-container { margin: 6px 0; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+        .yt-link { text-decoration: none; padding: 5px 10px; background: #FF0000; color: white; border-radius: 5px; font-size: 13px; font-weight: bold; }
+        .preview-btn { padding: 5px 10px; background: #5c6bc0; color: white; border: none; border-radius: 5px; font-size: 13px; font-weight: bold; cursor: pointer; }
         
-        .grid-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 10px 0; align-items: center; }
+        .grid-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 6px 0; align-items: center; }
         .slot { width: 30px; height: 30px; border: 2px dashed #8b4513; display: flex; align-items: center; justify-content: center; background-color: #fff; border-radius: 6px; font-weight: bold; font-size: 15px; color: #333; }
-        
         .punctuation { font-size: 16px; font-weight: bold; color: #5d6d7e; margin: 0 1px; }
-        .instruction { color: #5d6d7e; margin-bottom: 8px; font-weight: bold; font-size: 14px; }
+        .instruction { color: #5d6d7e; margin-bottom: 6px; font-weight: bold; font-size: 13px; }
         
-        #tetris-container {
-            width: 100%; max-width: 100%; height: 120px; background-color: #ffffff;
-            border-radius: 8px; position: relative; overflow: hidden; margin-top: 5px;
-            border: 2px solid #8b4513; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .tetris-block {
-            position: absolute; display: flex; gap: 6px; justify-content: center; left: 50%;
-            transform: translateX(-50%); transition: top 0.05s linear; width: 95%;
-        }
-
-        .tetris-word {
-            width: 40px; height: 48px; background-color: #8b4513; color: #ffffff;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-            font-size: 20px; font-weight: bold; border-radius: 8px;
-            box-shadow: 2px 2px 4px rgba(0,0,0,0.2); user-select: none; flex-shrink: 0;
-        }
-        .tetris-word:hover { background-color: #a0522d; }
-
-        .btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
-        .action-btn { padding: 8px 18px; border: none; border-radius: 5px; font-size: 15px; cursor: pointer; font-weight: bold; }
+        #tetris-container { width: 100%; max-width: 100%; height: 120px; background-color: #ffffff; border-radius: 8px; position: relative; overflow: hidden; margin-top: 5px; border: 2px solid #8b4513; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .tetris-block { position: absolute; display: flex; gap: 6px; justify-content: center; left: 50%; transform: translateX(-50%); width: 95%; }
+        .tetris-word { width: 40px; height: 48px; background-color: #8b4513; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; font-weight: bold; border-radius: 8px; box-shadow: 2px 2px 4px rgba(0,0,0,0.2); user-select: none; flex-shrink: 0; }
+        
+        .btn-group { display: flex; gap: 8px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+        .action-btn { padding: 7px 16px; border: none; border-radius: 5px; font-size: 14px; cursor: pointer; font-weight: bold; }
         #undo-btn { background: #f39c12; color: white; }
         #reset-btn { background: #ff5722; color: white; display: none; }
 
-        /* 首頁調整 */
-        #home-screen { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 20px 10px; 
-            text-align: center; 
-            min-height: 85vh;
-            box-sizing: border-box;
-        }
-        #home-screen h1 { color: #8b4513; font-size: 26px; margin-bottom: 10px; }
+        /* 雙頁切換首頁設計：靠上對齊，消除上方過多留白，自動適應高度 */
+        .page-container { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 10px 0; min-height: 85vh; text-align: center; width: 100%; }
+        .page-container h1 { color: #8b4513; font-size: 22px; margin: 2px 0; }
         
-        .home-poem-card {
-            background: #fff;
-            border: 2px solid #8b4513;
-            border-radius: 10px;
-            padding: 15px 20px;
-            margin: 10px 0 15px 0;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            max-width: 100%;
-            width: 100%;
-        }
-        
-        .home-poem-card .poem-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #8b4513;
-            margin-bottom: 8px;
-        }
-
-        .home-poem-card .poem-content {
-            font-size: 17px;
-            color: #333;
-            line-height: 1.8;
-            letter-spacing: 1px;
-            font-weight: bold;
-        }
-
-        /* 新增：首頁按鈕群組（包含開始遊戲與觀看翻譯） */
-        .home-btn-group {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 5px;
-        }
-
-        .start-btn { padding: 12px 28px; background-color: #27ae60; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-        .start-btn:hover { background-color: #219653; }
-
-        .translate-btn { padding: 12px 22px; background-color: #e67e22; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-        .translate-btn:hover { background-color: #d35400; }
-
-        /* 首頁翻譯內容彈出區塊 */
-        #home-translation {
-            display: none;
-            background: #fff;
-            border: 2px solid #e67e22;
-            border-radius: 10px;
-            padding: 12px 15px;
-            margin-top: 15px;
-            font-size: 15px;
-            line-height: 1.6;
-            color: #8b4513;
+        /* 統一的詩詞與翻譯卡片樣式：自動適應高度，絕不切掉文字 */
+        .content-card { 
+            background: #fff; 
+            border: 2px solid #8b4513; 
+            border-radius: 10px; 
+            padding: 12px 18px; 
+            margin: 6px auto; 
+            font-family: "KaiTi", "BiauKai", "STKaiti", "Microsoft JhengHei", serif; 
+            font-size: 17px; 
+            line-height: 1.8; 
+            color: #333; 
+            font-weight: bold; 
+            letter-spacing: 1px; 
+            width: 92%; 
+            max-width: 450px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.05);
             text-align: left;
-            width: 100%;
-            box-sizing: border-box;
+            height: auto; 
+            white-space: pre-line;
         }
+
+        /* 底部按鈕左右並排群組 */
+        .home-btn-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            width: 92%;
+            max-width: 450px;
+            margin-top: 8px;
+        }
+
+        .home-btn-row button {
+            flex: 1;
+            padding: 10px 4px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+            white-space: nowrap;
+        }
+
+        .translate-btn { background-color: #e67e22; }
+        .translate-btn:hover { background-color: #d35400; }
+        
+        .start-btn { background-color: #27ae60; }
+        .start-btn:hover { background-color: #219653; }
         
         #game-screen { display: none; width: 100%; }
-        #explanation { display: none; margin-top: 15px; padding: 15px; background: #fff; border: 1px solid #8b4513; border-radius: 8px; color: #8b4513; font-size: 16px; line-height: 1.6; text-align: left; }
-
-        @media screen and (max-width: 400px) {
-            .tetris-word { width: 34px; height: 42px; font-size: 17px; }
-            .slot { width: 26px; height: 26px; font-size: 13px; }
-            .punctuation { font-size: 14px; }
-            .home-poem-card .poem-content { font-size: 15px; }
-        }
+        #explanation { display: none; margin-top: 15px; padding: 15px; background: #fff; border: 1px solid #8b4513; border-radius: 8px; color: #8b4513; font-size: 16px; line-height: 1.6; text-align: left; max-height: 200px; overflow-y: auto; }
     </style>
 </head>
 <body>
 
 <div id="timer">時間：00:00</div>
 
-<div id="home-screen" class="full-width">
+<!-- 【第一頁：詩詞全文首頁】 -->
+<div id="home-page-1" class="full-width page-container">
     <h1>📜 詩詞拼圖遊戲</h1>
+    <p style="color: #8b4513; font-weight: bold; font-size: 15px; margin: 2px 0 4px 0;">唐代・杜牧《秋夕》</p>
     
-    <div class="home-poem-card">
-        <div class="poem-title">唐代・杜牧《秋夕》</div>
-        <div class="poem-content">
-            銀燭秋光冷畫屏，<br>
-            輕羅小扇撲流螢。<br>
-            天階夜色涼如水，<br>
-            臥看牽牛織女星。
-        </div>
+    <div class="content-card">
+銀燭秋光冷畫屏，
+輕羅小扇撲流螢。
+天階夜色涼如水，
+臥看牽牛織女星。
     </div>
 
-    <div class="home-btn-group">
+    <div class="home-btn-row">
+        <button class="translate-btn" onclick="showPage(2)">觀看翻譯</button>
         <button class="start-btn" onclick="startGame()">開始遊戲</button>
-        <button class="translate-btn" onclick="toggleHomeTranslation()">觀看翻譯</button>
-    </div>
-
-    <!-- 首頁翻譯展開區塊 -->
-    <div id="home-translation">
-        <strong>【詩意解釋】</strong><br>
-        秋夜，精美的銀色蠟燭發出微弱的光，給畫屏上添了幾分清冷之色；一位宮女手執綾羅小扇，輕輕地撲打飛舞的螢火蟲。天階上的夜色，清涼如水；坐榻仰望星空，只見牽牛星正遠遠眺望着織女星。
     </div>
 </div>
 
-<div id="game-screen" class="full-width">
+<!-- 【第二頁：翻譯內容首頁】 -->
+<div id="home-page-2" class="full-width page-container" style="display: none;">
+    <h1>📜 詩詞拼圖遊戲</h1>
+    <p style="color: #8b4513; font-weight: bold; font-size: 15px; margin: 2px 0 4px 0;">唐代・杜牧《秋夕》 (翻譯與賞析)</p>
+    
+    <div class="content-card" style="font-family: 'Microsoft JhengHei', sans-serif; font-size: 14px; line-height: 1.6;">
+        <strong>【詩意解釋】</strong><br>
+        秋夜，精美的銀色蠟燭發出微弱的光，給畫屏上添了幾分清冷之色；一位宮女手執綾羅小扇，輕輕地撲打飛舞的螢火蟲。天階上的夜色，清涼如水；坐榻仰望星空，只見牽牛星正遠遠眺望着織女星。
+    </div>
+
+    <div class="home-btn-row">
+        <button class="translate-btn" onclick="showPage(1)">觀看詩詞全文</button>
+        <button class="start-btn" onclick="startGame()">開始遊戲</button>
+    </div>
+</div>
+
+<!-- 【遊戲主畫面】 -->
+<div id="game-screen" class="full-width" style="padding: 10px;">
     <h2>杜牧：秋夕</h2>
     
     <div class="action-container">
@@ -172,14 +139,13 @@
     <div class="instruction">請點選下方框框裡的字，正確的字會出現在上方的空格中</div>
 
     <div id="slots" class="grid-container"></div>
-    
     <div id="tetris-container"></div>
-    
     <div id="explanation"></div>
     
     <div class="btn-group">
         <button id="undo-btn" class="action-btn" onclick="undoLast()">⟲ 更正</button>
         <button id="reset-btn" class="action-btn" onclick="resetGame()">再玩一次</button>
+        <button class="action-btn" style="background: #7f8c8d; color: white;" onclick="goHome()">🏠 回首頁</button>
     </div>
 </div>
 
@@ -188,18 +154,15 @@
     const explainText = "【詩意解釋】<br>秋夜，精美的銀色蠟燭發出微弱的光，給畫屏上添了幾分清冷之色；一位宮女手執綾羅小扇，輕輕地撲打飛舞的螢火蟲。天階上的夜色，清涼如水；坐榻仰望星空，只見牽牛星正遠遠眺望着織女星。";
     const puncRegex = /[，。()：]/; 
     
-    let blocksData = []; 
-    let activeBlock = null; 
-    let gameInterval = null;
-    let seconds = 0, timerStarted = false, timerInterval = null;
+    let blocksData = [], activeBlock = null, gameInterval = null, seconds = 0, timerStarted = false, timerInterval = null;
 
-    // 控制首頁翻譯按鈕的展開與收合
-    function toggleHomeTranslation() {
-        const transDiv = document.getElementById('home-translation');
-        if (transDiv.style.display === 'block') {
-            transDiv.style.display = 'none';
+    function showPage(pageNum) {
+        if (pageNum === 1) {
+            document.getElementById('home-page-1').style.display = 'flex';
+            document.getElementById('home-page-2').style.display = 'none';
         } else {
-            transDiv.style.display = 'block';
+            document.getElementById('home-page-1').style.display = 'none';
+            document.getElementById('home-page-2').style.display = 'flex';
         }
     }
 
@@ -210,9 +173,17 @@
     }
 
     function startGame() {
-        document.getElementById('home-screen').style.display = 'none';
+        document.getElementById('home-page-1').style.display = 'none';
+        document.getElementById('home-page-2').style.display = 'none';
         document.getElementById('game-screen').style.display = 'block';
         initGame();
+    }
+
+    function goHome() {
+        if (gameInterval) clearInterval(gameInterval);
+        if (timerInterval) clearInterval(timerInterval);
+        document.getElementById('game-screen').style.display = 'none';
+        showPage(1);
     }
 
     function resetGame() {
