@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Microsoft JhengHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 5px 10px; background-color: #fdf6e3; margin: 0; min-height: 100vh; overflow-x: hidden; }
+        body { font-family: 'Microsoft JhengHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 10px; background-color: #fdf6e3; margin: 0; min-height: 100vh; overflow-x: hidden; }
         .full-width { width: 100%; max-width: 600px; text-align: center; }
         
         #timer { position: fixed; top: 12px; right: 12px; font-size: 16px; font-weight: bold; color: #8b4513; background: white; padding: 4px 8px; border-radius: 8px; border: 2px solid #8b4513; z-index: 1000; }
@@ -32,80 +32,64 @@
         #reset-btn { background: #ff5722; color: white; display: none; }
         #next-stage-btn { background: #27ae60; color: white; display: none; }
 
-        /* 首頁設計 */
-        #home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0; min-height: 90vh; text-align: center; }
-        #home-screen h1 { color: #8b4513; font-size: 22px; margin-bottom: 2px; }
+        /* 首頁設計：雙頁切換佈局 */
+        .page-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0; min-height: 88vh; text-align: center; width: 100%; }
+        .page-container h1 { color: #8b4513; font-size: 24px; margin-bottom: 4px; }
         
-        .calligraphy-poem { 
+        /* 詩詞全文與翻譯的共通卡片樣式 */
+        .content-card { 
             background: #fff8dc; 
-            padding: 10px 15px; 
-            border-radius: 10px; 
+            padding: 15px 18px; 
+            border-radius: 12px; 
             border: 2px solid #8b4513; 
-            margin: 6px auto; 
+            margin: 10px auto; 
             font-family: "KaiTi", "BiauKai", "STKaiti", "Microsoft JhengHei", serif; 
-            font-size: 14px; 
-            line-height: 1.5; 
+            font-size: 16px; 
+            line-height: 1.8; 
             color: #2c1d0c; 
             font-weight: bold; 
             letter-spacing: 1px; 
             width: 95%; 
             max-width: 450px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             text-align: left;
-            max-height: 130px;
+            max-height: 280px;
             overflow-y: auto;
         }
 
+        /* 首頁頂部切換功能按鈕 */
         .home-btn-group {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             justify-content: center;
             flex-wrap: wrap;
-            margin: 6px 0;
+            margin: 10px 0 6px 0;
         }
 
-        .translate-btn { padding: 8px 16px; background-color: #e67e22; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .translate-btn:hover { background-color: #d35400; }
+        .toggle-btn { padding: 10px 20px; background-color: #e67e22; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .toggle-btn:hover { background-color: #d35400; }
 
-        #home-translation {
-            display: none;
-            background: #fff;
-            border: 2px solid #e67e22;
-            border-radius: 8px;
-            padding: 8px 12px;
-            margin: 6px auto;
-            font-size: 13px;
-            line-height: 1.4;
-            color: #8b4513;
-            text-align: left;
-            width: 95%;
-            max-width: 450px;
-            box-sizing: border-box;
-            max-height: 100px;
-            overflow-y: auto;
-        }
-
-        /* 左右並排的選關按鈕群組 */
+        /* 左右並排的選關按鈕 */
         .stage-select { 
             display: flex; 
             flex-direction: row; 
-            gap: 8px; 
+            gap: 10px; 
             width: 95%; 
             max-width: 450px; 
             justify-content: center; 
-            margin-top: 6px; 
+            margin-top: 8px; 
         }
         
         .start-btn { 
             flex: 1; 
-            padding: 10px 8px; 
+            padding: 12px 8px; 
             border: none; 
-            border-radius: 6px; 
-            font-size: 14px; 
+            border-radius: 8px; 
+            font-size: 15px; 
             font-weight: bold; 
             cursor: pointer; 
             color: white; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
+            box-shadow: 0 3px 5px rgba(0,0,0,0.2); 
             white-space: nowrap; 
         }
         
@@ -117,32 +101,48 @@
 
 <div id="timer">時間：00:00</div>
 
-<div id="home-screen" class="full-width">
+<!-- 【第一頁：詩詞全文首頁】 -->
+<div id="home-page-1" class="full-width page-container">
     <h1>📜 詩詞拼圖遊戲</h1>
-    <p class="instruction" style="font-size: 14px; margin-bottom: 2px; color: #8b4513;">蘇軾：念奴嬌·赤壁懷古</p>
+    <p class="instruction" style="font-size: 15px; margin-bottom: 4px; color: #8b4513;">蘇軾：念奴嬌·赤壁懷古</p>
     
-    <div class="calligraphy-poem">
-        <strong>【第一段】</strong>大江東去，浪淘盡，千古風流人物。故壘西邊，人道是，三國周郎赤壁。亂石穿空，驚濤拍岸，捲起千堆雪。江山如畫，一時多少豪傑。<br><br>
-        <strong>【第二段】</strong>遙想公瑾當年，小喬初嫁了，雄姿英發。羽扇綸巾，談笑間，檣櫓灰灰煙滅。故國神遊，多情應笑我，早生華髮。人生如夢，一尊還酹江月。
+    <div class="content-card">
+        <strong>【上闋】</strong>大江東去，浪淘盡，千古風流人物。故壘西邊，人道是，三國周郎赤壁。亂石穿空，驚濤拍岸，捲起千堆雪。江山如畫，一時多少豪傑。<br><br>
+        <strong>【下闋】</strong>遙想公瑾當年，小喬初嫁了，雄姿英發。羽扇綸巾，談笑間，檣櫓灰灰煙滅。故國神遊，多情應笑我，早生華髮。人生如夢，一尊還酹江月。
     </div>
 
     <div class="home-btn-group">
-        <button class="translate-btn" id="toggle-trans-btn">觀看翻譯</button>
+        <button class="toggle-btn" onclick="showPage(2)">觀看翻譯</button>
     </div>
 
-    <div id="home-translation">
-        <strong>【全文翻譯】</strong><br>
-        大江浩浩蕩蕩向東流去，滔滔巨浪淘盡千古英雄人物。那舊營壘的西邊，人們說那就是三國周瑜鏖戰的赤壁。陡峭的石壁直聳雲天，如雷的驚濤拍擊着江岸，激起的浪花好似捲起千萬堆白雪。雄壯的江山奇麗如圖畫，一時間涌現出多少英雄豪傑。<br>
-        遙想當年的周瑜春風得意，絕代佳人小喬剛嫁給他，他英姿奮發豪氣滿懷。手搖羽扇頭戴綸巾，談笑之間，強敵的戰船燒得灰飛煙滅。我今日神遊當年的戰地，可笑我多情善感，過早地生出滿頭白髮。人生猶如一場夢，且灑一杯酒祭奠江上的明月。
-    </div>
-
-    <!-- 左右並排的選關按鈕 -->
     <div class="stage-select">
         <button class="start-btn" style="background-color: #27ae60;" onclick="startStage(1)">開始遊戲(第一段)</button>
         <button class="start-btn" style="background-color: #2980b9;" onclick="startStage(2)">開始遊戲(第二段)</button>
     </div>
 </div>
 
+<!-- 【第二頁：翻譯內容首頁】 -->
+<div id="home-page-2" class="full-width page-container" style="display: none;">
+    <h1>📜 詩詞拼圖遊戲</h1>
+    <p class="instruction" style="font-size: 15px; margin-bottom: 4px; color: #8b4513;">蘇軾：念奴嬌·赤壁懷古 (翻譯與賞析)</p>
+    
+    <div class="content-card" style="font-family: 'Microsoft JhengHei', sans-serif; font-size: 15px;">
+        <strong>【全文翻譯】</strong><br>
+        大江浩浩蕩蕩向東流去，滔滔巨浪淘盡千古英雄人物。那舊營壘的西邊，人們說那就是三國周瑜鏖戰的赤壁。陡峭的石壁直聳雲天，如雷的驚濤拍擊着江岸，激起的浪花好似捲起千萬堆白雪。雄壯的江山奇麗如圖畫，一時間涌現出多少英雄豪傑。<br><br>
+        遙想當年的周瑜春風得意，絕代佳人小喬剛嫁給他，他英姿奮發豪氣滿懷。手搖羽扇頭戴綸巾，談笑之間，強敵的戰船燒得灰飛煙滅。我今日神遊當年的戰地，可笑我多情善感，過早地生出滿頭白髮。人生猶如一場夢，且灑一杯酒祭奠江上的明月。
+    </div>
+
+    <div class="home-btn-group">
+        <button class="toggle-btn" onclick="showPage(1)">觀看詩詞全文</button>
+    </div>
+
+    <div class="stage-select">
+        <button class="start-btn" style="background-color: #27ae60;" onclick="startStage(1)">開始遊戲(第一段)</button>
+        <button class="start-btn" style="background-color: #2980b9;" onclick="startStage(2)">開始遊戲(第二段)</button>
+    </div>
+</div>
+
+<!-- 【遊戲主畫面】 -->
 <div id="game-screen" class="full-width">
     <h2 id="stage-title">念奴嬌</h2>
     <div class="action-container">
@@ -170,13 +170,14 @@
     let currentStage = 1, fullText = "", blocksData = [], activeBlock = null, gameInterval = null, seconds = 0, timerStarted = false, timerInterval = null;
     const puncRegex = /[，。]/;
 
-    function toggleHomeTranslation(e) {
-        if (e) { e.preventDefault(); e.stopPropagation(); }
-        const transDiv = document.getElementById('home-translation');
-        if (transDiv.style.display === 'block') {
-            transDiv.style.display = 'none';
+    // 切換首頁頁面（第1頁：詩詞全文，第2頁：翻譯）
+    function showPage(pageNum) {
+        if (pageNum === 1) {
+            document.getElementById('home-page-1').style.display = 'flex';
+            document.getElementById('home-page-2').style.display = 'none';
         } else {
-            transDiv.style.display = 'block';
+            document.getElementById('home-page-1').style.display = 'none';
+            document.getElementById('home-page-2').style.display = 'flex';
         }
     }
 
@@ -188,7 +189,8 @@
         currentStage = stageNum;
         fullText = stages[stageNum].text;
         document.getElementById('stage-title').innerText = stages[stageNum].title;
-        document.getElementById('home-screen').style.display = 'none';
+        document.getElementById('home-page-1').style.display = 'none';
+        document.getElementById('home-page-2').style.display = 'none';
         document.getElementById('game-screen').style.display = 'block';
         resetUI();
         initGame();
@@ -205,7 +207,7 @@
     function goHome() {
         clearInterval(gameInterval); clearInterval(timerInterval);
         document.getElementById('game-screen').style.display = 'none';
-        document.getElementById('home-screen').style.display = 'flex';
+        showPage(1); // 返回首頁預設顯示第1頁（詩詞全文）
     }
 
     function resetGame() {
@@ -329,14 +331,6 @@
         document.getElementById('undo-btn').style.display = 'none';
         document.getElementById('tetris-container').style.display = 'none';
     }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const transBtn = document.getElementById('toggle-trans-btn');
-        if (transBtn) {
-            transBtn.addEventListener('click', toggleHomeTranslation);
-            transBtn.addEventListener('touchend', toggleHomeTranslation);
-        }
-    });
 </script>
 </body>
 </html>
