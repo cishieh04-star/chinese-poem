@@ -10,7 +10,7 @@
         body { font-family: 'Microsoft JhengHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 5px 10px; background-color: #fdf6e3; margin: 0; min-height: 100vh; overflow-x: hidden; }
         .full-width { width: 100%; max-width: 600px; text-align: center; }
         
-        #timer { position: fixed; top: 12px; right: 12px; font-size: 16px; font-weight: bold; color: #8b4513; background: white; padding: 4px 8px; border-radius: 8px; border: 2px solid #8b4513; z-index: 1000; }
+        #timer { position: fixed; top: 10px; right: 10px; font-size: 16px; font-weight: bold; color: #8b4513; background: white; padding: 4px 8px; border-radius: 8px; border: 2px solid #8b4513; z-index: 1000; }
         h2 { color: #8b4513; margin: 6px 0; font-size: 20px; }
         
         .action-container { margin: 6px 0; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
@@ -31,11 +31,11 @@
         #undo-btn { background: #f39c12; color: white; }
         #reset-btn { background: #ff5722; color: white; display: none; }
 
-        /* 雙頁切換首頁設計 */
-        .page-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px 0; min-height: 90vh; text-align: center; width: 100%; }
+        /* 雙頁切換首頁設計：統一卡片尺寸與間距，避免畫面過長 */
+        .page-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px 0; min-height: 85vh; text-align: center; width: 100%; }
         .page-container h1 { color: #8b4513; font-size: 22px; margin-bottom: 2px; }
         
-        /* 詩詞與翻譯的卡片樣式 */
+        /* 統一的詩詞與翻譯卡片樣式（固定高度與統一間距） */
         .content-card { 
             background: #fff8dc; 
             padding: 12px 15px; 
@@ -44,27 +44,27 @@
             margin: 6px auto; 
             font-family: "KaiTi", "BiauKai", "STKaiti", "Microsoft JhengHei", serif; 
             font-size: 15px; 
-            line-height: 1.8; 
+            line-height: 1.6; 
             color: #2c1d0c; 
             font-weight: bold; 
             letter-spacing: 1px; 
-            width: 95%; 
-            max-width: 480px;
+            width: 92%; 
+            max-width: 450px;
             box-shadow: 0 3px 6px rgba(0,0,0,0.1);
             text-align: left;
-            max-height: 230px;
-            overflow-y: auto;
+            height: 170px; /* 統一固定高度 */
+            overflow-y: auto; /* 內容過多時顯示滑動軸 */
             white-space: pre-line;
         }
 
         /* 底部按鈕左右並排群組 */
         .home-btn-row {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             justify-content: center;
-            width: 95%;
-            max-width: 480px;
-            margin-top: 8px;
+            width: 92%;
+            max-width: 450px;
+            margin-top: 6px;
         }
 
         .home-btn-row button {
@@ -117,7 +117,7 @@
     <h1>📜 詩詞拼圖遊戲</h1>
     <p class="instruction" style="font-size: 14px; margin-bottom: 2px; color: #8b4513;">李白：送友人 (翻譯與賞析)</p>
     
-    <div class="content-card" style="font-family: 'Microsoft JhengHei', sans-serif; font-size: 14px;">
+    <div class="content-card" style="font-family: 'Microsoft JhengHei', sans-serif; font-size: 13px; line-height: 1.5;">
         <strong>【全文解釋】</strong><br>
         青山橫亙在城郭的北側，護城河環繞在城郭的東方。<br>
         我們即將在這裏離別，你就要像飛蓬一樣踏上萬裏征程。<br>
