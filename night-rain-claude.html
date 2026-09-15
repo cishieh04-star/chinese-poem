@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>夜雨心箋</title>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<style>
+  :root{
+    --night-deep:#4457a5;
+    --night-mid:#6c81c9;
+    --night-light:#9baae0;
+    --gold:#f0c674;
+    --gold-soft:#f6e2b3;
+    --ember:#e8874a;
+    --seal-red:#b23a3a;
+    --glass-bg:rgba(255,250,235,0.09);
+    --char-size:24px;
+    --caption-size:16px;
+    --ink-warm:#5a3a1a;
+  }
+  :root.font-l{ --char-size:28px; --caption-size:18px; }
+  :root.font-xl{ --char-size:32px; --caption-size:20px; }
+
+  *{ box-sizing:border-box; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+  body{
+    margin:0; min-height:100vh; overflow-x:hidden;
+    font-family:'Microsoft JhengHei','PingFang TC',sans-serif;
+    background:linear-gradient(to bottom, var(--night-deep) 0%, var(--night-mid) 55%, var(--night-light) 100%);
+    color:var(--gold-soft);
+    display:flex; flex-direction:column; align-items:center;
+    padding:10px 12px 30px;
+    transition:background 1.2s ease;
+  }
+  /* 完成畫面：雨過天青，畫面轉為明亮溫暖的色調，避免結束時感覺陰鬱 */
+  body.dawn{
+    background:linear-gradient(to bottom, #ffe9bf 0%, #ffd28f 45%, #ffb877 100%);
+    color:var(--ink-warm);
+  }
+  body.dawn .scene-bg .ambient-rain{ opacity:0; transition:opacity 1s ease; }
+  body.dawn .mountains-back{ background:#f7c48a; opacity:.55; }
+  body.dawn .mountains-front{ background:#f2a968; opacity:.85; }
+
+  /* ---------- 夜色場景背景 ---------- */
+  .scene-bg{ position:fixed; inset:0; overflow:hidden; z-index:0; pointer-events:none; }
+  .scene-bg::before{ content:''; position:absolute; top:-15%; left:50%; width:75%; padding-top:75%;
+    transform:translateX(-50%); border-radius:50%;
+    background:radial-gradient(circle, rgba(255,255,255,0.4), transparent 70%); }
+  .ambient-rain{ position:absolute; inset:0; }
+  .ambient-drop{
+    position:absolute; top:-10%; width:1.5px;
+    background:linear-gradient(to bottom, transparent, rgba(255,250,230,0.75));
+    animation-name:ambientFall; animation-timing-function:linear; animation-iteration-count:infinite;
+    transition:opacity 1s ease;
+  }
+  @keyframes ambientFall{ 0%{ top:-10%; } 100%{ top:110%; } }
+  .mountains{ position:absolute; bottom:0; left:0; width:100%; transition:background 1.2s ease, opacity 1.2s ease; }
+  .mountains-back{ height:120px; background:#7285c9; opacity:.55;
+    clip-path:polygon(0 100%,0 55%,15% 70%,30% 40%,45% 65%,60% 35%,75% 60%,90% 45%,100% 65%,100% 100%); }
+  .mountains-front{ height:88px; background:#5265ad;
+    clip-path:polygon(0 100%,0 75%,20% 90%,35% 60%,55% 85%,70% 55%,85% 80%,100% 70%,100% 100%); }
+
+  .page{ position:relative; z-index:2; width:100%; max-width:480px; }
+
+  #timer{ position:fixed; top:10px; left:12px; font-size:13px; color:var(--gold-soft);
+    background:rgba(0,0,0,0.25); padding:4px 10px; border-radius:10px; border:1px solid rgba(240,198,116,0.4); z-index:1000; }
+  .font-controls{ position:fixed; top:10px; right:12px; z-index:1000; display:flex; gap:6px; }
+  .font-controls button{ width:30px; height:30px; border-radius:8px; border:1px solid rgba(240,198,116,0.5);
+    background:rgba(0,0,0,0.25); color:var(--gold-soft); font-size:13px; font-weight:bold; cursor:pointer; }
+
+  /* ---------- 首頁 ---------- */
+  #home{ text-align:center; padding-top:8vh; min-height:88vh; display:flex; flex-direction:column; align-items:center; }
+  .eyebrow{ font-size:13px; letter-spacing:2px; color:rgba(246,226,179,0.7); margin:0 0 6px; }
+  .poem-title{ font-size:30px; margin:0; letter-spacing:6px; color:var(--gold);
+    font-family:"KaiTi","STKaiti","BiauKai",serif; text-shadow:0 0 18px rgba(240,198,116,0.45); }
+  .poet-line{ margin:6px 0 22px; font-size:14px; color:rgba(246,226,179,0.75); }
+  .preview-line{ font-family:"KaiTi","STKaiti","BiauKai",serif; font-size:22px; letter-spacing:4px;
+    color:var(--gold-soft); min-height:34px; margin-bottom:26px; }
+  .preview-line span{ opacity:0; display:inline-block; animation:charFadeIn .6s forwards; }
+  @keyframes charFadeIn{ to{ opacity:1; } }
+
+  .candle-btn{ font-size:17px; font-weight:bold; padding:14px 28px; border:none; border-radius:30px;
+    background:linear-gradient(180deg,#f6dfa0,var(--ember)); color:#3a2200; cursor:pointer;
+    box-shadow:0 0 22px rgba(232,135,74,0.55); margin-bottom:14px; }
+  .ghost-btn{ background:none; border:1px solid rgba(240,198,116,0.5); color:var(--gold-soft);
+    padding:9px 18px; border-radius:20px; font-size:13px; cursor:pointer; }
+  .full-panel{ margin-top:16px; width:92%; max-width:420px; background:rgba(255,250,235,0.06);
+    border:1px solid rgba(240,198,116,0.35); border-radius:12px; padding:14px 16px; text-align:left; }
+  .full-text{ font-family:"KaiTi","STKaiti","BiauKai",serif; font-size:18px; line-height:1.9; color:var(--gold-soft); }
+  .full-trans{ margin-top:10px; font-size:13px; line-height:1.7; color:rgba(246,226,179,0.85); }
+
+  /* ---------- 遊戲畫面 ---------- */
+  #game{ display:flex; flex-direction:column; align-items:center; padding-top:2vh; }
+  .progress-dots{ display:flex; gap:8px; margin-bottom:10px; }
+  .progress-dots span{ width:9px; height:9px; border-radius:50%; background:rgba(240,198,116,0.25);
+    border:1px solid rgba(240,198,116,0.5); transition:background .4s; }
+  .progress-dots span.done{ background:var(--gold); box-shadow:0 0 8px var(--gold); }
+
+  .window-scene{ position:relative; display:flex; align-items:flex-start; justify-content:center; gap:6px; width:100%; }
+  .window-scene::before{ content:''; position:absolute; top:20%; left:50%; width:220px; height:220px;
+    transform:translate(-50%,-30%); border-radius:50%; pointer-events:none;
+    background:radial-gradient(circle, rgba(240,198,116,0.28), transparent 70%); z-index:-1; }
+  .candle-holder{ position:relative; width:30px; height:78px; margin-top:14px; flex-shrink:0;
+    filter:drop-shadow(0 0 var(--glow,4px) var(--gold)); transition:filter .6s; }
+  .candle-holder .candle-body{ width:14px; height:44px; margin:26px auto 0; border-radius:2px;
+    background:linear-gradient(#fff8e6,#e9dcb8); }
+  .candle-holder .flame{ position:absolute; top:6px; left:50%; width:12px; height:20px; transform:translateX(-50%);
+    border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+    background:radial-gradient(circle at 50% 32%, #fff6c8, var(--gold) 45%, var(--ember) 85%);
+    animation:flicker 1.5s ease-in-out infinite; }
+  @keyframes flicker{ 0%,100%{ transform:translateX(-50%) scale(1) rotate(-2deg);} 50%{ transform:translateX(-50%) scale(1.12) rotate(3deg);} }
+
+  .window-frame{ background:linear-gradient(160deg,#7d5c35,#4f3a20); border:3px solid #96703f;
+    border-radius:10px; padding:8px; width:100%; max-width:390px; box-shadow:0 6px 18px rgba(0,0,0,0.35); }
+  .lattice{ position:absolute; inset:0; pointer-events:none; }
+  .glass{ position:relative; background:var(--glass-bg); border-radius:6px; padding:14px 8px;
+    min-height:70px; display:flex; align-items:center; justify-content:center; overflow:hidden;
+    box-shadow:inset 0 0 30px rgba(0,0,0,0.35); }
+  .glass.ripple::after{ content:''; position:absolute; inset:0; border-radius:6px;
+    background:radial-gradient(circle, rgba(240,198,116,0.35), transparent 65%);
+    animation:rippleAnim .55s ease-out; }
+  @keyframes rippleAnim{ 0%{ opacity:0; transform:scale(.6);} 40%{ opacity:1;} 100%{ opacity:0; transform:scale(1.3);} }
+
+  .slots-row{ display:flex; flex-wrap:wrap; gap:5px; justify-content:center; align-items:center; }
+  .slot{ width:calc(var(--char-size) + 16px); height:calc(var(--char-size) + 16px);
+    border:2px dashed rgba(240,198,116,0.55); border-radius:8px; display:flex; align-items:center;
+    justify-content:center; font-size:var(--char-size); font-weight:bold; color:var(--gold-soft);
+    font-family:"KaiTi","STKaiti","BiauKai",serif; background:rgba(0,0,0,0.12); }
+  .slot.filled{ border-style:solid; border-color:var(--gold); color:var(--gold);
+    text-shadow:0 0 8px rgba(240,198,116,0.7); background:rgba(240,198,116,0.08); }
+  .slot.hint-target{ animation:hintPulse 1.2s ease-in-out infinite; }
+  @keyframes hintPulse{ 0%,100%{ box-shadow:0 0 0 rgba(240,198,116,0.6);} 50%{ box-shadow:0 0 14px rgba(240,198,116,0.9);} }
+  .punct{ font-size:calc(var(--char-size) - 4px); color:rgba(246,226,179,0.65); margin:0 1px; align-self:flex-end; }
+
+  .line-caption{ margin:10px 0 4px; font-size:var(--caption-size); color:rgba(246,226,179,0.85); text-align:center; min-height:22px; }
+
+  .drop-zone{ width:100%; max-width:390px; height:120px; position:relative; margin-top:6px;
+    border-radius:10px; overflow:hidden; background:linear-gradient(180deg, rgba(255,255,255,0.04), transparent); }
+  .char-cluster{ position:absolute; left:50%; top:-70px; transform:translateX(-50%); display:flex; gap:8px;
+    flex-wrap:wrap; justify-content:center; width:94%; transition:top .05s linear; }
+  .char-drop{ width:calc(var(--char-size) + 26px); height:calc(var(--char-size) + 26px); border-radius:50%;
+    background:radial-gradient(circle at 32% 28%, #5c4630, #2a1d10 78%); color:#fffaf0;
+    display:flex; align-items:center; justify-content:center; font-size:var(--char-size); font-weight:bold;
+    cursor:pointer; user-select:none; box-shadow:0 4px 8px rgba(0,0,0,0.35), 0 0 12px rgba(232,168,60,0.4);
+    font-family:"KaiTi","STKaiti","BiauKai",serif; flex-shrink:0; text-shadow:0 1px 2px rgba(0,0,0,0.4);
+    border:1.5px solid rgba(255,224,168,0.35);
+    animation:bob 2.4s ease-in-out infinite; transition:transform .18s ease; }
+  .char-drop:active{ transform:scale(0.9); }
+  @keyframes bob{ 0%,100%{ transform:translateY(0) rotate(-2deg); } 50%{ transform:translateY(-5px) rotate(2deg); } }
+  .char-drop.hint-glow{ animation:hintPulse 0.5s ease-in-out 2; box-shadow:0 0 18px var(--gold); }
+  .char-drop.wrong-shake{ animation:shake .35s; }
+  @keyframes shake{ 20%,60%{ transform:translateX(-4px);} 40%,80%{ transform:translateX(4px);} }
+  .char-drop.pop{ animation:popAway .28s ease forwards !important; }
+  @keyframes popAway{ 0%{ transform:scale(1); opacity:1; } 60%{ transform:scale(1.35); opacity:1; } 100%{ transform:scale(0.2); opacity:0; } }
+
+  .controls-row{ display:flex; gap:8px; justify-content:center; margin-top:16px; flex-wrap:wrap; }
+  .ctrl-btn{ padding:9px 14px; border:1px solid rgba(240,198,116,0.5); border-radius:20px;
+    background:rgba(0,0,0,0.25); color:var(--gold-soft); font-size:13px; font-weight:bold; cursor:pointer; }
+  .ctrl-btn.home-btn{ background:rgba(0,0,0,0.4); }
+
+  /* ---------- 完成畫面 ---------- */
+  #finish{ text-align:center; padding-top:6vh; display:flex; flex-direction:column; align-items:center; }
+  .seal{ width:60px; height:78px; border-radius:8px; background:var(--seal-red); color:#fff3e0;
+    display:flex; align-items:center; justify-content:center; font-size:19px; font-weight:bold;
+    font-family:"KaiTi","STKaiti","BiauKai",serif; letter-spacing:1px; writing-mode:vertical-rl;
+    box-shadow:0 0 0 2px rgba(255,255,255,0.15), 0 4px 10px rgba(0,0,0,0.5); transform:scale(0) rotate(-8deg);
+    animation:stampIn .5s cubic-bezier(.34,1.56,.64,1) forwards; margin-bottom:10px; }
+  @keyframes stampIn{ to{ transform:scale(1) rotate(-8deg); } }
+  #finish h2{ margin:2px 0 12px; font-size:18px; color:var(--gold); }
+  .final-poem{ font-family:"KaiTi","STKaiti","BiauKai",serif; font-size:20px; line-height:2; letter-spacing:3px;
+    color:var(--gold-soft); text-shadow:0 0 10px rgba(240,198,116,0.4); margin-bottom:8px; }
+  .final-time{ font-size:13px; color:rgba(246,226,179,0.7); margin-bottom:14px; }
+  .home-btn-row{ display:flex; gap:10px; margin-top:16px; width:92%; max-width:380px; }
+  .home-btn-row button{ flex:1; padding:11px 6px; border:none; border-radius:8px; font-size:14px; font-weight:bold;
+    cursor:pointer; color:#3a2200; box-shadow:0 2px 6px rgba(0,0,0,0.3); }
+  .start-btn{ background:linear-gradient(180deg,#8fe0a8,#3fae6a); color:#0e2a17; }
+  .translate-btn2{ background:linear-gradient(180deg,#f6dfa0,var(--ember)); }
+
+  .mute-btn{ background:none; border:1px solid rgba(90,58,26,0.4); color:inherit;
+    padding:6px 14px; border-radius:16px; font-size:12px; cursor:pointer; margin-top:4px; opacity:.85; }
+
+  /* 完成畫面在明亮底色下，文字改用暖棕色系以維持對比與可讀性 */
+  body.dawn #finish h2{ color:#8a4a1c; }
+  body.dawn .final-poem{ color:var(--ink-warm); text-shadow:none; }
+  body.dawn .final-time{ color:rgba(90,58,26,0.75); }
+  body.dawn .ghost-btn{ border-color:rgba(90,58,26,0.45); color:var(--ink-warm); }
+  body.dawn .full-panel{ background:rgba(255,255,255,0.35); border-color:rgba(90,58,26,0.3); }
+  body.dawn .full-trans{ color:rgba(90,58,26,0.9); }
+  body.dawn #timer{ color:#8a4a1c; background:rgba(255,255,255,0.4); border-color:rgba(90,58,26,0.35); }
+
+  [hidden]{ display:none !important; }
+</style>
+</head>
+<body>
+<div class="scene-bg" aria-hidden="true">
+  <div class="ambient-rain" id="ambientRain"></div>
+  <div class="mountains mountains-back"></div>
+  <div class="mountains mountains-front"></div>
+</div>
+
+<div id="timer">思考時間 00:00</div>
+<div class="font-controls">
+  <button onclick="adjustFont(-1)" aria-label="縮小字體">A-</button>
+  <button onclick="adjustFont(1)" aria-label="放大字體">A+</button>
+</div>
+
+<!-- 首頁：情境優先，文字精簡 -->
+<div id="home" class="page">
+  <p class="eyebrow">詩詞記憶遊戲 · 為你點一盞燭光</p>
+  <h1 class="poem-title">夜雨寄北</h1>
+  <p class="poet-line">唐 · 李商隱</p>
+  <div class="preview-line" id="previewLine"></div>
+  <button class="candle-btn" onclick="enterGame()">🕯️ 點燃燭光，開始拼詩</button>
+  <button class="ghost-btn" onclick="toggleFull()">閱讀全文與白話翻譯</button>
+  <div id="fullPanel" class="full-panel" hidden>
+    <div class="full-text">君問歸期未有期，<br>巴山夜雨漲秋池。<br>何當共剪西窗燭，<br>卻話巴山夜雨時。</div>
+    <div class="full-trans">你問我何時歸來，歸期實在難以確定；今晚巴山下著夜雨，秋天的池水都已漲滿了。<br>什麼時候才能與你一起在西窗下剪燭夜談，再說說今夜巴山夜雨的情景呢？</div>
+  </div>
+</div>
+
+<!-- 遊戲畫面：一次只看一句 -->
+<div id="game" class="page" hidden>
+  <div class="progress-dots" id="progressDots"><span></span><span></span><span></span><span></span></div>
+  <div class="window-scene">
+    <div class="candle-holder" id="candleHolder"><div class="flame"></div><div class="candle-body"></div></div>
+    <div class="window-frame">
+      <div class="glass" id="glass">
+        <div id="slots" class="slots-row"></div>
+      </div>
+    </div>
+  </div>
+  <p class="line-caption" id="lineCaption"></p>
+  <div id="dropZone" class="drop-zone"></div>
+  <div class="controls-row">
+    <button class="ctrl-btn" id="hintBtn" onclick="giveHint()">💡 提示</button>
+    <button class="ctrl-btn" onclick="undoLast()">⟲ 更正</button>
+    <button class="ctrl-btn" onclick="speakCurrentLine()">🔊 聽這句</button>
+    <button class="ctrl-btn home-btn" onclick="goHome()">🏠 回首頁</button>
+  </div>
+</div>
+
+<!-- 完成畫面 -->
+<div id="finish" class="page" hidden>
+  <div class="seal">商隱</div>
+  <h2>拼詩完成，思念已寄出</h2>
+  <div class="final-poem">君問歸期未有期，<br>巴山夜雨漲秋池。<br>何當共剪西窗燭，<br>卻話巴山夜雨時。</div>
+  <p class="final-time" id="finalTime"></p>
+  <button class="ghost-btn" onclick="toggleFinalTrans()">查看完整翻譯與賞析</button>
+  <br>
+  <button class="mute-btn" onclick="stopNarration()">🔇 不想聽語音了</button>
+  <div id="finalTransPanel" class="full-panel" hidden>
+    <div class="full-trans">你問我何時歸來，歸期實在難以確定；今晚巴山下著夜雨，秋天的池水都已漲滿了。<br>什麼時候才能與你一起在西窗下剪燭夜談，再說說今夜巴山夜雨的情景呢？<br><br>這首詩以「巴山夜雨」反覆迴盪，一問一答之間，把遠方的牽念與盼望團聚的心情，都寫進了那盞西窗燭光裡。</div>
+  </div>
+  <div class="home-btn-row">
+    <button class="start-btn" onclick="replay()">再玩一次</button>
+    <button class="translate-btn2" onclick="goHome()">回首頁</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var lines = [
+    { chars:["君","問","歸","期","未","有","期"], punct:"，", caption:"歸期難定，牽念遠方" },
+    { chars:["巴","山","夜","雨","漲","秋","池"], punct:"。", caption:"巴山夜雨，秋池漸滿" },
+    { chars:["何","當","共","剪","西","窗","燭"], punct:"，", caption:"盼與你共剪西窗燭" },
+    { chars:["卻","話","巴","山","夜","雨","時"], punct:"。", caption:"再訴今夜，巴山夜雨" }
+  ];
+
+  var translationSpeech = "你問我何時歸來，歸期實在難以確定；今晚巴山下著夜雨，秋天的池水都已漲滿了。什麼時候才能與你一起在西窗下剪燭夜談，再說說今夜巴山夜雨的情景呢？這首詩以巴山夜雨反覆迴盪，一問一答之間，把遠方的牽念與盼望團聚的心情，都寫進了那盞西窗燭光裡。";
+
+  /* 選字物件統一使用單一深色（見 CSS .char-drop），只保留錯開的浮動節奏，
+     方便長輩辨識文字、不因顏色混雜而分心或看不清楚 */
+  function styleDrop(el){
+    el.style.animationDelay = (-Math.random() * 2.4).toFixed(2) + 's';
+  }
+
+  var currentLine = 0;
+  var activeCluster = null; // { element, chars }
+  var seconds = 0, timerStarted = false, timerInterval = null, fallInterval = null;
+  var fontLevel = 0;
+
+  /* ---------- 環境雨滴（裝飾用，不可點擊） ---------- */
+  function buildAmbientRain(){
+    var wrap = document.getElementById('ambientRain');
+    var n = 34;
+    for (var i = 0; i < n; i++){
+      var d = document.createElement('div');
+      d.className = 'ambient-drop';
+      var dur = (0.7 + Math.random() * 0.9).toFixed(2);
+      d.style.left = (Math.random() * 100).toFixed(1) + '%';
+      d.style.height = (40 + Math.random() * 60).toFixed(0) + 'px';
+      d.style.opacity = (0.15 + Math.random() * 0.3).toFixed(2);
+      d.style.animationDuration = dur + 's';
+      d.style.animationDelay = (-Math.random() * dur).toFixed(2) + 's';
+      wrap.appendChild(d);
+    }
+  }
+
+  /* ---------- 首頁：逐字浮現預覽句 ---------- */
+  function buildPreview(){
+    var el = document.getElementById('previewLine');
+    var text = "君問歸期未有期";
+    el.innerHTML = '';
+    text.split('').forEach(function(ch, i){
+      var s = document.createElement('span');
+      s.textContent = ch;
+      s.style.animationDelay = (i * 0.18) + 's';
+      el.appendChild(s);
+    });
+  }
+
+  window.toggleFull = function(){
+    var p = document.getElementById('fullPanel');
+    p.hidden = !p.hidden;
+  };
+  window.toggleFinalTrans = function(){
+    var p = document.getElementById('finalTransPanel');
+    p.hidden = !p.hidden;
+  };
+
+  /* ---------- 字體大小 ---------- */
+  window.adjustFont = function(dir){
+    fontLevel = Math.max(0, Math.min(2, fontLevel + dir));
+    var root = document.documentElement;
+    root.classList.remove('font-l','font-xl');
+    if (fontLevel === 1) root.classList.add('font-l');
+    if (fontLevel === 2) root.classList.add('font-xl');
+  };
+
+  /* ---------- 計時器（低壓力，僅供自我記錄） ---------- */
+  function formatTime(s){
+    var m = Math.floor(s/60).toString().padStart(2,'0');
+    var sec = (s%60).toString().padStart(2,'0');
+    return '思考時間 ' + m + ':' + sec;
+  }
+  function startTimerIfNeeded(){
+    if (!timerStarted){
+      timerStarted = true;
+      timerInterval = setInterval(function(){
+        seconds++;
+        document.getElementById('timer').innerText = formatTime(seconds);
+      }, 1000);
+    }
+  }
+  function stopTimer(){
+    if (timerInterval) clearInterval(timerInterval);
+  }
+
+  /* ---------- 頁面切換 ---------- */
+  window.enterGame = function(){
+    document.getElementById('home').hidden = true;
+    document.getElementById('finish').hidden = true;
+    document.getElementById('game').hidden = false;
+    currentLine = 0;
+    seconds = 0; timerStarted = false;
+    document.getElementById('timer').innerText = formatTime(seconds);
+    updateCandleGlow(0);
+    updateProgressDots();
+    loadLine(0);
+  };
+  window.goHome = function(){
+    stopNarration();
+    stopTimer();
+    if (fallInterval) clearInterval(fallInterval);
+    document.body.classList.remove('dawn');
+    document.getElementById('game').hidden = true;
+    document.getElementById('finish').hidden = true;
+    document.getElementById('home').hidden = false;
+  };
+  window.replay = function(){
+    stopNarration();
+    document.body.classList.remove('dawn');
+    document.getElementById('finish').hidden = true;
+    enterGame();
+  };
+  window.stopNarration = function(){
+    try{ window.speechSynthesis.cancel(); }catch(e){}
+  };
+
+  /* ---------- 燭光：完成愈多句，光愈亮 ---------- */
+  function updateCandleGlow(doneCount){
+    var holder = document.getElementById('candleHolder');
+    var glow = 4 + doneCount * 9; // 4,13,22,31,40
+    holder.style.setProperty('--glow', glow + 'px');
+  }
+  function updateProgressDots(){
+    var dots = document.querySelectorAll('#progressDots span');
+    dots.forEach(function(d, i){
+      d.classList.toggle('done', i < currentLine);
+    });
+  }
+
+  /* ---------- 載入一句：只顯示這一句的空格 ---------- */
+  function loadLine(idx){
+    var line = lines[idx];
+    var slotsDiv = document.getElementById('slots');
+    slotsDiv.innerHTML = '';
+    line.chars.forEach(function(ch){
+      var slot = document.createElement('div');
+      slot.className = 'slot';
+      slot.dataset.char = ch;
+      slotsDiv.appendChild(slot);
+    });
+    var punct = document.createElement('span');
+    punct.className = 'punct';
+    punct.textContent = line.punct;
+    slotsDiv.appendChild(punct);
+
+    document.getElementById('lineCaption').textContent = '';
+
+    // 每出現一句新的詩句，先唸一次給長輩聽，再開始選字
+    speakInterrupt(line.chars.join('') + line.punct);
+
+    var shuffled = line.chars.slice().sort(function(){ return Math.random() - 0.5; });
+    spawnCluster(shuffled);
+  }
+
+  /* ---------- 產生落下的雨滴字卡（單一句 7 字） ---------- */
+  function spawnCluster(chars){
+    var zone = document.getElementById('dropZone');
+    zone.innerHTML = '';
+    var cluster = document.createElement('div');
+    cluster.className = 'char-cluster';
+
+    function render(){
+      cluster.innerHTML = '';
+      chars.forEach(function(ch){
+        var drop = document.createElement('div');
+        drop.className = 'char-drop';
+        drop.textContent = ch;
+        styleDrop(drop);
+        drop.onclick = function(e){
+          e.stopPropagation();
+          startTimerIfNeeded();
+          handleTap(ch, drop, chars, cluster, render);
+        };
+        cluster.appendChild(drop);
+      });
+    }
+    render();
+    zone.appendChild(cluster);
+
+    var currentY = -70, targetY = 20;
+    cluster.style.top = currentY + 'px';
+    activeCluster = { element: cluster, chars: chars };
+
+    if (fallInterval) clearInterval(fallInterval);
+    fallInterval = setInterval(function(){
+      if (currentY < targetY){
+        currentY += 2; // 放慢下降速度，減少緊迫感
+        cluster.style.top = currentY + 'px';
+      } else {
+        clearInterval(fallInterval);
+      }
+    }, 30);
+  }
+
+  function handleTap(ch, dropEl, chars, clusterEl, renderFn){
+    var targetSlot = document.querySelector('#slots .slot:not(.filled)');
+    if (!targetSlot) return;
+    if (ch === targetSlot.dataset.char){
+      targetSlot.textContent = ch;
+      targetSlot.classList.add('filled');
+      targetSlot.classList.remove('hint-target');
+
+      var glass = document.getElementById('glass');
+      glass.classList.remove('ripple');
+      void glass.offsetWidth;
+      glass.classList.add('ripple');
+
+      dropEl.onclick = null;
+      dropEl.classList.add('pop');
+
+      setTimeout(function(){
+        var idx = chars.indexOf(ch);
+        if (idx > -1) chars.splice(idx, 1);
+
+        if (chars.length === 0){
+          onLineComplete();
+        } else {
+          renderFn();
+        }
+      }, 220);
+    } else {
+      dropEl.classList.remove('wrong-shake');
+      void dropEl.offsetWidth;
+      dropEl.classList.add('wrong-shake');
+    }
+  }
+
+  function onLineComplete(){
+    if (fallInterval) clearInterval(fallInterval);
+    document.getElementById('dropZone').innerHTML = '';
+    activeCluster = null;
+
+    var line = lines[currentLine];
+    document.getElementById('lineCaption').textContent = line.caption;
+
+    currentLine++;
+    updateCandleGlow(currentLine);
+    updateProgressDots();
+
+    var isLast = currentLine >= lines.length;
+    speak(line.chars.join('') + line.punct, function(){
+      setTimeout(function(){
+        if (isLast){ finishGame(); } else { loadLine(currentLine); }
+      }, 450);
+    });
+  }
+
+  /* ---------- 更正：把最後一個填入的字還給雨滴群 ---------- */
+  window.undoLast = function(){
+    var filled = document.querySelectorAll('#slots .slot.filled');
+    if (filled.length === 0) return;
+    var lastSlot = filled[filled.length - 1];
+    var ch = lastSlot.dataset.char;
+    lastSlot.textContent = '';
+    lastSlot.classList.remove('filled');
+
+    if (activeCluster){
+      activeCluster.chars.push(ch);
+      var zone = document.getElementById('dropZone');
+      var clusterEl = zone.querySelector('.char-cluster');
+      if (clusterEl){
+        renderClusterDom(clusterEl, activeCluster.chars);
+      }
+    }
+  };
+  function renderClusterDom(clusterEl, chars){
+    clusterEl.innerHTML = '';
+    chars.forEach(function(ch){
+      var drop = document.createElement('div');
+      drop.className = 'char-drop';
+      drop.textContent = ch;
+      styleDrop(drop);
+      drop.onclick = function(e){
+        e.stopPropagation();
+        startTimerIfNeeded();
+        handleTap(ch, drop, chars, clusterEl, function(){ renderClusterDom(clusterEl, chars); });
+      };
+      clusterEl.appendChild(drop);
+    });
+  }
+
+  /* ---------- 提示：讓下一格微微發光，不直接洩題 ---------- */
+  window.giveHint = function(){
+    var targetSlot = document.querySelector('#slots .slot:not(.filled)');
+    if (!targetSlot) return;
+    targetSlot.classList.add('hint-target');
+    setTimeout(function(){ targetSlot.classList.remove('hint-target'); }, 2400);
+
+    var ch = targetSlot.dataset.char;
+    var drops = document.querySelectorAll('.char-drop');
+    drops.forEach(function(d){
+      if (d.textContent === ch){
+        d.classList.add('hint-glow');
+        setTimeout(function(){ d.classList.remove('hint-glow'); }, 1200);
+      }
+    });
+  };
+
+  /* ---------- 語音 ----------
+     speak(text, onDone)：唸完（或逾時、或不支援語音）才會呼叫 onDone，
+     確保「太棒了」等收尾語音不會搶在上一句話唸完前插進來。
+     speakInterrupt(text)：給使用者主動按按鈕時用，會先打斷目前語音。 */
+  function speak(text, onDone){
+    var done = false;
+    function finish(){
+      if (!done){ done = true; if (onDone) onDone(); }
+    }
+    try{
+      var msg = new SpeechSynthesisUtterance(text);
+      msg.lang = 'zh-TW';
+      msg.rate = 0.85;
+      msg.onend = finish;
+      msg.onerror = finish;
+      window.speechSynthesis.speak(msg);
+      var estMs = Math.min(14000, Math.max(1500, text.length * 340));
+      setTimeout(finish, estMs);
+    }catch(e){
+      finish();
+    }
+  }
+  function speakInterrupt(text){
+    try{
+      window.speechSynthesis.cancel();
+      var msg = new SpeechSynthesisUtterance(text);
+      msg.lang = 'zh-TW';
+      msg.rate = 0.85;
+      window.speechSynthesis.speak(msg);
+    }catch(e){}
+  }
+  window.speakCurrentLine = function(){
+    if (currentLine < lines.length){
+      var line = lines[currentLine];
+      speakInterrupt(line.chars.join('') + line.punct);
+    }
+  };
+
+  /* ---------- 完成整首詩：雨過天青，畫面轉亮，再依序唸出恭喜語與翻譯賞析 ---------- */
+  function finishGame(){
+    stopTimer();
+    document.getElementById('game').hidden = true;
+    document.getElementById('finish').hidden = false;
+    document.body.classList.add('dawn');
+    document.getElementById('finalTime').textContent = '本次思考時間 ' + formatTime(seconds).replace('思考時間 ','');
+
+    if (window.confetti){
+      confetti({
+        particleCount: 140,
+        spread: 90,
+        origin: { y: 0.55 },
+        colors: ['#f0c674','#e8874a','#f6dfa0','#b23a3a']
+      });
+    }
+
+    speak('太棒了，整首詩都拼好了', function(){
+      setTimeout(function(){
+        var panel = document.getElementById('finalTransPanel');
+        panel.hidden = false;
+        speak(translationSpeech, function(){});
+      }, 500);
+    });
+  }
+
+  /* ---------- 初始化 ---------- */
+  buildAmbientRain();
+  buildPreview();
+})();
+</script>
+</body>
+</html>
