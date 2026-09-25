@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>大漠誓約</title>
+<title>青山送別</title>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <style>
 
   :root{
-    --sky-top:#f3c583;
-    --sky-mid:#e8a35c;
-    --sky-bottom:#d9824a;
+    --sky-top:#dff3ff;
+    --sky-mid:#fde6c8;
+    --sky-bottom:#f7b98a;
     --gold:#f0c674;
     --ink:#4a2f14;
     --ink-soft:rgba(74,47,20,0.8);
@@ -34,7 +34,7 @@
     transition:background 1.2s ease;
   }
   body.dawn{
-    background:linear-gradient(to bottom, #fff0cf 0%, #ffdd9e 45%, #ffc06e 100%);
+    background:linear-gradient(to bottom, #fff4dc 0%, #ffd9a8 50%, #ff9f70 100%);
   }
   body.dawn .sil-back{ opacity:.5; }
   body.dawn .sil-front{ opacity:.65; }
@@ -46,8 +46,8 @@
   .ambient-wrap{ position:absolute; inset:0; }
   .ambient-drop{
     position:absolute; bottom:-5%; width:4px; height:4px; border-radius:50%;
-    background:radial-gradient(circle, #fffaf0, #ffe0a8 70%);
-    box-shadow:0 0 5px rgba(255,230,170,0.9);
+    background:radial-gradient(circle, #ffffff, #ffe7c2 70%);
+    box-shadow:0 0 5px rgba(255,236,200,0.9);
     animation-name:motesRise; animation-timing-function:ease-in-out; animation-iteration-count:infinite;
   }
   @keyframes motesRise{
@@ -57,10 +57,10 @@
     100%{ bottom:100%; opacity:0; transform:translateX(var(--drift,20px)); }
   }
   .sil{ position:absolute; bottom:0; left:0; width:100%; transition:background 1.2s ease, opacity 1.2s ease; }
-  .sil-back{ height:130px; background:linear-gradient(180deg,#c7d3ea,#9fb0d6); opacity:.65;
+  .sil-back{ height:130px; background:linear-gradient(180deg,#7fc59a,#4f9d73); opacity:.85;
     clip-path:polygon(0 100%,0 60%,15% 75%,30% 45%,45% 68%,60% 40%,75% 63%,90% 48%,100% 68%,100% 100%); }
   .sil-back::after{ content:''; }
-  .sil-front{ height:78px; background:#e0c48c;
+  .sil-front{ height:78px; background:#8fd0e8;
     clip-path:polygon(0 100%,0 78%,20% 92%,35% 62%,55% 86%,70% 58%,85% 82%,100% 72%,100% 100%); }
   /* 駱駝商隊：慢慢走過沙丘 */
   .caravan{ position:absolute; bottom:22px; left:-120px; font-size:30px; white-space:nowrap;
@@ -228,6 +228,26 @@
 
   [hidden]{ display:none !important; }
 
+  .emoji-holder{ width:auto; height:auto; font-size:36px; line-height:1; padding-bottom:6px;
+    filter:drop-shadow(0 0 var(--glow,4px) #ff9f55); animation:holderFloat 2.2s ease-in-out infinite; }
+  @keyframes holderFloat{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-6px);} }
+  :root{ --ink:#2f4a3a; --ink-soft:rgba(47,74,58,0.8); --seal-red:#c0503a; }
+  .poem-title{ color:#2f7a55; text-shadow:0 0 16px rgba(255,255,255,0.8); }
+  .candle-btn{ background:linear-gradient(180deg,#6fd39a,#2f9a63); color:#fff; box-shadow:0 0 22px rgba(47,154,99,0.45); }
+  .window-frame{ background:linear-gradient(160deg,#a9dcc0,#6fb38f); border-color:#3f7f5c; }
+  .slot.filled{ border-color:#2f9a63; color:#1f5a3c; background:#f1fbf5; }
+  .char-drop{ background:radial-gradient(circle at 32% 28%, #ffffff, #e3f4ff 80%); color:#1f3a4a; border-color:#3f7f9c; }
+  .line-caption span{ border-color:#2f9a63; color:#1f5a3c; background:#f1fbf5; }
+  .praise{ color:#e0673a; }
+  .progress-dots{ gap:4px; margin-top:48px; }
+  .progress-dots span{ font-size:17px; }
+  /* 天上的浮雲 */
+  .scene-bg::after{ content:'☁️'; position:absolute; top:12%; left:-80px; font-size:48px; opacity:.85;
+    animation:cloudDrift 45s linear infinite; }
+  @keyframes cloudDrift{ from{ left:-80px;} to{ left:105%;} }
+  .caravan{ bottom:14px; animation-duration:30s; font-size:34px; }
+  .caravan span{ animation:gallop .5s ease-in-out infinite; }
+  @keyframes gallop{ 0%,100%{ transform:scaleX(-1) translateY(0) rotate(0);} 50%{ transform:scaleX(-1) translateY(-6px) rotate(-6deg);} }
 </style>
 </head>
 <body>
@@ -236,7 +256,7 @@
   <div class="ambient-wrap" id="ambientWrap"></div>
   <div class="sil sil-back"></div>
   <div class="sil sil-front"></div>
-  <div class="caravan"><span>🐫</span><span>🐪</span></div>
+  <div class="caravan"><span>🐎</span></div>
 </div>
 
 <div id="timer">思考時間 00:00</div>
@@ -246,23 +266,24 @@
 </div>
 
 <div id="home" class="page">
-  <div class="home-flag">🚩</div>
-  <p class="eyebrow">詩詞記憶遊戲 · 為你立起一面戰旗</p>
-  <h1 class="poem-title">從軍行</h1>
-  <p class="poet-line">唐 · 王昌齡</p>
+  <div class="home-flag">⛰️</div>
+  <p class="eyebrow">詩詞記憶遊戲 · 揮手送老朋友</p>
+  <h1 class="poem-title">送友人</h1>
+  <p class="poet-line">唐 · 李白</p>
   <div class="preview-line" id="previewLine"></div>
-  <button class="candle-btn" onclick="enterGame()">🚩 立起戰旗，開始拼詩</button>
+  <button class="candle-btn" onclick="enterGame()">👋 揮揮手，開始拼詩</button>
   <button class="ghost-btn" onclick="toggleFull()">閱讀全文與白話翻譯</button>
+  <a class="ghost-btn" style="margin-top:12px;text-decoration:none;display:inline-block;" href="https://youtube.com/shorts/WvW1TfBQlPU" target="_blank" rel="noopener">🎥 觀看複習影片</a>
   <div id="fullPanel" class="full-panel" hidden>
-    <div class="full-text">青海長雲暗雪山，<br>孤城遙望玉門關。<br>黃沙百戰穿金甲，<br>不破樓蘭終不還。</div>
-    <div class="full-trans">烏雲籠罩青海上空，雪白的祁連山也變得昏暗；戍守孤城的戰士遙望玉門關，思念家鄉。<br>在漫天黃沙中身經百戰，連盔甲都已磨破，仍立誓不打敗敵人絕不返鄉。</div>
+    <div class="full-text">青山橫北郭，白水繞東城。<br>此地一為別，孤蓬萬里征。<br>浮雲遊子意，落日故人情。<br>揮手自茲去，蕭蕭班馬鳴。</div>
+    <div class="full-trans">青山橫在城北，白水繞著城東。我們就在這裡分別，你像一根飛蓬，獨自遠行萬里。<br>浮雲像遊子漂泊的心，落日像老朋友依依不捨的情。揮手從此各奔前程，連馬兒也蕭蕭嘶鳴，不忍分離。</div>
   </div>
 </div>
 
 <div id="game" class="page" hidden>
   <div class="progress-dots" id="progressDots"></div>
   <div class="window-scene">
-    <div class="banner-holder" id="candleHolder"><div class="flag"></div><div class="pole"></div></div>
+    <div class="banner-holder emoji-holder" id="candleHolder">🐎</div>
     <div class="window-frame">
       <div class="glass" id="glass">
         <div id="slots" class="slots-row"></div>
@@ -281,9 +302,9 @@
 </div>
 
 <div id="finish" class="page" hidden>
-  <div class="seal">昌齡</div>
-  <h2>🚩 拼詩完成，誓言已立下！</h2>
-  <div class="final-poem">青海長雲暗雪山，<br>孤城遙望玉門關。<br>黃沙百戰穿金甲，<br>不破樓蘭終不還。</div>
+  <div class="seal">李白</div>
+  <h2>🌅 拼詩完成，友情長長久久！</h2>
+  <div class="final-poem">青山橫北郭，白水繞東城。<br>此地一為別，孤蓬萬里征。<br>浮雲遊子意，落日故人情。<br>揮手自茲去，蕭蕭班馬鳴。</div>
   <p class="final-time" id="finalTime"></p>
 
   <div class="home-btn-row">
@@ -295,7 +316,7 @@
   <br>
   <button class="mute-btn" onclick="stopNarration()">🔇 不想聽語音了</button>
   <div id="finalTransPanel" class="full-panel" hidden>
-    <div class="full-trans">烏雲籠罩在青海上空，那雪白的祁連山因而也變得昏暗。戍守孤城的戰士，遙望著遠方的玉門關，思念家鄉。<br>在滾滾黃沙中身經百戰，連身上的盔甲都磨破了，但仍立下誓言：不打敗敵人，絕不返回家鄉。<br><br>這首詩是唐代邊塞詩的代表作，前兩句寫出邊塞蒼涼壯闊的景色，後兩句寫出將士們百戰不悔、誓死報國的豪情壯志。</div>
+    <div class="full-trans">青山橫亙在城郭的北側，護城河環繞在城郭的東方。<br>我們即將在這裡離別，你就要像飛蓬一樣踏上萬里征程。<br>空中的白雲飄浮不定，就像你從此遊蕩各地；即將落山的太陽遲遲不肯沉沒，也像我對你的依戀之情。<br>我們揮手告別，從這裡各奔前程，友人騎的那匹馬好像也不忍離去，蕭蕭地嘶叫著，更增添了離別的愁緒。</div>
   </div>
 </div>
 
@@ -305,17 +326,21 @@
   "use strict";
 
   var lines = [
-    { chars:["青","海","長","雲","暗","雪","山"], punct:"，", caption:"☁️ 青海雲籠，雪山昏暗" },
-    { chars:["孤","城","遙","望","玉","門","關"], punct:"。", caption:"🏯 孤城遙望，心繫玉門" },
-    { chars:["黃","沙","百","戰","穿","金","甲"], punct:"，", caption:"⚔️ 黃沙百戰，鎧甲已穿" },
-    { chars:["不","破","樓","蘭","終","不","還"], punct:"。", caption:"🚩 不破樓蘭，誓死不還" }
+    { chars:["青","山","橫","北","郭"], punct:"，", caption:"⛰️ 青山橫臥城北" },
+    { chars:["白","水","繞","東","城"], punct:"。", caption:"🌊 白水環繞城東" },
+    { chars:["此","地","一","為","別"], punct:"，", caption:"👋 就在這裡分別" },
+    { chars:["孤","蓬","萬","里","征"], punct:"。", caption:"🌾 像飛蓬遠行萬里" },
+    { chars:["浮","雲","遊","子","意"], punct:"，", caption:"☁️ 浮雲像遊子的心" },
+    { chars:["落","日","故","人","情"], punct:"。", caption:"🌅 落日像老友的情" },
+    { chars:["揮","手","自","茲","去"], punct:"，", caption:"🤚 揮手從此離去" },
+    { chars:["蕭","蕭","班","馬","鳴"], punct:"。", caption:"🐎 離群的馬聲聲嘶鳴" }
   ];
 
-  var fullVerseSpeech = "青海長雲暗雪山，孤城遙望玉門關。黃沙百戰穿金甲，不破樓蘭終不還。";
-  var blessingSpeech = "烏雲籠罩在青海上空，那雪白的祁連山因而也變得昏暗。戍守孤城的戰士，遙望著遠方的玉門關，思念家鄉。在滾滾黃沙中身經百戰，連身上的盔甲都磨破了，但仍立下誓言：不打敗敵人，絕不返回家鄉。這首詩是唐代邊塞詩的代表作，前兩句寫出邊塞蒼涼壯闊的景色，後兩句寫出將士們百戰不悔、誓死報國的豪情壯志。";
+  var fullVerseSpeech = "青山橫北郭，白水繞東城。此地一為別，孤蓬萬里征。浮雲遊子意，落日故人情。揮手自茲去，蕭蕭班馬鳴。";
+  var blessingSpeech = "青山橫亙在城郭的北側，護城河環繞在城郭的東方。我們即將在這裡離別，你就要像飛蓬一樣踏上萬里征程。空中的白雲飄浮不定，就像你從此遊蕩各地；即將落山的太陽遲遲不肯沉沒，也像我對你的依戀之情。我們揮手告別，從這裡各奔前程，友人騎的那匹馬好像也不忍離去，蕭蕭地嘶叫著，更增添了離別的愁緒。";
 
-  var PRAISE = ["好！","漂亮！","勇士！","沒錯！","厲害！","繼續前進！"];
-  var DESERT = ['#f0c674','#e9663f','#f6dfa0','#b23a1f'];
+  var PRAISE = ["好！","漂亮！","沒錯！","厲害！","一路順風！","繼續加油！"];
+  var DESERT = ['#7fc59a','#8fd0e8','#ffd27a','#ff9f70','#ffffff'];
   function showPraise(){
     var p = document.createElement('div');
     p.className = 'praise';
@@ -354,7 +379,7 @@
 
   function buildPreview(){
     var el = document.getElementById('previewLine');
-    var text = fullVerseSpeech.replace(/([，。])(?!$)/g, '$1\n');
+    var text = fullVerseSpeech.replace(/。(?!$)/g, '。\n');
     el.innerHTML = '';
     text.split('').forEach(function(ch, i){
       if (ch === '\n'){ el.appendChild(document.createElement('br')); return; }
@@ -370,7 +395,7 @@
     wrap.innerHTML = '';
     lines.forEach(function(){
       var span = document.createElement('span');
-      span.textContent = '🚩';
+      span.textContent = '👋';
       wrap.appendChild(span);
     });
   }

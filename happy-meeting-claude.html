@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>大漠誓約</title>
+<title>林花春紅</title>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <style>
 
   :root{
-    --sky-top:#f3c583;
-    --sky-mid:#e8a35c;
-    --sky-bottom:#d9824a;
+    --sky-top:#fdf1ee;
+    --sky-mid:#f9d6d2;
+    --sky-bottom:#e9a8a8;
     --gold:#f0c674;
     --ink:#4a2f14;
     --ink-soft:rgba(74,47,20,0.8);
@@ -34,7 +34,7 @@
     transition:background 1.2s ease;
   }
   body.dawn{
-    background:linear-gradient(to bottom, #fff0cf 0%, #ffdd9e 45%, #ffc06e 100%);
+    background:linear-gradient(to bottom, #fffaf2 0%, #ffe2dc 45%, #f7b8b0 100%);
   }
   body.dawn .sil-back{ opacity:.5; }
   body.dawn .sil-front{ opacity:.65; }
@@ -46,8 +46,8 @@
   .ambient-wrap{ position:absolute; inset:0; }
   .ambient-drop{
     position:absolute; bottom:-5%; width:4px; height:4px; border-radius:50%;
-    background:radial-gradient(circle, #fffaf0, #ffe0a8 70%);
-    box-shadow:0 0 5px rgba(255,230,170,0.9);
+    background:radial-gradient(circle, #ffd0d0, #e0505a 70%);
+    box-shadow:0 0 4px rgba(224,80,90,0.6);
     animation-name:motesRise; animation-timing-function:ease-in-out; animation-iteration-count:infinite;
   }
   @keyframes motesRise{
@@ -57,10 +57,10 @@
     100%{ bottom:100%; opacity:0; transform:translateX(var(--drift,20px)); }
   }
   .sil{ position:absolute; bottom:0; left:0; width:100%; transition:background 1.2s ease, opacity 1.2s ease; }
-  .sil-back{ height:130px; background:linear-gradient(180deg,#c7d3ea,#9fb0d6); opacity:.65;
+  .sil-back{ height:130px; background:linear-gradient(180deg,#a8d4a0,#7fb87a); opacity:.8;
     clip-path:polygon(0 100%,0 60%,15% 75%,30% 45%,45% 68%,60% 40%,75% 63%,90% 48%,100% 68%,100% 100%); }
   .sil-back::after{ content:''; }
-  .sil-front{ height:78px; background:#e0c48c;
+  .sil-front{ height:78px; background:#8fc7d8;
     clip-path:polygon(0 100%,0 78%,20% 92%,35% 62%,55% 86%,70% 58%,85% 82%,100% 72%,100% 100%); }
   /* 駱駝商隊：慢慢走過沙丘 */
   .caravan{ position:absolute; bottom:22px; left:-120px; font-size:30px; white-space:nowrap;
@@ -228,6 +228,27 @@
 
   [hidden]{ display:none !important; }
 
+  .emoji-holder{ width:auto; height:auto; font-size:36px; line-height:1; padding-bottom:6px;
+    filter:drop-shadow(0 0 var(--glow,4px) #e0505a); animation:holderFloat 2.2s ease-in-out infinite; }
+  @keyframes holderFloat{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-6px);} }
+  :root{ --ink:#5a2430; --ink-soft:#5a2430cc; --seal-red:#b8323f; }
+  .poem-title{ color:#b8323f; text-shadow:0 0 16px rgba(255,255,255,0.8); }
+  .candle-btn{ background:linear-gradient(180deg,#f07a86,#c8404e); color:#fff; box-shadow:0 0 22px #c8404e77; }
+  .window-frame{ background:linear-gradient(160deg,#f5c2c2,#d98a8a); border-color:#a8404a; }
+  .slot.filled{ border-color:#c8404e; color:#8a2430; background:#fff4f4; }
+  .char-drop{ background:radial-gradient(circle at 32% 28%, #ffffff, #ffe4e4 80%); color:#5a2430; border-color:#a8404a; }
+  .line-caption span{ border-color:#c8404e; color:#8a2430; background:#fff4f4; }
+  .praise{ color:#c8404e; }
+  /* 被風吹落的紅花瓣 */
+  .ambient-drop{ width:9px; height:7px; border-radius:60% 0 60% 0; animation-name:petalFall !important; animation-duration:7s !important; }
+  @keyframes petalFall{ 0%{ bottom:105%; opacity:0; transform:translateX(0) rotate(0);} 10%{ opacity:.9;}
+    100%{ bottom:-5%; opacity:.7; transform:translateX(var(--drift,40px)) rotate(360deg);} }
+  .caravan{ bottom:110px; animation-duration:16s; }
+  .caravan span{ animation:windSpin 1.2s linear infinite; }
+  .caravan span:nth-child(2){ margin-left:16px; animation-duration:1.6s; }
+  @keyframes windSpin{ 0%{ transform:translateY(0) rotate(0);} 50%{ transform:translateY(-12px) rotate(180deg);} 100%{ transform:translateY(0) rotate(360deg);} }
+  .progress-dots{ gap:4px; margin-top:48px; max-width:320px; }
+  .progress-dots span{ font-size:15px; }
 </style>
 </head>
 <body>
@@ -236,7 +257,7 @@
   <div class="ambient-wrap" id="ambientWrap"></div>
   <div class="sil sil-back"></div>
   <div class="sil sil-front"></div>
-  <div class="caravan"><span>🐫</span><span>🐪</span></div>
+  <div class="caravan"><span>🍃</span><span>🌺</span></div>
 </div>
 
 <div id="timer">思考時間 00:00</div>
@@ -246,23 +267,24 @@
 </div>
 
 <div id="home" class="page">
-  <div class="home-flag">🚩</div>
-  <p class="eyebrow">詩詞記憶遊戲 · 為你立起一面戰旗</p>
-  <h1 class="poem-title">從軍行</h1>
-  <p class="poet-line">唐 · 王昌齡</p>
+  <div class="home-flag">🌺</div>
+  <p class="eyebrow">詩詞記憶遊戲 · 花謝花開又一春</p>
+  <h1 class="poem-title">相見歡</h1>
+  <p class="poet-line">南唐 · 李煜</p>
   <div class="preview-line" id="previewLine"></div>
-  <button class="candle-btn" onclick="enterGame()">🚩 立起戰旗，開始拼詩</button>
+  <button class="candle-btn" onclick="enterGame()">🌺 接住落花，開始拼詞</button>
   <button class="ghost-btn" onclick="toggleFull()">閱讀全文與白話翻譯</button>
+  <a class="ghost-btn" style="margin-top:12px;text-decoration:none;display:inline-block;" href="https://www.youtube.com/watch?v=IKpp4VeP3cg" target="_blank" rel="noopener">🎥 觀看複習影片</a>
   <div id="fullPanel" class="full-panel" hidden>
-    <div class="full-text">青海長雲暗雪山，<br>孤城遙望玉門關。<br>黃沙百戰穿金甲，<br>不破樓蘭終不還。</div>
-    <div class="full-trans">烏雲籠罩青海上空，雪白的祁連山也變得昏暗；戍守孤城的戰士遙望玉門關，思念家鄉。<br>在漫天黃沙中身經百戰，連盔甲都已磨破，仍立誓不打敗敵人絕不返鄉。</div>
+    <div class="full-text">林花謝了春紅，太匆匆。<br>無奈朝來寒雨，晚來風。<br>胭脂淚，相留醉，幾時重。<br>自是人生長恨水長東。</div>
+    <div class="full-trans">林中的紅花都凋謝了，春天走得太匆忙。無奈早上有冷雨、晚上有大風，不停地吹打。<br>花上的雨珠像美人的胭脂淚，讓人依依不捨，不知何時才能再相逢？人生的遺憾，就像江水不停地向東流。</div>
   </div>
 </div>
 
 <div id="game" class="page" hidden>
   <div class="progress-dots" id="progressDots"></div>
   <div class="window-scene">
-    <div class="banner-holder" id="candleHolder"><div class="flag"></div><div class="pole"></div></div>
+    <div class="banner-holder emoji-holder" id="candleHolder">🌺</div>
     <div class="window-frame">
       <div class="glass" id="glass">
         <div id="slots" class="slots-row"></div>
@@ -281,9 +303,9 @@
 </div>
 
 <div id="finish" class="page" hidden>
-  <div class="seal">昌齡</div>
-  <h2>🚩 拼詩完成，誓言已立下！</h2>
-  <div class="final-poem">青海長雲暗雪山，<br>孤城遙望玉門關。<br>黃沙百戰穿金甲，<br>不破樓蘭終不還。</div>
+  <div class="seal">李煜</div>
+  <h2>🌺 拼詞完成，珍惜眼前的美好！</h2>
+  <div class="final-poem">林花謝了春紅，太匆匆。<br>無奈朝來寒雨，晚來風。<br>胭脂淚，相留醉，幾時重。<br>自是人生長恨水長東。</div>
   <p class="final-time" id="finalTime"></p>
 
   <div class="home-btn-row">
@@ -295,7 +317,7 @@
   <br>
   <button class="mute-btn" onclick="stopNarration()">🔇 不想聽語音了</button>
   <div id="finalTransPanel" class="full-panel" hidden>
-    <div class="full-trans">烏雲籠罩在青海上空，那雪白的祁連山因而也變得昏暗。戍守孤城的戰士，遙望著遠方的玉門關，思念家鄉。<br>在滾滾黃沙中身經百戰，連身上的盔甲都磨破了，但仍立下誓言：不打敗敵人，絕不返回家鄉。<br><br>這首詩是唐代邊塞詩的代表作，前兩句寫出邊塞蒼涼壯闊的景色，後兩句寫出將士們百戰不悔、誓死報國的豪情壯志。</div>
+    <div class="full-trans">就像林子裡的繁花褪盡了春日的紅豔，一切消失得太匆促了，敵不過日日夜夜的雨打風吹。<br>美人惜別的淚水，仍然讓我迷醉，不知幾時才能重逢？人生恨事無盡，就好像江水永遠奔流向東，無可挽回。<br><br>這首詞借落花寫出對美好事物消逝的不捨，也提醒我們珍惜眼前人、眼前事。</div>
   </div>
 </div>
 
@@ -305,17 +327,21 @@
   "use strict";
 
   var lines = [
-    { chars:["青","海","長","雲","暗","雪","山"], punct:"，", caption:"☁️ 青海雲籠，雪山昏暗" },
-    { chars:["孤","城","遙","望","玉","門","關"], punct:"。", caption:"🏯 孤城遙望，心繫玉門" },
-    { chars:["黃","沙","百","戰","穿","金","甲"], punct:"，", caption:"⚔️ 黃沙百戰，鎧甲已穿" },
-    { chars:["不","破","樓","蘭","終","不","還"], punct:"。", caption:"🚩 不破樓蘭，誓死不還" }
+    { chars:["林","花","謝","了","春","紅"], punct:"，", caption:"🌺 林中紅花都謝了" },
+    { chars:["太","匆","匆"], punct:"。", caption:"⏳ 春天走得太匆忙" },
+    { chars:["無","奈","朝","來","寒","雨"], punct:"，", caption:"🌧️ 無奈早上冷雨吹打" },
+    { chars:["晚","來","風"], punct:"。", caption:"🍃 晚上又颳起大風" },
+    { chars:["胭","脂","淚"], punct:"，", caption:"💧 花上雨珠如胭脂淚" },
+    { chars:["相","留","醉"], punct:"，", caption:"🍷 依依不捨令人醉" },
+    { chars:["幾","時","重"], punct:"。", caption:"❓ 何時才能再相會" },
+    { chars:["自","是","人","生","長","恨","水","長","東"], punct:"。", caption:"🌊 人生遺憾如江水東流" }
   ];
 
-  var fullVerseSpeech = "青海長雲暗雪山，孤城遙望玉門關。黃沙百戰穿金甲，不破樓蘭終不還。";
-  var blessingSpeech = "烏雲籠罩在青海上空，那雪白的祁連山因而也變得昏暗。戍守孤城的戰士，遙望著遠方的玉門關，思念家鄉。在滾滾黃沙中身經百戰，連身上的盔甲都磨破了，但仍立下誓言：不打敗敵人，絕不返回家鄉。這首詩是唐代邊塞詩的代表作，前兩句寫出邊塞蒼涼壯闊的景色，後兩句寫出將士們百戰不悔、誓死報國的豪情壯志。";
+  var fullVerseSpeech = "林花謝了春紅，太匆匆。無奈朝來寒雨，晚來風。胭脂淚，相留醉，幾時重。自是人生長恨水長東。";
+  var blessingSpeech = "就像林子裡的繁花褪盡了春日的紅豔，一切消失得太匆促了，敵不過日日夜夜的雨打風吹。美人惜別的淚水，仍然讓我迷醉，不知幾時才能重逢？人生恨事無盡，就好像江水永遠奔流向東，無可挽回。這首詞借落花寫出對美好事物消逝的不捨，也提醒我們珍惜眼前人、眼前事。";
 
-  var PRAISE = ["好！","漂亮！","勇士！","沒錯！","厲害！","繼續前進！"];
-  var DESERT = ['#f0c674','#e9663f','#f6dfa0','#b23a1f'];
+  var PRAISE = ["好！","漂亮！","沒錯！","厲害！","真美！","繼續加油！"];
+  var DESERT = ['#e0505a','#ff9aa8','#ffd0d0','#7fb87a','#ffffff'];
   function showPraise(){
     var p = document.createElement('div');
     p.className = 'praise';
@@ -354,7 +380,7 @@
 
   function buildPreview(){
     var el = document.getElementById('previewLine');
-    var text = fullVerseSpeech.replace(/([，。])(?!$)/g, '$1\n');
+    var text = fullVerseSpeech.replace(/。(?!$)/g, '。\n');
     el.innerHTML = '';
     text.split('').forEach(function(ch, i){
       if (ch === '\n'){ el.appendChild(document.createElement('br')); return; }
@@ -370,7 +396,7 @@
     wrap.innerHTML = '';
     lines.forEach(function(){
       var span = document.createElement('span');
-      span.textContent = '🚩';
+      span.textContent = '🌺';
       wrap.appendChild(span);
     });
   }

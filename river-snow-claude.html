@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>大漠誓約</title>
+<title>寒江獨釣</title>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <style>
 
   :root{
-    --sky-top:#f3c583;
-    --sky-mid:#e8a35c;
-    --sky-bottom:#d9824a;
+    --sky-top:#9fb2c8;
+    --sky-mid:#c3d0de;
+    --sky-bottom:#e6edf4;
     --gold:#f0c674;
     --ink:#4a2f14;
     --ink-soft:rgba(74,47,20,0.8);
@@ -34,7 +34,7 @@
     transition:background 1.2s ease;
   }
   body.dawn{
-    background:linear-gradient(to bottom, #fff0cf 0%, #ffdd9e 45%, #ffc06e 100%);
+    background:linear-gradient(to bottom, #c9d8ea 0%, #e8f0f8 50%, #ffffff 100%);
   }
   body.dawn .sil-back{ opacity:.5; }
   body.dawn .sil-front{ opacity:.65; }
@@ -46,8 +46,8 @@
   .ambient-wrap{ position:absolute; inset:0; }
   .ambient-drop{
     position:absolute; bottom:-5%; width:4px; height:4px; border-radius:50%;
-    background:radial-gradient(circle, #fffaf0, #ffe0a8 70%);
-    box-shadow:0 0 5px rgba(255,230,170,0.9);
+    background:radial-gradient(circle, #ffffff, #ffffff 60%, transparent 70%);
+    box-shadow:0 0 4px rgba(255,255,255,1);
     animation-name:motesRise; animation-timing-function:ease-in-out; animation-iteration-count:infinite;
   }
   @keyframes motesRise{
@@ -57,10 +57,10 @@
     100%{ bottom:100%; opacity:0; transform:translateX(var(--drift,20px)); }
   }
   .sil{ position:absolute; bottom:0; left:0; width:100%; transition:background 1.2s ease, opacity 1.2s ease; }
-  .sil-back{ height:130px; background:linear-gradient(180deg,#c7d3ea,#9fb0d6); opacity:.65;
+  .sil-back{ height:130px; background:linear-gradient(180deg,#ffffff,#dfe7f0); opacity:.95;
     clip-path:polygon(0 100%,0 60%,15% 75%,30% 45%,45% 68%,60% 40%,75% 63%,90% 48%,100% 68%,100% 100%); }
   .sil-back::after{ content:''; }
-  .sil-front{ height:78px; background:#e0c48c;
+  .sil-front{ height:78px; background:#7f96b0;
     clip-path:polygon(0 100%,0 78%,20% 92%,35% 62%,55% 86%,70% 58%,85% 82%,100% 72%,100% 100%); }
   /* 駱駝商隊：慢慢走過沙丘 */
   .caravan{ position:absolute; bottom:22px; left:-120px; font-size:30px; white-space:nowrap;
@@ -228,6 +228,29 @@
 
   [hidden]{ display:none !important; }
 
+  .emoji-holder{ width:auto; height:auto; font-size:36px; line-height:1; padding-bottom:6px;
+    filter:drop-shadow(0 0 var(--glow,4px) #7fa8d8); animation:holderFloat 2.2s ease-in-out infinite; }
+  @keyframes holderFloat{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-6px);} }
+  :root{ --ink:#233548; --ink-soft:#233548cc; --seal-red:#b23a3a; }
+  .poem-title{ color:#2f5a8a; text-shadow:0 0 16px rgba(255,255,255,0.8); }
+  .candle-btn{ background:linear-gradient(180deg,#7fb0e0,#3f6a9a); color:#fff; box-shadow:0 0 22px #3f6a9a77; }
+  .window-frame{ background:linear-gradient(160deg,#e6eef8,#b0c4dc); border-color:#4f6a8a; }
+  .slot.filled{ border-color:#3f6a9a; color:#1f3a5a; background:#f4f8fc; }
+  .char-drop{ background:radial-gradient(circle at 32% 28%, #ffffff, #eef4fb 80%); color:#233548; border-color:#4f6a8a; }
+  .line-caption span{ border-color:#3f6a9a; color:#1f3a5a; background:#f4f8fc; }
+  .praise{ color:#3f6a9a; }
+  /* 雪花：大小不一，慢慢飄落 */
+  .ambient-drop{ width:7px; height:7px; animation-name:snowFall !important; animation-duration:8s !important; }
+  @keyframes snowFall{ 0%{ bottom:105%; opacity:0; transform:translateX(0);} 10%{ opacity:1;}
+    50%{ transform:translateX(var(--drift,30px));} 100%{ bottom:-5%; opacity:.8; transform:translateX(0);} }
+  .caravan{ bottom:28px; animation-duration:60s; font-size:32px; }
+  .caravan span{ animation:boatFloat 2.4s ease-in-out infinite; }
+  @keyframes boatFloat{ 0%,100%{ transform:scaleX(-1) translateY(0);} 50%{ transform:scaleX(-1) translateY(-3px);} }
+  .emoji-holder{ animation:fishTug 2.4s ease-in-out infinite; }
+  @keyframes fishTug{ 0%,80%,100%{ transform:rotate(0);} 85%{ transform:rotate(-14deg);} 90%{ transform:rotate(8deg);} }
+  .home-flag{ animation:snowSpin 6s linear infinite; }
+  @keyframes snowSpin{ from{ transform:rotate(0);} to{ transform:rotate(360deg);} }
+
 </style>
 </head>
 <body>
@@ -236,7 +259,7 @@
   <div class="ambient-wrap" id="ambientWrap"></div>
   <div class="sil sil-back"></div>
   <div class="sil sil-front"></div>
-  <div class="caravan"><span>🐫</span><span>🐪</span></div>
+  <div class="caravan"><span>🛶</span></div>
 </div>
 
 <div id="timer">思考時間 00:00</div>
@@ -246,23 +269,24 @@
 </div>
 
 <div id="home" class="page">
-  <div class="home-flag">🚩</div>
-  <p class="eyebrow">詩詞記憶遊戲 · 為你立起一面戰旗</p>
-  <h1 class="poem-title">從軍行</h1>
-  <p class="poet-line">唐 · 王昌齡</p>
+  <div class="home-flag">❄️</div>
+  <p class="eyebrow">詩詞記憶遊戲 · 雪中靜靜垂釣</p>
+  <h1 class="poem-title">江雪</h1>
+  <p class="poet-line">唐 · 柳宗元</p>
   <div class="preview-line" id="previewLine"></div>
-  <button class="candle-btn" onclick="enterGame()">🚩 立起戰旗，開始拼詩</button>
+  <button class="candle-btn" onclick="enterGame()">🎣 拋下釣竿，開始拼詩</button>
   <button class="ghost-btn" onclick="toggleFull()">閱讀全文與白話翻譯</button>
+  <a class="ghost-btn" style="margin-top:12px;text-decoration:none;display:inline-block;" href="https://youtube.com/shorts/y69s40LDIjY" target="_blank" rel="noopener">🎥 觀看複習影片</a>
   <div id="fullPanel" class="full-panel" hidden>
-    <div class="full-text">青海長雲暗雪山，<br>孤城遙望玉門關。<br>黃沙百戰穿金甲，<br>不破樓蘭終不還。</div>
-    <div class="full-trans">烏雲籠罩青海上空，雪白的祁連山也變得昏暗；戍守孤城的戰士遙望玉門關，思念家鄉。<br>在漫天黃沙中身經百戰，連盔甲都已磨破，仍立誓不打敗敵人絕不返鄉。</div>
+    <div class="full-text">千山鳥飛絕，萬徑人蹤滅。<br>孤舟蓑笠翁，獨釣寒江雪。</div>
+    <div class="full-trans">千座山嶺間看不見任何飛鳥，萬條小路上也沒有人的足跡。<br>只有一艘小船上，一位身披蓑衣、頭戴斗笠的老翁，獨自在寒冷的江上冒著大雪釣魚。</div>
   </div>
 </div>
 
 <div id="game" class="page" hidden>
   <div class="progress-dots" id="progressDots"></div>
   <div class="window-scene">
-    <div class="banner-holder" id="candleHolder"><div class="flag"></div><div class="pole"></div></div>
+    <div class="banner-holder emoji-holder" id="candleHolder">🎣</div>
     <div class="window-frame">
       <div class="glass" id="glass">
         <div id="slots" class="slots-row"></div>
@@ -281,9 +305,9 @@
 </div>
 
 <div id="finish" class="page" hidden>
-  <div class="seal">昌齡</div>
-  <h2>🚩 拼詩完成，誓言已立下！</h2>
-  <div class="final-poem">青海長雲暗雪山，<br>孤城遙望玉門關。<br>黃沙百戰穿金甲，<br>不破樓蘭終不還。</div>
+  <div class="seal">宗元</div>
+  <h2>🎣 拼詩完成，釣到一首好詩！</h2>
+  <div class="final-poem">千山鳥飛絕，萬徑人蹤滅。<br>孤舟蓑笠翁，獨釣寒江雪。</div>
   <p class="final-time" id="finalTime"></p>
 
   <div class="home-btn-row">
@@ -295,7 +319,7 @@
   <br>
   <button class="mute-btn" onclick="stopNarration()">🔇 不想聽語音了</button>
   <div id="finalTransPanel" class="full-panel" hidden>
-    <div class="full-trans">烏雲籠罩在青海上空，那雪白的祁連山因而也變得昏暗。戍守孤城的戰士，遙望著遠方的玉門關，思念家鄉。<br>在滾滾黃沙中身經百戰，連身上的盔甲都磨破了，但仍立下誓言：不打敗敵人，絕不返回家鄉。<br><br>這首詩是唐代邊塞詩的代表作，前兩句寫出邊塞蒼涼壯闊的景色，後兩句寫出將士們百戰不悔、誓死報國的豪情壯志。</div>
+    <div class="full-trans">千座山嶺間看不見任何飛鳥，萬條小路上也沒有人的足跡。<br>只有一艘小船上，一位身披蓑衣、頭戴斗笠的老翁，獨自在寒冷的江上冒著大雪釣魚。<br><br>天地寂靜寒冷，這位老翁卻安安靜靜、堅定不移，表現出不隨波逐流的堅毅與清高。</div>
   </div>
 </div>
 
@@ -305,17 +329,17 @@
   "use strict";
 
   var lines = [
-    { chars:["青","海","長","雲","暗","雪","山"], punct:"，", caption:"☁️ 青海雲籠，雪山昏暗" },
-    { chars:["孤","城","遙","望","玉","門","關"], punct:"。", caption:"🏯 孤城遙望，心繫玉門" },
-    { chars:["黃","沙","百","戰","穿","金","甲"], punct:"，", caption:"⚔️ 黃沙百戰，鎧甲已穿" },
-    { chars:["不","破","樓","蘭","終","不","還"], punct:"。", caption:"🚩 不破樓蘭，誓死不還" }
+    { chars:["千","山","鳥","飛","絕"], punct:"，", caption:"⛰️ 千山不見飛鳥" },
+    { chars:["萬","徑","人","蹤","滅"], punct:"。", caption:"👣 萬條小路沒有人跡" },
+    { chars:["孤","舟","蓑","笠","翁"], punct:"，", caption:"🛶 小船上的蓑笠老翁" },
+    { chars:["獨","釣","寒","江","雪"], punct:"。", caption:"🎣 獨自在寒江雪中釣魚" }
   ];
 
-  var fullVerseSpeech = "青海長雲暗雪山，孤城遙望玉門關。黃沙百戰穿金甲，不破樓蘭終不還。";
-  var blessingSpeech = "烏雲籠罩在青海上空，那雪白的祁連山因而也變得昏暗。戍守孤城的戰士，遙望著遠方的玉門關，思念家鄉。在滾滾黃沙中身經百戰，連身上的盔甲都磨破了，但仍立下誓言：不打敗敵人，絕不返回家鄉。這首詩是唐代邊塞詩的代表作，前兩句寫出邊塞蒼涼壯闊的景色，後兩句寫出將士們百戰不悔、誓死報國的豪情壯志。";
+  var fullVerseSpeech = "千山鳥飛絕，萬徑人蹤滅。孤舟蓑笠翁，獨釣寒江雪。";
+  var blessingSpeech = "千座山嶺間看不見任何飛鳥，萬條小路上也沒有人的足跡。只有一艘小船上，一位身披蓑衣、頭戴斗笠的老翁，獨自在寒冷的江上冒著大雪釣魚。天地寂靜寒冷，這位老翁卻安安靜靜、堅定不移，表現出不隨波逐流的堅毅與清高。";
 
-  var PRAISE = ["好！","漂亮！","勇士！","沒錯！","厲害！","繼續前進！"];
-  var DESERT = ['#f0c674','#e9663f','#f6dfa0','#b23a1f'];
+  var PRAISE = ["好！","漂亮！","沒錯！","厲害！","魚上鉤了！","繼續加油！"];
+  var DESERT = ['#ffffff','#d6e4f5','#7fa8d8','#3f6a9a'];
   function showPraise(){
     var p = document.createElement('div');
     p.className = 'praise';
@@ -354,7 +378,7 @@
 
   function buildPreview(){
     var el = document.getElementById('previewLine');
-    var text = fullVerseSpeech.replace(/([，。])(?!$)/g, '$1\n');
+    var text = fullVerseSpeech.replace(/([。？！])(?!$)/g, '$1\n');
     el.innerHTML = '';
     text.split('').forEach(function(ch, i){
       if (ch === '\n'){ el.appendChild(document.createElement('br')); return; }
@@ -370,7 +394,7 @@
     wrap.innerHTML = '';
     lines.forEach(function(){
       var span = document.createElement('span');
-      span.textContent = '🚩';
+      span.textContent = '❄️';
       wrap.appendChild(span);
     });
   }
@@ -639,7 +663,7 @@
   window.giveHint = function(){
     var banner = document.getElementById('hintBanner');
     if (hintTimer) clearTimeout(hintTimer);
-    banner.innerHTML = '<p>' + fullVerseSpeech.replace(/。(?!$)/g, '。<br>') + '</p>';
+    banner.innerHTML = '<p>' + fullVerseSpeech.replace(/([。？！])(?!$)/g, '$1<br>') + '</p>';
     banner.hidden = false;
     banner.classList.remove('show'); void banner.offsetWidth; banner.classList.add('show');
     hintTimer = setTimeout(function(){
