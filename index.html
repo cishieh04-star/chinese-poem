@@ -49,28 +49,29 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const games = [
-                { name: "1.從軍行(王昌齡/唐)", file: "join-army-claude.html" },
-                { name: "2.秋夕(杜牧/唐)", file: "autumn-night-claude.html" },
-                { name: "3.送友人(李白/唐)", file: "bidding-farewell-claude.html" },
-                { name: "4.金縷衣(杜秋娘/唐)", file: "golden-dress-claude.html" },
-                { name: "5.夜雨寄北(李商 /唐)", file: "night-rain-claude.html" },
-                { name: "6.相見歡(李煜/唐)", file: "happy-meeting-claude.html" },
-                { name: "7.念奴嬌·赤壁懷古(蘇軾/宋)", file: "red-cliff-claude.html" },
-                { name: "8.靜夜思(李白/唐)", file: "quiet-night-claude.html" },
-                { name: "9.臨江仙(楊慎/明)", file: "lin-jiang-xien-claude.html" },
-                { name: "10.陋室銘(劉禹錫/唐)", file: "humble-home-claude.html" },
-                { name: "11.黃鶴樓送孟浩然之廣陵(李白/唐)", file: "yellow-crane-tower-claude.html" },
-                { name: "12.江雪(柳宗元/唐)", file: "river-snow-claude.html" },
-                { name: "13.早發白帝城(李白/唐)", file: "baidi-city-claude.html" },
-                { name: "14.相思(王維/唐)", file: "red-beans-claude.html" },
-                { name: "15.獨坐敬亭山(李白/唐)", file: "soaring-high-claude.html" },
+                { file: "join-army-claude.html", name: "從軍行(王昌齡/唐)" },
+                { file: "autumn-night-claude.html", name: "秋夕(杜牧/唐)" },
+                { file: "bidding-farewell-claude.html", name: "送友人(李白/唐)" },
+                { file: "golden-dress-claude.html", name: "金縷衣(杜秋娘/唐)" },
+                { file: "night-rain-claude.html", name: "夜雨寄北(李商 /唐)" },
+                { file: "happy-meeting-claude.html", name: "相見歡(李煜/唐)" },
+                { file: "red-cliff-claude.html", name: "念奴嬌·赤壁懷古(蘇軾/宋)" },
+                { file: "quiet-night-claude.html", name: "靜夜思(李白/唐)" },
+                { file: "lin-jiang-xien-claude.html", name: "臨江仙(楊慎/明)" },
+                { file: "humble-home-claude.html", name: "陋室銘(劉禹錫/唐)" },
+                { file: "yellow-crane-tower-claude.html", name: "黃鶴樓送孟浩然之廣陵(李白/唐)" },
+                { file: "river-snow-claude.html", name: "江雪(柳宗元/唐)" },
+                { file: "baidi-city-claude.html", name: "早發白帝城(李白/唐)" },
+                { file: "red-beans-claude.html", name: "相思(王維/唐)" },
+                { file: "soaring-high-claude.html", name: "獨坐敬亭山(李白/唐)" }
             ];
 
             const listElement = document.getElementById('game-list');
             
-            games.forEach(game => {
+            games.forEach((game, index) => {
                 const li = document.createElement('li');
-                li.innerHTML = '<div class="box game-link"><a href="' + game.file + '">' + game.name + '</a></div>';
+                const displayName = (index + 1) + "." + game.name;
+                li.innerHTML = '<div class="box game-link"><a href="' + game.file + '">' + displayName + '</a></div>';
                 listElement.appendChild(li);
             });
         });
