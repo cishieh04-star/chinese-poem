@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>春風玉門</title>
+<title>涼州詞 · 王之渙</title>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <style>
 
@@ -228,6 +228,11 @@
 
   [hidden]{ display:none !important; }
 
+  /* 遊戲畫面上方顯示詩名與作者 */
+  .game-title{ margin:52px 0 6px; text-align:center; font-family:"KaiTi","STKaiti","BiauKai",serif;
+    font-size:calc(var(--char-size) + 2px); font-weight:bold; letter-spacing:4px; line-height:1.3; }
+  .game-title small{ display:block; font-size:14px; letter-spacing:2px; font-weight:normal; opacity:.85; }
+  #game .progress-dots{ margin-top:4px !important; }
   .emoji-holder{ width:auto; height:auto; font-size:36px; line-height:1; padding-bottom:6px;
     filter:drop-shadow(0 0 var(--glow,4px) #e0a02a); animation:holderFloat 2.2s ease-in-out infinite; }
   @keyframes holderFloat{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-6px);} }
@@ -284,6 +289,7 @@
 </div>
 
 <div id="game" class="page" hidden>
+  <div class="game-title" id="gameTitle">涼州詞<small>唐 · 王之渙</small></div>
   <div class="progress-dots" id="progressDots"></div>
   <div class="window-scene">
     <div class="banner-holder emoji-holder" id="candleHolder">🎵</div>
@@ -733,6 +739,8 @@
     });
   }
 
+  (function(){ var pt = document.querySelector('.poem-title'), gt = document.getElementById('gameTitle');
+    if (pt && gt){ var cs = getComputedStyle(pt); gt.style.color = cs.color; gt.style.textShadow = cs.textShadow; } })();
   buildAmbient();
   buildPreview();
 })();
