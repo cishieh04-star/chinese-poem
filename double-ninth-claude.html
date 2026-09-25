@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>每逢佳節倍思親</title>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<style>
+
+  :root{
+    --sky-top:#fff4d8;
+    --sky-mid:#ffd89a;
+    --sky-bottom:#e8a060;
+    --gold:#f0c674;
+    --ink:#4a2f14;
+    --ink-soft:rgba(74,47,20,0.8);
+    --accent:#a5431f;
+    --seal-red:#b23a3a;
+    --glass-bg:rgba(255,248,232,0.72);
+    --char-size:24px;
+    --caption-size:16px;
+  }
+  :root.font-l{ --char-size:28px; --caption-size:18px; }
+  :root.font-xl{ --char-size:32px; --caption-size:20px; }
+
+  *{ box-sizing:border-box; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+  body{
+    margin:0; min-height:100vh; overflow-x:hidden;
+    font-family:'Microsoft JhengHei','PingFang TC',sans-serif;
+    background:linear-gradient(to bottom, var(--sky-top) 0%, var(--sky-mid) 55%, var(--sky-bottom) 100%);
+    color:var(--ink);
+    display:flex; flex-direction:column; align-items:center;
+    padding:10px 12px 30px;
+    transition:background 1.2s ease;
+  }
+  body.dawn{
+    background:linear-gradient(to bottom, #fffaec 0%, #ffe6b8 45%, #f4b878 100%);
+  }
+  body.dawn .sil-back{ opacity:.5; }
+  body.dawn .sil-front{ opacity:.65; }
+
+  .scene-bg{ position:fixed; inset:0; overflow:hidden; z-index:0; pointer-events:none; }
+  .scene-bg::before{ content:''; position:absolute; top:-15%; left:50%; width:80%; padding-top:80%;
+    transform:translateX(-50%); border-radius:50%;
+    background:radial-gradient(circle, rgba(255,255,255,0.55), transparent 68%); }
+  .ambient-wrap{ position:absolute; inset:0; }
+  .ambient-drop{
+    position:absolute; bottom:-5%; width:4px; height:4px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #ff9a8a, #d0203a 70%);
+    box-shadow:0 1px 3px rgba(120,0,20,0.4);
+    animation-name:motesRise; animation-timing-function:ease-in-out; animation-iteration-count:infinite;
+  }
+  @keyframes motesRise{
+    0%{ bottom:-5%; opacity:0; transform:translateX(0); }
+    15%{ opacity:.95; }
+    85%{ opacity:.55; }
+    100%{ bottom:100%; opacity:0; transform:translateX(var(--drift,20px)); }
+  }
+  .sil{ position:absolute; bottom:0; left:0; width:100%; transition:background 1.2s ease, opacity 1.2s ease; }
+  .sil-back{ height:130px; background:linear-gradient(180deg,#c8904a,#a8703a); opacity:.85;
+    clip-path:polygon(0 100%,0 60%,15% 75%,30% 45%,45% 68%,60% 40%,75% 63%,90% 48%,100% 68%,100% 100%); }
+  .sil-back::after{ content:''; }
+  .sil-front{ height:78px; background:#8a5a2a;
+    clip-path:polygon(0 100%,0 78%,20% 92%,35% 62%,55% 86%,70% 58%,85% 82%,100% 72%,100% 100%); }
+  /* 駱駝商隊：慢慢走過沙丘 */
+  .caravan{ position:absolute; bottom:22px; left:-120px; font-size:30px; white-space:nowrap;
+    animation:caravanWalk 38s linear infinite; opacity:.9; }
+  .caravan span{ display:inline-block; animation:camelStep .9s ease-in-out infinite; transform:scaleX(-1); }
+  .caravan span:nth-child(2){ animation-delay:-.45s; font-size:24px; }
+  @keyframes caravanWalk{ from{ left:-120px; } to{ left:110%; } }
+  @keyframes camelStep{ 0%,100%{ transform:scaleX(-1) translateY(0);} 50%{ transform:scaleX(-1) translateY(-3px);} }
+
+  .page{ position:relative; z-index:2; width:100%; max-width:480px; }
+
+  #timer{ position:fixed; top:10px; left:12px; font-size:13px; color:var(--ink);
+    background:rgba(255,255,255,0.5); padding:4px 10px; border-radius:10px; border:1px solid rgba(107,52,24,0.3); z-index:1000; }
+  .font-controls{ position:fixed; top:10px; right:12px; z-index:1000; display:flex; gap:6px; }
+  .font-controls button{ width:48px; height:48px; border-radius:13px; border:2px solid rgba(107,52,24,0.75);
+    background:rgba(255,255,255,0.95); color:var(--ink); font-size:19px; font-weight:bold; cursor:pointer;
+    box-shadow:0 2px 6px rgba(0,0,0,0.2); }
+
+  #home{ text-align:center; padding-top:7vh; min-height:88vh; display:flex; flex-direction:column; align-items:center; }
+  .eyebrow{ font-size:13px; letter-spacing:2px; color:var(--ink-soft); margin:0 0 6px; }
+  .poem-title{ font-size:34px; margin:0; letter-spacing:8px; color:#a5431f;
+    font-family:"KaiTi","STKaiti","BiauKai",serif; text-shadow:0 0 18px rgba(240,198,116,0.6); }
+  .home-flag{ font-size:54px; margin-bottom:4px; display:inline-block; transform-origin:20% 90%;
+    animation:flagWave 1.6s ease-in-out infinite; }
+  @keyframes flagWave{ 0%,100%{ transform:rotate(-6deg);} 50%{ transform:rotate(6deg) translateY(-4px);} }
+  .poet-line{ margin:6px 0 22px; font-size:14px; color:var(--ink-soft); }
+  .preview-line{ font-family:"KaiTi","STKaiti","BiauKai",serif; font-size:22px; letter-spacing:4px;
+    color:var(--ink); min-height:34px; margin-bottom:26px; line-height:1.7; padding:0 14px; }
+  .preview-line span{ opacity:0; display:inline-block; animation:charFadeIn .6s forwards; }
+  @keyframes charFadeIn{ to{ opacity:1; } }
+
+  .candle-btn{ font-size:17px; font-weight:bold; padding:14px 28px; border:none; border-radius:30px;
+    background:linear-gradient(180deg,#e9663f,#b23a1f); color:#fff3e0; cursor:pointer;
+    box-shadow:0 0 22px rgba(178,58,31,0.45); margin-bottom:14px; animation:btnPulse 2.2s ease-in-out infinite; }
+  @keyframes btnPulse{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.05);} }
+  .ghost-btn{ background:rgba(255,255,255,0.85); border:2px solid rgba(74,47,20,0.75); color:var(--ink);
+    padding:14px 26px; border-radius:24px; font-size:19px; font-weight:bold; cursor:pointer;
+    box-shadow:0 2px 6px rgba(0,0,0,0.15); }
+  .full-panel{ margin-top:16px; width:92%; max-width:420px; background:rgba(255,255,255,0.42);
+    border:1px solid rgba(107,52,24,0.3); border-radius:12px; padding:14px 16px; text-align:left; }
+  .full-text{ font-family:"KaiTi","STKaiti","BiauKai",serif; font-size:17px; line-height:1.9; color:var(--ink); }
+  .full-trans{ margin-top:10px; font-size:13px; line-height:1.7; color:var(--ink-soft); }
+
+  #game{ display:flex; flex-direction:column; align-items:center; padding-top:2vh; }
+  .progress-dots{ display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; justify-content:center; max-width:280px; }
+  .progress-dots{ gap:10px; }
+  .progress-dots span{ font-size:24px; filter:grayscale(1) opacity(.35); transition:filter .4s, transform .4s; }
+  .progress-dots span.done{ filter:none; animation:flagUp .6s cubic-bezier(.34,1.56,.64,1) forwards; }
+  @keyframes flagUp{ 0%{ transform:translateY(10px) scale(.6);} 100%{ transform:translateY(0) scale(1.2);} }
+
+  .window-scene{ position:relative; display:flex; align-items:flex-end; justify-content:center; gap:6px; width:100%; }
+  .window-scene::before{ content:''; position:absolute; top:10%; left:50%; width:240px; height:240px;
+    transform:translate(-50%,-30%); border-radius:50%; pointer-events:none;
+    background:radial-gradient(circle, rgba(255,220,150,0.4), transparent 70%); z-index:-1; }
+  
+  .banner-holder{ position:relative; width:38px; height:84px; margin-bottom:10px; flex-shrink:0;
+    filter:drop-shadow(0 0 var(--glow,4px) #e9663f); transition:filter .6s; }
+  .banner-holder .pole{ width:5px; height:78px; margin:6px auto 0; border-radius:2px;
+    background:linear-gradient(#8a5a2e,#5a3a1a); }
+  .banner-holder .flag{ position:absolute; top:6px; left:50%; width:32px; height:24px;
+    background:linear-gradient(135deg,#e9663f,#b23a1f); transform-origin:0% 50%;
+    clip-path:polygon(0 10%, 100% 50%, 0 90%); animation:wave 1.4s ease-in-out infinite; }
+  @keyframes wave{ 0%,100%{ transform:skewY(-6deg) scaleX(1); } 50%{ transform:skewY(6deg) scaleX(0.9); } }
+  .banner-holder.cheer{ animation:cheerJump .5s ease; }
+  @keyframes cheerJump{ 0%,100%{ transform:translateY(0);} 40%{ transform:translateY(-12px);} }
+
+  .window-frame{ position:relative; background:linear-gradient(160deg,#d6a86c,#a87c48); border:3px solid #7a4f24;
+    border-radius:10px; padding:8px; width:100%; max-width:390px; box-shadow:0 6px 18px rgba(120,80,30,0.3); }
+  .glass{ position:relative; background:var(--glass-bg); border-radius:6px; padding:14px 8px;
+    min-height:70px; display:flex; align-items:center; justify-content:center; overflow:hidden;
+    box-shadow:inset 0 0 24px rgba(90,58,26,0.2); }
+    .glass.ripple::after{ content:none; position:absolute; inset:0; border-radius:6px;
+    background:radial-gradient(circle, rgba(255,252,240,0.6), transparent 65%);
+    animation:rippleAnim .55s ease-out; }
+  @keyframes rippleAnim{ 0%{ opacity:0; transform:scale(.6);} 40%{ opacity:.5;} 100%{ opacity:0; transform:scale(1.3);} }
+
+  .hint-banner{ position:absolute; inset:6px; border-radius:6px; background:rgba(255,248,230,0.98);
+    display:flex; align-items:center; justify-content:center; padding:10px 14px; z-index:6;
+    box-shadow:0 4px 16px rgba(0,0,0,0.28); border:2.5px solid #f0a400; }
+  .hint-banner p{ font-family:"KaiTi","STKaiti","BiauKai",serif; font-size:calc(var(--char-size) - 6px);
+    line-height:1.75; color:#3a2010; text-align:center; margin:0; font-weight:bold; }
+  .hint-banner.show{ animation:hintBannerIn .25s ease-out; }
+  @keyframes hintBannerIn{ from{ opacity:0; transform:scale(.92); } to{ opacity:1; transform:scale(1); } }
+
+  .slots-row{ display:flex; flex-wrap:wrap; gap:5px; justify-content:center; align-items:center; }
+  .slot{ width:calc(var(--char-size) + 16px); height:calc(var(--char-size) + 16px);
+    border:2.5px dashed rgba(90,58,26,0.85); border-radius:8px; display:flex; align-items:center;
+    justify-content:center; font-size:var(--char-size); font-weight:bold; color:var(--ink);
+    font-family:"KaiTi","STKaiti","BiauKai",serif; background:rgba(255,255,255,0.82); }
+  .slot.filled{ border-style:solid; border-width:2.5px; border-color:#b23a1f; color:#8a2e12;
+    text-shadow:none; background:#fff6e6; box-shadow:0 0 0 1px rgba(178,58,31,0.3) inset;
+    animation:slotBounce .35s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes slotBounce{ 0%{ transform:scale(.5);} 100%{ transform:scale(1);} }
+  .slot.hint-target{ animation:slotHintPulse 0.9s ease-in-out infinite; border-color:#f0a400 !important; border-style:solid !important; background:rgba(255,220,120,0.55) !important; }
+  @keyframes slotHintPulse{ 0%,100%{ box-shadow:0 0 4px 2px rgba(240,164,0,0.55);} 50%{ box-shadow:0 0 20px 6px rgba(240,164,0,0.95);} }
+  .slot{ transition:width .25s ease, height .25s ease, font-size .25s ease, opacity .25s ease; }
+  .slot.locked{ width:calc(var(--caption-size) + 6px); height:calc(var(--caption-size) + 6px);
+    font-size:calc(var(--caption-size) - 2px); border-width:1.2px; color:var(--ink); text-shadow:none; animation:none; }
+  /* 每句完成後跳出的小解說卡 */
+  .line-caption{ margin:10px 0 0; min-height:30px; text-align:center; }
+  .line-caption span{ display:inline-block; background:#fff3dc; border:2px solid #e9663f; color:#8a2e12;
+    font-size:var(--caption-size); font-weight:bold; padding:5px 14px; border-radius:16px;
+    box-shadow:0 3px 8px rgba(0,0,0,0.15); animation:capPop .45s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes capPop{ 0%{ transform:scale(.3); opacity:0;} 100%{ transform:scale(1); opacity:1;} }
+  /* 答對時的鼓勵字 */
+  .praise{ position:fixed; left:50%; top:12%; z-index:1500; pointer-events:none;
+    font-family:"KaiTi","STKaiti","BiauKai",serif; font-size:32px; font-weight:bold; color:#b23a1f;
+    text-shadow:0 2px 0 #fff, 0 0 12px rgba(255,255,255,0.9); white-space:nowrap;
+    animation:praiseUp 1s ease-out forwards; }
+  @keyframes praiseUp{ 0%{ opacity:0; transform:translate(-50%,20px) scale(.5);} 25%{ opacity:1; transform:translate(-50%,0) scale(1.2);} 100%{ opacity:0; transform:translate(-50%,-50px) scale(1);} }
+  .punct.locked{ font-size:calc(var(--caption-size) - 4px); color:var(--ink-soft); transition:font-size .25s ease; }
+  .punct{ font-size:calc(var(--char-size) - 4px); color:var(--ink-soft); margin:0 1px; align-self:flex-end; }
+
+  .drop-zone{ width:100%; max-width:390px; height:120px; position:relative; margin-top:6px;
+    border-radius:10px; overflow:hidden; background:linear-gradient(180deg, rgba(255,255,255,0.18), transparent);
+    transition:height .3s ease; }
+  .char-cluster{ position:absolute; left:50%; top:-70px; transform:translateX(-50%); display:flex; gap:8px;
+    flex-wrap:wrap; justify-content:center; width:94%; transition:top .05s linear; }
+  .char-drop{ width:calc(var(--char-size) + 26px); height:calc(var(--char-size) + 26px); border-radius:50%;
+    background:radial-gradient(circle at 32% 28%, #fff8e8, #f6ddb0 80%); color:#4a2014;
+    display:flex; align-items:center; justify-content:center; font-size:var(--char-size); font-weight:bold;
+    cursor:pointer; user-select:none; box-shadow:0 2px 5px rgba(0,0,0,0.18);
+    font-family:"KaiTi","STKaiti","BiauKai",serif; flex-shrink:0; text-shadow:none;
+    border:2.5px solid #8a4a1e;
+    animation:bob 2.4s ease-in-out infinite; transition:transform .18s ease; }
+  .char-drop:active{ transform:scale(0.9); }
+  .char-drop{ width:calc(var(--char-size) + 34px); height:calc(var(--char-size) + 34px); font-size:calc(var(--char-size) + 6px); }
+  @keyframes bob{ 0%,100%{ transform:translateY(0) rotate(-2deg); } 50%{ transform:translateY(-5px) rotate(2deg); } }
+  .char-drop.hint-glow{ animation:dropHintPulse 0.5s ease-in-out 3; border-color:#f0a400 !important; }
+  @keyframes dropHintPulse{ 0%,100%{ box-shadow:0 0 6px 2px rgba(240,164,0,0.6); transform:scale(1);} 50%{ box-shadow:0 0 26px 8px rgba(240,164,0,0.95); transform:scale(1.15);} }
+  .char-drop.wrong-shake{ animation:shake .35s; }
+  @keyframes shake{ 20%,60%{ transform:translateX(-4px);} 40%,80%{ transform:translateX(4px);} }
+  .char-drop.pop{ animation:popAway .28s ease forwards !important; }
+  @keyframes popAway{ 0%{ transform:scale(1); opacity:1; } 60%{ transform:scale(1.35); opacity:1; } 100%{ transform:scale(0.2); opacity:0; } }
+
+  .controls-row{ display:flex; gap:12px; justify-content:center; margin-top:16px; flex-wrap:wrap; }
+  .ctrl-btn{ padding:17px 24px; border:2px solid rgba(74,47,20,0.75); border-radius:24px;
+    background:rgba(255,255,255,0.92); color:var(--ink); font-size:20px; font-weight:bold; cursor:pointer;
+    box-shadow:0 2px 8px rgba(0,0,0,0.2); }
+  .ctrl-btn:active{ transform:scale(.94); }
+  .ctrl-btn.home-btn{ background:linear-gradient(180deg,#d6e6f0,#8fb4cc); border-color:rgba(16,40,56,0.55); color:#14303c; }
+  .controls-row{ gap:9px; }
+  .ctrl-btn{ padding:12px 17px; border-radius:18px; font-size:16px; }
+
+  #finish{ text-align:center; padding-top:6vh; display:flex; flex-direction:column; align-items:center; }
+  .seal{ width:64px; height:84px; border-radius:8px; background:var(--seal-red); color:#fff3e0;
+    display:flex; align-items:center; justify-content:center; font-size:21px; font-weight:bold;
+    font-family:"KaiTi","STKaiti","BiauKai",serif; letter-spacing:2px; writing-mode:vertical-rl;
+    box-shadow:0 0 0 2px rgba(255,255,255,0.3), 0 4px 10px rgba(0,0,0,0.35); transform:scale(0) rotate(-8deg);
+    animation:stampIn .5s cubic-bezier(.34,1.56,.64,1) forwards; margin-bottom:10px; }
+  @keyframes stampIn{ 0%{ transform:scale(3) rotate(-8deg); opacity:0;} 100%{ transform:scale(1) rotate(-8deg); opacity:1;} }
+  #finish h2{ margin:2px 0 12px; font-size:20px; color:#a5431f; }
+  .final-poem{ font-family:"KaiTi","STKaiti","BiauKai",serif; font-size:21px; line-height:2; letter-spacing:3px;
+    color:var(--ink); text-shadow:none; margin-bottom:8px; padding:0 6px; }
+  .final-time{ font-size:13px; color:var(--ink-soft); margin-bottom:14px; }
+  .home-btn-row{ display:flex; gap:10px; margin-top:16px; width:92%; max-width:380px; }
+  .home-btn-row button{ flex:1; padding:11px 6px; border:none; border-radius:8px; font-size:14px; font-weight:bold;
+    cursor:pointer; color:#3a1a06; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
+  .start-btn{ background:linear-gradient(180deg,#8fe0a8,#3fae6a); color:#0e2a17 !important; }
+  .translate-btn2{ background:linear-gradient(180deg,#f6dfa0,#e9663f); }
+  #toggleTransBtn{ margin-top:22px; }
+
+  .mute-btn{ background:rgba(255,255,255,0.85); border:2px solid rgba(74,47,20,0.6); color:var(--ink);
+    padding:12px 22px; border-radius:20px; font-size:17px; font-weight:bold; cursor:pointer; margin-top:6px; }
+
+  [hidden]{ display:none !important; }
+
+  .emoji-holder{ width:auto; height:auto; font-size:36px; line-height:1; padding-bottom:6px;
+    filter:drop-shadow(0 0 var(--glow,4px) #f0b020); animation:holderFloat 2.2s ease-in-out infinite; }
+  @keyframes holderFloat{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-6px);} }
+  :root{ --ink:#3a2410; --ink-soft:#3a2410cc; --seal-red:#b23a3a; }
+  .poem-title{ color:#b8501f; text-shadow:0 0 16px rgba(255,255,255,0.8); }
+  .candle-btn{ background:linear-gradient(180deg,#ffb040,#e07a1a); color:#fff; box-shadow:0 0 22px #e07a1a77; }
+  .window-frame{ background:linear-gradient(160deg,#f8d890,#e0a050); border-color:#8a5a2a; }
+  .slot.filled{ border-color:#e07a1a; color:#8a3f0a; background:#fff8ea; }
+  .char-drop{ background:radial-gradient(circle at 32% 28%, #ffffff, #fff0d0 80%); color:#3a2410; border-color:#8a5a2a; }
+  .line-caption span{ border-color:#e07a1a; color:#8a3f0a; background:#fff8ea; }
+  .praise{ color:#e07a1a; }
+  .poem-title{ font-size:24px; letter-spacing:2px; }
+  /* 紅色的茱萸果子掉落 */
+  .ambient-drop{ width:8px; height:8px; animation-name:berryDrop !important; animation-duration:6s !important; }
+  @keyframes berryDrop{ 0%{ bottom:105%; opacity:0;} 10%{ opacity:1;} 100%{ bottom:-5%; opacity:.9; transform:translateX(var(--drift,20px));} }
+  /* 兄弟們一起爬山 */
+  .caravan{ bottom:60px; animation:climb 20s linear infinite; font-size:28px; }
+  @keyframes climb{ 0%{ left:-60px; transform:translateY(0);} 50%{ transform:translateY(-50px);} 100%{ left:105%; transform:translateY(0);} }
+  .caravan span{ animation:stepUp .5s ease-in-out infinite; }
+  .caravan span:nth-child(2){ margin-left:4px; animation-delay:-.25s; }
+  @keyframes stepUp{ 0%,100%{ transform:scaleX(-1) translateY(0);} 50%{ transform:scaleX(-1) translateY(-4px);} }
+  .home-flag, .emoji-holder{ animation:flowerSpin 4s ease-in-out infinite; }
+  @keyframes flowerSpin{ 0%,100%{ transform:rotate(-15deg) scale(1);} 50%{ transform:rotate(15deg) scale(1.1);} }
+
+  .music-btn{ animation:musicBob 1.6s ease-in-out infinite; }
+  .music-btn.off{ animation:none; opacity:.6; }
+  #game .progress-dots{ margin-top:50px; }
+  @keyframes musicBob{ 0%,100%{ transform:rotate(-8deg);} 50%{ transform:rotate(8deg);} }
+</style>
+</head>
+<body>
+
+<div class="scene-bg" aria-hidden="true">
+  <div class="ambient-wrap" id="ambientWrap"></div>
+  <div class="sil sil-back"></div>
+  <div class="sil sil-front"></div>
+  <div class="caravan"><span>🚶</span><span>🚶</span></div>
+</div>
+
+<div id="timer">思考時間 00:00</div>
+<div class="font-controls">
+  <button onclick="adjustFont(-1)" aria-label="縮小字體">A-</button>
+  <button onclick="adjustFont(1)" aria-label="放大字體">A+</button>
+  <button id="musicBtn" class="music-btn" onclick="toggleMusic()" aria-label="關閉音樂">🎵</button>
+</div>
+
+<div id="home" class="page">
+  <div class="home-flag">🌼</div>
+  <p class="eyebrow">詩詞記憶遊戲 · 重陽節想念家人</p>
+  <h1 class="poem-title">九月九日憶山東兄弟</h1>
+  <p class="poet-line">唐 · 王維</p>
+  <div class="preview-line" id="previewLine"></div>
+  <button class="candle-btn" onclick="enterGame()">🌼 重陽登高，開始拼詩</button>
+  <button class="ghost-btn" onclick="toggleFull()">閱讀全文與白話翻譯</button>
+  <div id="fullPanel" class="full-panel" hidden>
+    <div class="full-text">獨在異鄉為異客，<br>每逢佳節倍思親。<br>遙知兄弟登高處，<br>遍插茱萸少一人。</div>
+    <div class="full-trans">我獨自一人在外地作客，每到佳節，就更加思念家中的親人。<br>遠遠地想著，兄弟們今天登上高處，大家都插著茱萸，卻只少了我一個人。</div>
+  </div>
+</div>
+
+<div id="game" class="page" hidden>
+  <div class="progress-dots" id="progressDots"></div>
+  <div class="window-scene">
+    <div class="banner-holder emoji-holder" id="candleHolder">🌼</div>
+    <div class="window-frame">
+      <div class="glass" id="glass">
+        <div id="slots" class="slots-row"></div>
+      </div>
+      <div class="hint-banner" id="hintBanner" hidden></div>
+    </div>
+  </div>
+  <div class="line-caption" id="lineCaption"></div>
+  <div id="dropZone" class="drop-zone"></div>
+  <div class="controls-row">
+    <button class="ctrl-btn" id="hintBtn" onclick="giveHint()">💡 提示</button>
+    <button class="ctrl-btn" onclick="undoLast()">⟲ 更正</button>
+    <button class="ctrl-btn" onclick="speakCurrentLine()">🔊 聽這句</button>
+    <button class="ctrl-btn home-btn" onclick="goHome()">🏠 回首頁</button>
+  </div>
+</div>
+
+<div id="finish" class="page" hidden>
+  <div class="seal">王維</div>
+  <h2>🌼 拼詩完成，把想念說給家人聽！</h2>
+  <div class="final-poem">獨在異鄉為異客，<br>每逢佳節倍思親。<br>遙知兄弟登高處，<br>遍插茱萸少一人。</div>
+  <p class="final-time" id="finalTime"></p>
+
+  <div class="home-btn-row">
+    <button class="start-btn" onclick="replay()">再玩一次</button>
+    <button class="translate-btn2" onclick="goHome()">回首頁</button>
+  </div>
+
+  <button class="ghost-btn" id="toggleTransBtn" onclick="toggleFinalTrans()">📜 查看完整翻譯與賞析</button>
+  <br>
+  <button class="mute-btn" onclick="stopNarration()">🔇 不想聽語音了</button>
+  <div id="finalTransPanel" class="full-panel" hidden>
+    <div class="full-trans">我獨自一人在外地作客，每到佳節，就更加思念家中的親人。<br>遠遠地想著，兄弟們今天登上高處，大家都插著茱萸，卻只少了我一個人。<br><br>這首詩寫重陽節思念家人，「每逢佳節倍思親」一句，千百年來說出了無數遊子的心聲。</div>
+  </div>
+</div>
+
+<script>
+
+(function(){
+  "use strict";
+
+  var lines = [
+    { chars:["獨","在","異","鄉","為","異","客"], punct:"，", caption:"🧳 獨自在外地作客" },
+    { chars:["每","逢","佳","節","倍","思","親"], punct:"。", caption:"🏮 每到節日更想家人" },
+    { chars:["遙","知","兄","弟","登","高","處"], punct:"，", caption:"⛰️ 想像兄弟們正在登高" },
+    { chars:["遍","插","茱","萸","少","一","人"], punct:"。", caption:"🌿 插茱萸時少了我一個" }
+  ];
+
+  var fullVerseSpeech = "獨在異鄉為異客，每逢佳節倍思親。遙知兄弟登高處，遍插茱萸少一人。";
+  var blessingSpeech = "我獨自一人在外地作客，每到佳節，就更加思念家中的親人。遠遠地想著，兄弟們今天登上高處，大家都插著茱萸，卻只少了我一個人。這首詩寫重陽節思念家人，「每逢佳節倍思親」一句，千百年來說出了無數遊子的心聲。";
+
+  var PRAISE = ["好！","漂亮！","沒錯！","厲害！","佳節快樂！","繼續加油！"];
+  var DESERT = ['#f0b020','#ffd89a','#d0203a','#8a5a2a','#ffffff'];
+  function showPraise(){
+    var p = document.createElement('div');
+    p.className = 'praise';
+    p.textContent = PRAISE[Math.floor(Math.random() * PRAISE.length)];
+    document.body.appendChild(p);
+    setTimeout(function(){ p.remove(); }, 1000);
+  }
+  function cheerFlag(){
+    var h = document.getElementById('candleHolder');
+    h.classList.remove('cheer'); void h.offsetWidth; h.classList.add('cheer');
+  }
+
+  function styleDrop(el){
+    el.style.animationDelay = (-Math.random() * 2.4).toFixed(2) + 's';
+  }
+
+  var currentLine = 0;
+  var activeCluster = null;
+  var seconds = 0, timerStarted = false, timerInterval = null, fallInterval = null;
+  var fontLevel = 0;
+
+  function buildAmbient(){
+    var wrap = document.getElementById('ambientWrap');
+    var n = 26;
+    for (var i = 0; i < n; i++){
+      var d = document.createElement('div');
+      d.className = 'ambient-drop';
+      var dur = (3 + Math.random() * 3).toFixed(2);
+      d.style.left = (Math.random() * 100).toFixed(1) + '%';
+      d.style.setProperty('--drift', (10 + Math.random() * 40).toFixed(0) + 'px');
+      d.style.animationDuration = dur + 's';
+      d.style.animationDelay = (-Math.random() * dur).toFixed(2) + 's';
+      wrap.appendChild(d);
+    }
+  }
+
+  function buildPreview(){
+    var el = document.getElementById('previewLine');
+    var text = fullVerseSpeech.replace(/([，。？！])(?!$)/g, '$1\n');
+    el.innerHTML = '';
+    text.split('').forEach(function(ch, i){
+      if (ch === '\n'){ el.appendChild(document.createElement('br')); return; }
+      var s = document.createElement('span');
+      s.textContent = ch;
+      s.style.animationDelay = (i * 0.18) + 's';
+      el.appendChild(s);
+    });
+  }
+
+  function buildProgressDots(){
+    var wrap = document.getElementById('progressDots');
+    wrap.innerHTML = '';
+    lines.forEach(function(){
+      var span = document.createElement('span');
+      span.textContent = '🌼';
+      wrap.appendChild(span);
+    });
+  }
+
+  window.toggleFull = function(){
+    var p = document.getElementById('fullPanel');
+    p.hidden = !p.hidden;
+  };
+  window.toggleFinalTrans = function(){
+    var p = document.getElementById('finalTransPanel');
+    p.hidden = !p.hidden;
+  };
+
+  window.adjustFont = function(dir){
+    fontLevel = Math.max(0, Math.min(2, fontLevel + dir));
+    var root = document.documentElement;
+    root.classList.remove('font-l','font-xl');
+    if (fontLevel === 1) root.classList.add('font-l');
+    if (fontLevel === 2) root.classList.add('font-xl');
+  };
+
+  function formatTime(s){
+    var m = Math.floor(s/60).toString().padStart(2,'0');
+    var sec = (s%60).toString().padStart(2,'0');
+    return '思考時間 ' + m + ':' + sec;
+  }
+  function startTimerIfNeeded(){
+    if (!timerStarted){
+      timerStarted = true;
+      timerInterval = setInterval(function(){
+        seconds++;
+        document.getElementById('timer').innerText = formatTime(seconds);
+      }, 1000);
+    }
+  }
+  function stopTimer(){
+    if (timerInterval) clearInterval(timerInterval);
+  }
+
+  /* ---------- 背景音樂：用瀏覽器即時合成的古箏風五聲音階小曲（不需下載音樂檔） ---------- */
+  var Music = (function(){
+    var CFG = {"bpm": 70, "key": 1.06, "melody": [5, 4, 5, 7, 5, -1, 4, 2, 1, 2, 4, -1, 2, -1, -1, -1, 4, 5, 7, 8, 7, 5, 4, -1, 2, 4, 2, 1, 0, -1, -1, -1], "bass": [0, 3, 1, 4], "wave": "triangle"};
+    var SCALE = [261.63,293.66,329.63,392.00,440.00,523.25,587.33,659.25,783.99,880.00,1046.5];
+    var BASEVOL = 0.32;
+    var ctx = null, master = null, on = true, playing = false, timerId = null, duckId = null, nextTime = 0, step = 0;
+    function pluck(freq, t, dur, vol){
+      var o = ctx.createOscillator(), o2 = ctx.createOscillator(), g = ctx.createGain(), g2 = ctx.createGain();
+      o.type = CFG.wave || 'triangle'; o.frequency.value = freq;
+      o2.type = 'sine'; o2.frequency.value = freq * 2; g2.gain.value = 0.22;
+      o.connect(g); o2.connect(g2); g2.connect(g); g.connect(master);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.start(t); o2.start(t); o.stop(t + dur + 0.05); o2.stop(t + dur + 0.05);
+    }
+    function schedule(){
+      var beat = 60 / CFG.bpm;
+      while (nextTime < ctx.currentTime + 0.35){
+        var n = CFG.melody[step % CFG.melody.length];
+        if (n >= 0) pluck(SCALE[n] * CFG.key, nextTime, beat * 2.4, 0.22);
+        if (step % 8 === 0){
+          var b = CFG.bass[Math.floor(step / 8) % CFG.bass.length];
+          pluck(SCALE[b] * CFG.key / 2, nextTime, beat * 7, 0.15);
+        }
+        nextTime += beat; step++;
+      }
+    }
+    /* 唸詩的時候，音樂自動變小聲，讓語音聽得清楚 */
+    function duck(){
+      if (!master) return;
+      var speaking = false;
+      try{ speaking = window.speechSynthesis && window.speechSynthesis.speaking; }catch(e){}
+      master.gain.setTargetAtTime(BASEVOL * (speaking ? 0.3 : 1), ctx.currentTime, 0.2);
+    }
+    function updateBtn(){
+      var b = document.getElementById('musicBtn');
+      if (b){ b.textContent = on ? '🎵' : '🔈'; b.classList.toggle('off', !on); b.setAttribute('aria-label', on ? '關閉音樂' : '打開音樂'); }
+    }
+    function start(){
+      if (!on) return;
+      try{
+        if (!ctx){
+          var AC = window.AudioContext || window.webkitAudioContext;
+          if (!AC) return;
+          ctx = new AC(); master = ctx.createGain(); master.gain.value = BASEVOL; master.connect(ctx.destination);
+        }
+        if (ctx.state === 'suspended') ctx.resume();
+        if (playing) return;
+        playing = true; step = 0; nextTime = ctx.currentTime + 0.1;
+        timerId = setInterval(schedule, 100);
+        duckId = setInterval(duck, 200);
+      }catch(e){}
+    }
+    function stop(){
+      playing = false;
+      if (timerId) clearInterval(timerId);
+      if (duckId) clearInterval(duckId);
+    }
+    function toggle(){ on = !on; if (on) start(); else stop(); updateBtn(); }
+    return { start:start, stop:stop, toggle:toggle };
+  })();
+  window.toggleMusic = function(){ Music.toggle(); };
+  window.enterGame = function(){
+    Music.start();
+    document.getElementById('home').hidden = true;
+    document.getElementById('finish').hidden = true;
+    document.getElementById('game').hidden = false;
+    currentLine = 0;
+    seconds = 0; timerStarted = false;
+    document.getElementById('timer').innerText = formatTime(seconds);
+    buildProgressDots();
+    updateGlow(0);
+    updateProgressDots();
+    document.getElementById('slots').innerHTML = '';
+    loadLine(0);
+  };
+  window.goHome = function(){
+    stopNarration();
+    stopTimer();
+    if (fallInterval) clearInterval(fallInterval);
+    document.body.classList.remove('dawn');
+    document.getElementById('game').hidden = true;
+    document.getElementById('finish').hidden = true;
+    document.getElementById('home').hidden = false;
+  };
+  window.replay = function(){
+    stopNarration();
+    document.body.classList.remove('dawn');
+    document.getElementById('finish').hidden = true;
+    enterGame();
+  };
+  window.stopNarration = function(){
+    try{ window.speechSynthesis.cancel(); }catch(e){}
+  };
+
+  function updateGlow(doneCount){
+    var holder = document.getElementById('candleHolder');
+    var glow = 4 + doneCount * 9;
+    holder.style.setProperty('--glow', glow + 'px');
+  }
+  function updateProgressDots(){
+    var dots = document.querySelectorAll('#progressDots span');
+    dots.forEach(function(d, i){
+      d.classList.toggle('done', i < currentLine);
+    });
+  }
+
+  function loadLine(idx){
+    var line = lines[idx];
+    var slotsDiv = document.getElementById('slots');
+    Array.prototype.forEach.call(slotsDiv.children, function(el){
+      el.classList.add('locked');
+    });
+    line.chars.forEach(function(ch){
+      var slot = document.createElement('div');
+      slot.className = 'slot';
+      slot.dataset.char = ch;
+      slot.dataset.line = String(idx);
+      slotsDiv.appendChild(slot);
+    });
+    if (line.punct){
+      var punct = document.createElement('span');
+      punct.className = 'punct';
+      punct.textContent = line.punct;
+      punct.dataset.line = String(idx);
+      slotsDiv.appendChild(punct);
+    }
+
+    document.getElementById('lineCaption').innerHTML = '';
+    speakInterrupt(line.chars.join('') + line.punct);
+
+    var shuffled = line.chars.slice().sort(function(){ return Math.random() - 0.5; });
+    spawnCluster(shuffled);
+    scrollToActive();
+  }
+
+  function scrollToActive(){
+    var target = document.querySelector('.controls-row');
+    if (!target || !target.scrollIntoView) return;
+    setTimeout(function(){
+      target.scrollIntoView({ behavior:'smooth', block:'end' });
+    }, 90);
+  }
+
+  function computeZoneHeight(count){
+    var cs = getComputedStyle(document.documentElement);
+    var charSize = parseFloat(cs.getPropertyValue('--char-size')) || 24;
+    var dropSize = charSize + 34;
+    var gap = 8;
+    var zone = document.getElementById('dropZone');
+    var containerWidth = zone.clientWidth * 0.94 || 360;
+    var perRow = Math.max(1, Math.floor((containerWidth + gap) / (dropSize + gap)));
+    var rows = Math.ceil(count / perRow);
+    var h = rows * (dropSize + gap) + 30;
+    return Math.max(120, h);
+  }
+
+  function spawnCluster(chars){
+    var zone = document.getElementById('dropZone');
+    zone.innerHTML = '';
+    zone.style.height = computeZoneHeight(chars.length) + 'px';
+    var cluster = document.createElement('div');
+    cluster.className = 'char-cluster';
+
+    function render(){
+      cluster.innerHTML = '';
+      chars.forEach(function(ch){
+        var drop = document.createElement('div');
+        drop.className = 'char-drop';
+        drop.textContent = ch;
+        styleDrop(drop);
+        drop.onclick = function(e){
+          e.stopPropagation();
+          startTimerIfNeeded();
+          handleTap(ch, drop, chars, cluster, render);
+        };
+        cluster.appendChild(drop);
+      });
+    }
+    render();
+    zone.appendChild(cluster);
+
+    var currentY = -70, targetY = 20;
+    cluster.style.top = currentY + 'px';
+    activeCluster = { element: cluster, chars: chars };
+
+    if (fallInterval) clearInterval(fallInterval);
+    fallInterval = setInterval(function(){
+      if (currentY < targetY){
+        currentY += 2;
+        cluster.style.top = currentY + 'px';
+      } else {
+        clearInterval(fallInterval);
+      }
+    }, 30);
+  }
+
+  function handleTap(ch, dropEl, chars, clusterEl, renderFn){
+    var targetSlot = document.querySelector('#slots .slot:not(.filled)');
+    if (!targetSlot) return;
+    if (ch === targetSlot.dataset.char){
+      targetSlot.textContent = ch;
+      targetSlot.classList.add('filled');
+      targetSlot.classList.remove('hint-target');
+      cheerFlag();
+      if (Math.random() < 0.4) showPraise();
+
+      var glass = document.getElementById('glass');
+      glass.classList.remove('ripple');
+      void glass.offsetWidth;
+      glass.classList.add('ripple');
+
+      dropEl.onclick = null;
+      dropEl.classList.add('pop');
+
+      setTimeout(function(){
+        var idx = chars.indexOf(ch);
+        if (idx > -1) chars.splice(idx, 1);
+
+        if (chars.length === 0){
+          onLineComplete();
+        } else {
+          renderFn();
+        }
+      }, 220);
+    } else {
+      dropEl.classList.remove('wrong-shake');
+      void dropEl.offsetWidth;
+      dropEl.classList.add('wrong-shake');
+    }
+  }
+
+  function onLineComplete(){
+    if (fallInterval) clearInterval(fallInterval);
+    document.getElementById('dropZone').innerHTML = '';
+    activeCluster = null;
+
+    var line = lines[currentLine];
+    document.getElementById('lineCaption').innerHTML = '<span>' + line.caption + '</span>';
+    if (window.confetti){
+      confetti({ particleCount: 45, spread: 60, origin: { y: 0.3 }, colors: DESERT });
+    }
+
+    currentLine++;
+    updateGlow(currentLine);
+    updateProgressDots();
+
+    var isLast = currentLine >= lines.length;
+    speak(line.chars.join('') + line.punct, function(){
+      setTimeout(function(){
+        if (isLast){ finishGame(); } else { loadLine(currentLine); }
+      }, 450);
+    });
+  }
+
+  window.undoLast = function(){
+    var filled = document.querySelectorAll('#slots .slot.filled[data-line="' + currentLine + '"]');
+    if (filled.length === 0) return;
+    var lastSlot = filled[filled.length - 1];
+    var ch = lastSlot.dataset.char;
+    lastSlot.textContent = '';
+    lastSlot.classList.remove('filled');
+
+    if (activeCluster){
+      activeCluster.chars.push(ch);
+      var zone = document.getElementById('dropZone');
+      var clusterEl = zone.querySelector('.char-cluster');
+      if (clusterEl){
+        renderClusterDom(clusterEl, activeCluster.chars);
+      }
+    }
+  };
+  function renderClusterDom(clusterEl, chars){
+    clusterEl.innerHTML = '';
+    chars.forEach(function(ch){
+      var drop = document.createElement('div');
+      drop.className = 'char-drop';
+      drop.textContent = ch;
+      styleDrop(drop);
+      drop.onclick = function(e){
+        e.stopPropagation();
+        startTimerIfNeeded();
+        handleTap(ch, drop, chars, clusterEl, function(){ renderClusterDom(clusterEl, chars); });
+      };
+      clusterEl.appendChild(drop);
+    });
+  }
+
+  var hintTimer = null;
+  window.giveHint = function(){
+    var banner = document.getElementById('hintBanner');
+    if (hintTimer) clearTimeout(hintTimer);
+    banner.innerHTML = '<p>' + fullVerseSpeech.replace(/([。？！])(?!$)/g, '$1<br>') + '</p>';
+    banner.hidden = false;
+    banner.classList.remove('show'); void banner.offsetWidth; banner.classList.add('show');
+    hintTimer = setTimeout(function(){
+      banner.hidden = true;
+      banner.classList.remove('show');
+      hintTimer = null;
+    }, 10000);
+  };
+
+  function speak(text, onDone){
+    var done = false;
+    function finish(){
+      if (!done){ done = true; if (onDone) onDone(); }
+    }
+    try{
+      var msg = new SpeechSynthesisUtterance(text);
+      msg.lang = 'zh-TW';
+      msg.rate = 0.85;
+      msg.onend = finish;
+      msg.onerror = finish;
+      window.speechSynthesis.speak(msg);
+      var estMs = Math.min(14000, Math.max(1200, text.length * 340));
+      setTimeout(finish, estMs);
+    }catch(e){
+      finish();
+    }
+  }
+  function speakInterrupt(text){
+    try{
+      window.speechSynthesis.cancel();
+      var msg = new SpeechSynthesisUtterance(text);
+      msg.lang = 'zh-TW';
+      msg.rate = 0.85;
+      window.speechSynthesis.speak(msg);
+    }catch(e){}
+  }
+  window.speakCurrentLine = function(){
+    if (currentLine < lines.length){
+      var line = lines[currentLine];
+      speakInterrupt(line.chars.join('') + line.punct);
+    }
+  };
+
+  function finishGame(){
+    stopTimer();
+    document.getElementById('game').hidden = true;
+    document.getElementById('finish').hidden = false;
+    document.body.classList.add('dawn');
+    document.getElementById('finalTime').textContent = '本次思考時間 ' + formatTime(seconds).replace('思考時間 ','');
+
+    if (window.confetti){
+      confetti({ particleCount: 140, spread: 90, origin: { y: 0.55 }, colors: DESERT });
+      setTimeout(function(){ confetti({ particleCount: 70, angle: 60, spread: 65, origin: { x: 0 }, colors: DESERT }); }, 350);
+      setTimeout(function(){ confetti({ particleCount: 70, angle: 120, spread: 65, origin: { x: 1 }, colors: DESERT }); }, 600);
+    }
+
+    speak('太棒了，整首詩都拼好了', function(){
+      setTimeout(function(){
+        speak(fullVerseSpeech, function(){
+          setTimeout(function(){
+            var panel = document.getElementById('finalTransPanel');
+            panel.hidden = false;
+            speak(blessingSpeech, function(){});
+          }, 500);
+        });
+      }, 500);
+    });
+  }
+
+  buildAmbient();
+  buildPreview();
+})();
+
+</script>
+</body>
+</html>
