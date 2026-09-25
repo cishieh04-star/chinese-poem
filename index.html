@@ -7,36 +7,59 @@
     <style>
         * { box-sizing: border-box; touch-action: manipulation; }
         body { 
-            font-family: 'Microsoft JhengHei', sans-serif; padding: 8px; max-width: 450px; 
+            font-family: 'Microsoft JhengHei', sans-serif; padding: 12px; max-width: 1200px; 
             margin: auto; background-color: #9c978a; min-height: 100vh;
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
         }
         
         .box {
-            margin: 3px 0; border-radius: 8px;
+            border-radius: 8px;
             font-weight: bold; text-align: center;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             display: flex; align-items: center; justify-content: center;
         }
         
         /* 1. 最大標題 */
-        .header-box { background: #d00837; color: #ffffff; font-size: 1.25rem; padding: 6px 10px; width: 100%; }
+        .header-box { background: #d00837; color: #ffffff; font-size: 1.25rem; padding: 8px 10px; width: 100%; max-width: 450px; margin-bottom: 6px; }
         
         /* 2. 黃底文字 */
-        .category-box { background: #ffe4b5; color: #5d4037; font-size: 0.9rem; padding: 4px 10px; border-radius: 10px; margin: 4px 0; }
+        .category-box { background: #ffe4b5; color: #5d4037; font-size: 0.9rem; padding: 4px 12px; border-radius: 10px; margin-bottom: 12px; }
         
-        /* 3. 縮小遊戲按鈕的寬度、高度與字體，確保全部顯示 */
+        /* 3. 三個一排 Grid 佈局 */
         ul { 
-            list-style-type: none; padding: 0; margin: 2px 0 0 0; 
-            width: 90%; display: flex; flex-direction: column; align-items: center;
+            list-style-type: none; padding: 0; margin: 0; 
+            width: 100%; max-width: 950px; 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
+            gap: 10px; 
         }
-        li { display: flex; width: 100%; justify-content: center; margin-bottom: 4px; }
+        
+        li { display: flex; width: 100%; }
         
         .game-link { 
-            background: #c8bde4; color: #482d24; font-size: 0.85rem; 
-            cursor: pointer; width: 100%; min-height: 28px; padding: 4px;
+            background: #c8bde4; color: #482d24; 
+            cursor: pointer; width: 100%; min-height: 55px; padding: 8px;
+            border-radius: 6px;
+            transition: transform 0.2s;
         }
-        a { text-decoration: none; color: inherit; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        .game-link:hover { transform: scale(1.02); }
+
+        /* 連結內部排版：上下分開 */
+        a { 
+            text-decoration: none; color: inherit; width: 100%; height: 100%; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+        }
+
+        /* 標題與作者上下分開的樣式 */
+        .poem-title {
+            font-size: 0.95rem;
+            margin-bottom: 2px;
+        }
+        .poem-author {
+            font-size: 0.75rem;
+            color: #6b4c42;
+            font-weight: normal;
+        }
     </style>
 </head>
 <body>
@@ -49,33 +72,40 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const games = [
-                { file: "join-army-claude.html", name: "從軍行(王昌齡/唐)" },
-                { file: "autumn-night-claude.html", name: "秋夕(杜牧/唐)" },
-                { file: "bidding-farewell-claude.html", name: "送友人(李白/唐)" },
-                { file: "golden-dress-claude.html", name: "金縷衣(杜秋娘/唐)" },
-                { file: "night-rain-claude.html", name: "夜雨寄北(李商 /唐)" },
-                { file: "happy-meeting-claude.html", name: "相見歡(李煜/唐)" },
-                { file: "red-cliff-claude.html", name: "念奴嬌·赤壁懷古(蘇軾/宋)" },
-                { file: "quiet-night-claude.html", name: "靜夜思(李白/唐)" },
-                { file: "lin-jiang-xien-claude.html", name: "臨江仙(楊慎/明)" },
-                { file: "humble-home-claude.html", name: "陋室銘(劉禹錫/唐)" },
-                { file: "yellow-crane-tower-claude.html", name: "黃鶴樓送孟浩然之廣陵(李白/唐)" },
-                { file: "river-snow-claude.html", name: "江雪(柳宗元/唐)" },
-                { file: "baidi-city-claude.html", name: "早發白帝城(李白/唐)" },
-                { file: "red-beans-claude.html", name: "相思(王維/唐)" },
-                { file: "soaring-high-claude.html", name: "獨坐敬亭山(李白/唐)" }, /* <-- 這裡原本漏了逗號 */
-                { file: "meet-li-guinian-claude.html", name: "江南逢李龜年(杜甫/唐)" },
-                { file: "liangzhou-song-claude.html", name: "涼州詞(王之渙/唐)" },
-                { file: "leyou-plain-claude.html", name: "登樂遊原(李商隱/唐)" },
-                { file: "phoenix-terrace-claude.html", name: "登金陵鳳凰臺(李白/唐)" }                        
+                { file: "join-army-claude.html", title: "從軍行", author: "王昌齡/唐" },
+                { file: "autumn-night-claude.html", title: "秋夕", author: "杜牧/唐" },
+                { file: "bidding-farewell-claude.html", title: "送友人", author: "李白/唐" },
+                { file: "golden-dress-claude.html", title: "金縷衣", author: "杜秋娘/唐" },
+                { file: "night-rain-claude.html", title: "夜雨寄北", author: "李商隱/唐" },
+                { file: "happy-meeting-claude.html", title: "相見歡", author: "李煜/唐" },
+                { file: "red-cliff-claude.html", title: "念奴嬌·赤壁懷古", author: "蘇軾/宋" },
+                { file: "quiet-night-claude.html", title: "靜夜思", author: "李白/唐" },
+                { file: "lin-jiang-xien-claude.html", title: "臨江仙", author: "楊慎/明" },
+                { file: "humble-home-claude.html", title: "陋室銘", author: "劉禹錫/唐" },
+                { file: "yellow-crane-tower-claude.html", title: "黃鶴樓送孟浩然之廣陵", author: "李白/唐" },
+                { file: "river-snow-claude.html", title: "江雪", author: "柳宗元/唐" },
+                { file: "baidi-city-claude.html", title: "早發白帝城", author: "李白/唐" },
+                { file: "red-beans-claude.html", title: "相思", author: "王維/唐" },
+                { file: "soaring-high-claude.html", title: "獨坐敬亭山", author: "李白/唐" },
+                { file: "meet-li-guinian-claude.html", title: "江南逢李龜年", author: "杜甫/唐" },
+                { file: "liangzhou-song-claude.html", title: "涼州詞", author: "王之渙/唐" },
+                { file: "leyou-plain-claude.html", title: "登樂遊原", author: "李商隱/唐" },
+                { file: "phoenix-terrace-claude.html", title: "登金陵鳳凰臺", author: "李白/唐" }                        
             ];
 
             const listElement = document.getElementById('game-list');
             
             games.forEach((game, index) => {
                 const li = document.createElement('li');
-                const displayName = (index + 1) + "." + game.name;
-                li.innerHTML = '<div class="box game-link"><a href="' + game.file + '">' + displayName + '</a></div>';
+                // 編號 + 詩名放第一行，作者放第二行
+                li.innerHTML = `
+                    <div class="box game-link">
+                        <a href="${game.file}">
+                            <div class="poem-title">${index + 1}. ${game.title}</div>
+                            <div class="poem-author">(${game.author})</div>
+                        </a>
+                    </div>
+                `;
                 listElement.appendChild(li);
             });
         });
