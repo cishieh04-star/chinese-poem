@@ -7,7 +7,7 @@
     <style>
         * { box-sizing: border-box; touch-action: manipulation; }
         body { 
-            font-family: 'Microsoft JhengHei', sans-serif; padding: 12px; max-width: 1200px; 
+            font-family: 'Microsoft JhengHei', sans-serif; padding: 12px; max-width: 1300px; 
             margin: auto; background-color: #9c978a; min-height: 100vh;
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
         }
@@ -20,17 +20,17 @@
         }
         
         /* 1. 最大標題 */
-        .header-box { background: #d00837; color: #ffffff; font-size: 1.25rem; padding: 8px 10px; width: 100%; max-width: 550px; margin-bottom: 6px; }
+        .header-box { background: #d00837; color: #ffffff; font-size: 1.25rem; padding: 8px 10px; width: 100%; max-width: 600px; margin-bottom: 6px; }
         
         /* 2. 黃底文字 */
         .category-box { background: #ffe4b5; color: #5d4037; font-size: 0.9rem; padding: 4px 12px; border-radius: 10px; margin-bottom: 12px; }
         
-        /* 3. 四個一排 Grid 佈局 */
+        /* 3. 強制固定「四個一排」Grid 佈局 */
         ul { 
             list-style-type: none; padding: 0; margin: 0; 
-            width: 100%; max-width: 1100px; 
+            width: 100%; max-width: 1200px; 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            grid-template-columns: repeat(4, 1fr); /* 固定 4 欄 */
             gap: 10px; 
         }
         
@@ -59,6 +59,13 @@
             font-size: 0.75rem;
             color: #6b4c42;
             font-weight: normal;
+        }
+
+        /* 響應式調整：如果是手機等較小螢幕，自動改為 2 個一排避免字體過擠 */
+        @media (max-width: 768px) {
+            ul {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
